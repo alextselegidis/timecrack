@@ -1,11 +1,12 @@
 <?php
 
+use App\Enums\GenderEnum;
+use App\Enums\RoleEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,12 +14,25 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
             $table->timestamps();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('title');
+            $table->string('first_name');
+            $table->string('last_name')->nullable();
+            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->string('phone_alt')->nullable();
+            $table->enum('gender', array_column(GenderEnum::cases(), 'value'))->nullable();
+            $table->string('street')->nullable();
+            $table->string('street_additional')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postcode')->nullable();
+            $table->string('country')->nullable();
+            $table->date('birthdate')->nullable();
+            $table->string('password');
+            $table->enum('role', array_column(RoleEnum::cases(), 'value'));
+            $table->rememberToken();
         });
     }
 
