@@ -1,13 +1,13 @@
-<section>
-    <header>
-        <h2>
+<section class="mb-5">
+    <div class="mb-3">
+        <h5>
             {{ __('Profile Information') }}
-        </h2>
+        </h5>
 
         <p>
             {{ __("Update your account's profile information and email address.") }}
         </p>
-    </header>
+    </div>
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
@@ -17,21 +17,23 @@
         @csrf
         @method('patch')
 
-        <div>
+        <div class="mb-3">
             <x-input-label for="first-name" :value="__('First Name')"/>
-            <x-text-input id="first-name" name="first_name" type="text" :value="old('first_name', $user->first_name)" required autofocus
+            <x-text-input id="first-name" name="first_name" type="text" :value="old('first_name', $user->first_name)"
+                          required autofocus
                           autocomplete="first_name"/>
             <x-input-error class="mt-2" :messages="$errors->get('first_name')"/>
         </div>
 
-        <div>
+        <div class="mb-3">
             <x-input-label for="last-name" :value="__('Last Name')"/>
-            <x-text-input id="last-name" name="last_name" type="text" :value="old('last_name', $user->last_name)" required autofocus
+            <x-text-input id="last-name" name="last_name" type="text" :value="old('last_name', $user->last_name)"
+                          required autofocus
                           autocomplete="last_name"/>
             <x-input-error class="mt-2" :messages="$errors->get('last_name')"/>
         </div>
 
-        <div>
+        <div class="mb-3">
             <x-input-label for="email" :value="__('Email')"/>
             <x-text-input id="email" name="email" type="email" :value="old('email', $user->email)" required
                           autocomplete="username"/>
@@ -56,7 +58,7 @@
             @endif
         </div>
 
-        <div>
+        <div class="d-md-flex justify-content-md-end align-items-md-center form-actions">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
