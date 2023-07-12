@@ -6,9 +6,10 @@
     <div class="container">
     <div class="row">
         <div class="col">
-            {{ __("You're logged in!") }}
 
-{{--      todo: render the tracking form      --}}
+            <x-under-construction/>
+
+            {{-- TODO: Render the tracking form. --}}
         </div>
     </div>
     </div>
