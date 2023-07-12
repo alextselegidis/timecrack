@@ -15,8 +15,8 @@ return new class extends Migration {
             $table->foreignUuid('project_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
-            $table->timestamp('started_at');
-            $table->timestamp('ended_at');
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
             $table->text('summary');
         });
     }
