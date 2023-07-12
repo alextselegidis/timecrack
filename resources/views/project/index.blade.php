@@ -21,7 +21,7 @@
                     </div>
                 </form>
 
-                <div class="table-responsive mb-3">
+                <div class="table-responsive overflow-visible mb-3">
                     <table class="table table-sm small table-hover table-striped align-middle">
                         <thead>
                         <tr>
@@ -59,10 +59,10 @@
                                         </a>
                                         <button type="button"
                                                 class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split btn-sm"
-                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                data-bs-toggle="dropdown" data-bs-boundary="document" aria-expanded="false">
                                             <span class="visually-hidden">{{__('Toggle Dropdown')}}</span>
                                         </button>
-                                        <ul class="dropdown-menu">
+                                        <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
                                                 <a class="dropdown-item"
                                                    href="{{route('project.edit', $project->id)}}">
@@ -78,7 +78,6 @@
                                                         {{__('Delete')}}
                                                     </button>
                                                 </form>
-
                                             </li>
                                         </ul>
                                     </div>

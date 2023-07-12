@@ -21,7 +21,7 @@
                     </div>
                 </form>
 
-                <div class="table-responsive mb-3">
+                <div class="table-responsive overflow-visible mb-3">
                     <table class="table table-sm small table-hover table-striped align-middle">
                         <thead>
                         <tr>
