@@ -70,10 +70,8 @@ class UserController extends Controller {
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(User $user)
     {
-        $user = User::find($id);
-
         return view('user.show', [
             'user' => $user,
         ]);
@@ -82,10 +80,8 @@ class UserController extends Controller {
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(User $user)
     {
-        $user = User::find($id);
-
         return view('user.edit', [
             'user' => $user,
         ]);
@@ -94,7 +90,7 @@ class UserController extends Controller {
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user)
     {
         $request->validate([
             'title' => 'nullable|min:2',
@@ -116,8 +112,6 @@ class UserController extends Controller {
             'password_confirmation' => 'nullable|min:8'
         ]);
 
-        $user = User::find($id);
-
         $payload = $request->input();
 
         if (empty($payload['password']))
@@ -135,10 +129,8 @@ class UserController extends Controller {
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        $user = User::find($id);
-
         $user->delete();
 
         return redirect()->route('user.index')

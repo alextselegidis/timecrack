@@ -69,7 +69,7 @@
                                 <td>
                                     {{__(ucfirst($user->role))}}
                                 </td>
-                                <td>
+                                <td class="text-end">
                                     <div class="btn-group">
                                         <a href="{{route('user.show', $user->id)}}"
                                            class="btn btn-outline-primary btn-sm">

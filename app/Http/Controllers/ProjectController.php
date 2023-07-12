@@ -5,15 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 
-class ProjectController extends Controller
-{
+class ProjectController extends Controller {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('project.index');
+        $query = Project::query()->orderBy('updated_at', 'desc');
 
+        $q = $request->query('q');
+
+        if ($q)
+        {
+            $query->where('name', 'like', '%' . $q . '%');
+        }
+
+        $projects = $query->cursorPaginate(25);
+
+        return view('project.index', [
+            'projects' => $projects,
+            'q' => $q
+        ]);
     }
 
     /**
@@ -21,7 +33,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return view('project.create');
     }
 
     /**
@@ -29,7 +41,16 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:2',
+            'description' => 'nullable|min:2',
+        ]);
+
+        $payload = $request->input();
+
+        $project = Project::create($payload);
+
+        return redirect(route('project.show', $project->id))->with('success', __('Project created successfully.'));
     }
 
     /**
@@ -37,7 +58,9 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        return view('project.show', [
+            'project' => $project,
+        ]);
     }
 
     /**
@@ -45,7 +68,9 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return view('project.edit', [
+            'project' => $project,
+        ]);
     }
 
     /**
@@ -53,7 +78,18 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:2',
+            'description' => 'nullable|min:2',
+        ]);
+
+        $payload = $request->input();
+
+        $project->fill($payload);
+
+        $project->save();
+
+        return back();
     }
 
     /**
@@ -61,6 +97,9 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        $project->delete();
+
+        return redirect()->route('project.index')
+            ->with('success', __('Project deleted successfully.'));
     }
 }
