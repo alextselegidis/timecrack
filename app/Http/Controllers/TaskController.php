@@ -19,7 +19,7 @@ class TaskController extends Controller {
 
         if ($q)
         {
-            $query->where('name', 'like', '%' . $q . '%');
+            $query->where('summary', 'like', '%' . $q . '%');
         }
 
         $query->with(['project', 'user']);
