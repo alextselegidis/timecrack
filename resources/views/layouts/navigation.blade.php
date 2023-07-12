@@ -39,11 +39,11 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     {{-- TODO: Enable settings once they are ready. --}}
-                                    <li hidden>
-                                        <a class="dropdown-item" href="{{route('setting.index')}}">
-                                            {{__('Setting')}}
-                                        </a>
-                                    </li>
+                                    {{-- <li hidden> --}}
+                                    {{--     <a class="dropdown-item" href="{{route('setting.index')}}"> --}}
+                                    {{--         {{__('Setting')}} --}}
+                                    {{--     </a> --}}
+                                    {{-- </li> --}}
                                     <li>
                                         <a class="dropdown-item" href="{{route('profile.edit')}}">
                                             {{__('Account')}}
