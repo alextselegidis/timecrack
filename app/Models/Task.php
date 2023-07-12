@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,18 @@ class Task extends Model {
         'ended_at' => 'datetime',
     ];
 
+    public function getDurationAttribute()
+    {
+        // if ( ! $this->started_at || ! $this->ended_at)
+        // {
+        //     return '';
+        // }
+        //
+        // return abs($this->ended_at->getTimestamp() - $this->started_at->getTimestamp()) / 60; // Minutes
+
+        return $this->ended_at->diffForHumans($this->started_at, CarbonInterface::DIFF_ABSOLUTE, TRUE, 4);
+    }
+
     public function project()
     {
         return $this->belongsTo(Project::class);
@@ -52,11 +65,12 @@ class Task extends Model {
         return $this->belongsTo(User::class);
     }
 
-    public static function toOptions($where = null)
+    public static function toOptions($where = NULL)
     {
         $query = self::query();
 
-        if ($where) {
+        if ($where)
+        {
             $query->where($where);
         }
 

@@ -48,6 +48,9 @@
                             <th style="width: 20%">
                                 {{__('Ended')}}
                             </th>
+                            <th style="width: 20%">
+                                {{__('Duration')}}
+                            </th>
                             <th style="width: 30%">
                                 {{__('Actions')}}
                             </th>
@@ -76,6 +79,9 @@
                                 </td>
                                 <td>
                                     {{$task->ended_at->format('d.m.Y H:i')}}
+                                </td>
+                                <td>
+                                    {{ $task->duration }}
                                 </td>
                                 <td class="text-end">
                                     @canany(['update', 'delete'], $task)
