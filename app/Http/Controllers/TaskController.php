@@ -2,12 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RoleEnum;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller {
+    /**
+     * Create the controller instance.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Task::class, 'task');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -35,9 +44,10 @@ class TaskController extends Controller {
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $userOptions = User::toOptions();
+        $where = $request->user()->role == RoleEnum::ADMIN->value ? NULL : ['id' => $request->user()->id];
+        $userOptions = User::toOptions($where);
         $projectOptions = Project::toOptions();
 
         return view('task.create', [
@@ -112,7 +122,7 @@ class TaskController extends Controller {
 
         $task->save();
 
-        return back();
+        return redirect(route('task.show', $task->id))->with('success', __('Task updated successfully.'));
     }
 
     /**

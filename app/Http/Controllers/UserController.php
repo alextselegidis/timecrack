@@ -2,10 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller {
+    /**
+     * Create the controller instance.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(User::class, 'user');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -123,7 +133,7 @@ class UserController extends Controller {
 
         $user->save();
 
-        return back();
+        return redirect(route('user.show', $user->id))->with('success', __('User updated successfully.'));
     }
 
     /**
@@ -131,6 +141,12 @@ class UserController extends Controller {
      */
     public function destroy(User $user)
     {
+        if ($user->id === Auth::user()->id)
+        {
+            return redirect()->route('user.index')
+                ->with('error', __('Cannot delete current user.'));
+        }
+
         $user->delete();
 
         return redirect()->route('user.index')

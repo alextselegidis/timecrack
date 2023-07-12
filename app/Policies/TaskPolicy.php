@@ -2,18 +2,30 @@
 
 namespace App\Policies;
 
+use App\Enums\RoleEnum;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
-class TaskPolicy
-{
+class TaskPolicy {
+    /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->role === RoleEnum::ADMIN->value)
+        {
+            return TRUE;
+        }
+
+        return NULL;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        //
+        return TRUE;
     }
 
     /**
@@ -21,7 +33,7 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        //
+        return $user->id === $task->user_id;
     }
 
     /**
@@ -29,7 +41,7 @@ class TaskPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return TRUE;
     }
 
     /**
@@ -37,7 +49,7 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        //
+        return FALSE;
     }
 
     /**
@@ -45,7 +57,7 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        //
+        return FALSE;
     }
 
     /**
@@ -53,7 +65,7 @@ class TaskPolicy
      */
     public function restore(User $user, Task $task): bool
     {
-        //
+        return FALSE;
     }
 
     /**
@@ -61,6 +73,6 @@ class TaskPolicy
      */
     public function forceDelete(User $user, Task $task): bool
     {
-        //
+        return FALSE;
     }
 }

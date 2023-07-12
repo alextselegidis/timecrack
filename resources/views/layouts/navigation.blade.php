@@ -17,21 +17,27 @@
                                     {{__('Home')}}
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link me-md-3" href="{{route('task.index')}}">
-                                    {{__('Tasks')}}
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link me-md-3" href="{{route('project.index')}}">
-                                    {{__('Projects')}}
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link me-md-3" href="{{route('user.index')}}">
-                                    {{__('Users')}}
-                                </a>
-                            </li>
+                            @can('viewAny', \App\Models\Task::class)
+                                <li class="nav-item">
+                                    <a class="nav-link me-md-3" href="{{route('task.index')}}">
+                                        {{__('Tasks')}}
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('viewAny', \App\Models\Project::class)
+                                <li class="nav-item">
+                                    <a class="nav-link me-md-3" href="{{route('project.index')}}">
+                                        {{__('Projects')}}
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('viewAny', \App\Models\User::class)
+                                <li class="nav-item">
+                                    <a class="nav-link me-md-3" href="{{route('user.index')}}">
+                                        {{__('Users')}}
+                                    </a>
+                                </li>
+                            @endcan
                             <li class="nav-item dropdown ms-md-auto">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                    aria-expanded="false">
@@ -57,9 +63,9 @@
                                     <li>
                                         <form action="{{route('logout')}}" method="POST">
                                             @csrf
-                                        <button type="submit" class="dropdown-item" href="{{route('logout')}}">
-                                            {{__('Log out')}}
-                                        </button>
+                                            <button type="submit" class="dropdown-item" href="{{route('logout')}}">
+                                                {{__('Log out')}}
+                                            </button>
                                         </form>
                                     </li>
                                 </ul>

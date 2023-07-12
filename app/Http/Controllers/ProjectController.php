@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller {
     /**
+     * Create the controller instance.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Project::class, 'project');
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -89,7 +97,7 @@ class ProjectController extends Controller {
 
         $project->save();
 
-        return back();
+        return redirect(route('project.show', $project->id))->with('success', __('Project updated successfully.'));
     }
 
     /**

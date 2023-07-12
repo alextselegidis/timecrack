@@ -2,18 +2,30 @@
 
 namespace App\Policies;
 
+use App\Enums\RoleEnum;
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
-class ProjectPolicy
-{
+class ProjectPolicy {
+    /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->role === RoleEnum::ADMIN->value)
+        {
+            return TRUE;
+        }
+
+        return NULL;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        //
+        return TRUE;
     }
 
     /**
@@ -21,7 +33,7 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        //
+        return TRUE;
     }
 
     /**
@@ -29,7 +41,7 @@ class ProjectPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return TRUE;
     }
 
     /**
@@ -37,7 +49,7 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        //
+        return FALSE;
     }
 
     /**
@@ -45,7 +57,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        //
+        return FALSE;
     }
 
     /**
@@ -53,7 +65,7 @@ class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
-        //
+        return FALSE;
     }
 
     /**
@@ -61,6 +73,6 @@ class ProjectPolicy
      */
     public function forceDelete(User $user, Project $project): bool
     {
-        //
+        return FALSE;
     }
 }
