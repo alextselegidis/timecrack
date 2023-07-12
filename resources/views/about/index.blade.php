@@ -11,7 +11,7 @@
                     easily.
                 </p>
 
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
                         <strong>
                         {{__('Application Version')}}
@@ -19,6 +19,22 @@
                         {{config('app.version')}}
                     </div>
                 </div>
+
+                <h5>
+                    {{__('Useful Links')}}
+                </h5>
+
+                <p>
+                    <a href="https://timecrack.org" target="_blank">
+                        https://timecrack.org
+                    </a>
+                </p>
+
+                <p>
+                    <a href="https://github.com/alextselegidis/timecrack" target="_blank">
+                        https://github.com/alextselegidis/timecrack
+                    </a>
+                </p>
             </div>
         </div>
     </div>
