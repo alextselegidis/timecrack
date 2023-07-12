@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,4 +29,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
+
+Route::resource('task', TaskController::class);
+Route::resource('project', ProjectController::class);
+Route::resource('user', UserController::class);
+
+Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+Route::put('/setting', [SettingController::class, 'save'])->name('setting.save');
+Route::get('/about', [AboutController::class, 'index'])->name('about.index');
+

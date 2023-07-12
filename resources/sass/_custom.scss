@@ -1,1 +1,32 @@
 //
+
+html {
+    height: 100%;
+}
+
+.table-search-container {
+    max-width: 300px;
+}
+
+.table {
+    .btn-group {
+        min-width: 100px;
+    }
+}
+
+.form-actions {
+    .btn {
+        min-width: 100px;
+    }
+}
+
+.header-actions {
+    .btn {
+        min-width: 100px;
+    }
+}
+
+.footer-logo {
+    width: 16px;
+    height: 16px;
+}

@@ -1,13 +1,15 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-muted">
+    <x-slot name="pageTitle">
             {{ __('Dashboard') }}
-        </h2>
     </x-slot>
 
+    <div class="container">
     <div class="row">
         <div class="col">
             {{ __("You're logged in!") }}
+
+{{--      todo: render the tracking form      --}}
         </div>
+    </div>
     </div>
 </x-app-layout>
