@@ -35,7 +35,8 @@ Route::resource('task', TaskController::class);
 Route::resource('project', ProjectController::class);
 Route::resource('user', UserController::class);
 
-Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
-Route::put('/setting', [SettingController::class, 'save'])->name('setting.save');
+// TODO: Enable settings once they are ready.
+// Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+// Route::put('/setting', [SettingController::class, 'save'])->name('setting.save');
 Route::get('/about', [AboutController::class, 'index'])->name('about.index');
 

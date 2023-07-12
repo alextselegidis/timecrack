@@ -38,7 +38,8 @@
                                     {{ Auth::user()->full_name }}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
+                                    {{-- TODO: Enable settings once they are ready. --}}
+                                    <li hidden>
                                         <a class="dropdown-item" href="{{route('setting.index')}}">
                                             {{__('Setting')}}
                                         </a>
