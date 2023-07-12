@@ -116,6 +116,6 @@ class User extends Authenticatable {
             $query->where($where);
         }
 
-        return $query->selectRaw('CONCAT(first_name, " ", last_name) AS label, id AS value')->get();
+        return $query->selectRaw('CONCAT_WS(" ", first_name, last_name) AS label, id AS value')->get();
     }
 }
