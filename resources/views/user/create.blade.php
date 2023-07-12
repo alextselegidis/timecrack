@@ -12,7 +12,7 @@
 
                     @include('user.partials.form')
 
-                    <div class="d-md-flex justify-content-md-end form-actions">
+                    <div class="d-md-flex justify-content-md-end form-actions pt-3 mt-3 border-top">
                         <button type="button" onclick="history.back()" class="btn btn-outline-primary me-2">
                             {{ __('Back') }}
                         </button>
