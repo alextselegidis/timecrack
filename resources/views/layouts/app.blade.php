@@ -24,9 +24,9 @@
         <header class="my-3">
             <div class="container">
                 <div class="row">
-                    <div class="col d-flex justify-content-between align-items-center">
+                    <div class="col d-flex justify-content-between align-items-center border-bottom pb-3">
                         <div class="me-2">
-                            <h2>
+                            <h2 class="mb-0">
                                 {{ $pageTitle }}
                             </h2>
                         </div>
