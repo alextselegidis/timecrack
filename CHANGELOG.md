@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Unreleased]
+## [0.2.0] - 2023-07-20
 
 ### Added
 
@@ -14,6 +14,7 @@
 
 - Do not display recorded tasks of other users to non-admin users when visiting the tasks table (#15)
 - Display a "No records found" row if the table of any app page is empty (#17)
+
 
 ## [0.1.0] - 2023-07-12
 
