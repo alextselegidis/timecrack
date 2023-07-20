@@ -52,8 +52,15 @@ class TaskController extends Controller {
     public function create(Request $request)
     {
         $where = $request->user()->role == RoleEnum::ADMIN->value ? NULL : ['id' => $request->user()->id];
+
         $userOptions = User::toOptions($where);
-        $projectOptions = Project::toOptions();
+
+        $where = $request->user()->role === RoleEnum::USER->value ? function ($query) use ($request) {
+            $projectIds = $request->user()->projects()->pluck('id');
+            $query->whereIn('id', $projectIds);
+        } : NULL;
+
+        $projectOptions = Project::toOptions($where);
 
         return view('task.create', [
             'userOptions' => $userOptions,
@@ -96,10 +103,18 @@ class TaskController extends Controller {
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Task $task)
+    public function edit(Request $request, Task $task)
     {
-        $userOptions = User::toOptions();
-        $projectOptions = Project::toOptions();
+        $where = $request->user()->role == RoleEnum::ADMIN->value ? NULL : ['id' => $request->user()->id];
+
+        $userOptions = User::toOptions($where);
+
+        $where = $request->user()->role === RoleEnum::USER->value ? function ($query) use ($request) {
+            $projectIds = $request->user()->projects()->pluck('id');
+            $query->whereIn('id', $projectIds);
+        } : NULL;
+
+        $projectOptions = Project::toOptions($where);
 
         return view('task.edit', [
             'task' => $task,
