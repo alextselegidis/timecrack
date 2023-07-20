@@ -30,7 +30,8 @@ class ProjectController extends Controller {
             $query->where('name', 'like', '%' . $q . '%');
         }
 
-        if ($request->user()->role === RoleEnum::USER->value) {
+        if ($request->user()->role === RoleEnum::USER->value)
+        {
             $query
                 ->join('project_user', 'project_user.project_id', '=', 'projects.id')
                 ->where('project_user.user_id', $request->user()->id);
@@ -70,7 +71,7 @@ class ProjectController extends Controller {
 
         $project = Project::create($payload);
 
-        $project->users()->sync($payload['users']);
+        $project->users()->sync($payload['users'] ?? []);
 
         return redirect(route('project.show', $project->id))->with('success', __('Project created successfully.'));
     }
@@ -112,9 +113,9 @@ class ProjectController extends Controller {
 
         $project->fill($payload);
 
-        $project->users()->sync($payload['users']);
-
         $project->save();
+
+        $project->users()->sync($payload['users'] ?? []);
 
         return redirect(route('project.show', $project->id))->with('success', __('Project updated successfully.'));
     }
