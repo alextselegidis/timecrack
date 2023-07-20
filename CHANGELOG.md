@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Allow the admin to assign a project to users, from the project create and edit pages (#18)
+
 ### Changed
 
 - Disable the autocomplete in the email & password fields of the user form (#16)

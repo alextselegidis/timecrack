@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RoleEnum;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller {
@@ -28,6 +30,12 @@ class ProjectController extends Controller {
             $query->where('name', 'like', '%' . $q . '%');
         }
 
+        if ($request->user()->role === RoleEnum::USER->value) {
+            $query
+                ->join('project_user', 'project_user.project_id', '=', 'projects.id')
+                ->where('project_user.user_id', $request->user()->id);
+        }
+
         $projects = $query->cursorPaginate(25);
 
         return view('project.index', [
@@ -41,7 +49,11 @@ class ProjectController extends Controller {
      */
     public function create()
     {
-        return view('project.create');
+        $userOptions = User::toOptions([['role', '!=', RoleEnum::ADMIN->value]]);
+
+        return view('project.create', [
+            'userOptions' => $userOptions,
+        ]);
     }
 
     /**
@@ -57,6 +69,8 @@ class ProjectController extends Controller {
         $payload = $request->input();
 
         $project = Project::create($payload);
+
+        $project->users()->sync($payload['users']);
 
         return redirect(route('project.show', $project->id))->with('success', __('Project created successfully.'));
     }
@@ -76,8 +90,11 @@ class ProjectController extends Controller {
      */
     public function edit(Project $project)
     {
+        $userOptions = User::toOptions([['role', '!=', RoleEnum::ADMIN->value]]);
+
         return view('project.edit', [
             'project' => $project,
+            'userOptions' => $userOptions,
         ]);
     }
 
@@ -94,6 +111,8 @@ class ProjectController extends Controller {
         $payload = $request->input();
 
         $project->fill($payload);
+
+        $project->users()->sync($payload['users']);
 
         $project->save();
 
