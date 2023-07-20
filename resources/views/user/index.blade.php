@@ -51,7 +51,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @if($tasks->isEmpty())
+                        @if($users->isEmpty())
                             <x-no-records-found/>
                         @endif
                         @foreach($users as $user)
