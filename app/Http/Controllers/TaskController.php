@@ -33,6 +33,11 @@ class TaskController extends Controller {
 
         $query->with(['project', 'user']);
 
+        if ($request->user()->role === RoleEnum::USER->value)
+        {
+            $query->where('user_id', $request->user()->id);
+        }
+
         $tasks = $query->cursorPaginate(25);
 
         return view('task.index', [
