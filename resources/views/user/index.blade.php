@@ -51,6 +51,9 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if($tasks->isEmpty())
+                            <x-no-records-found/>
+                        @endif
                         @foreach($users as $user)
                             <tr>
                                 <td>

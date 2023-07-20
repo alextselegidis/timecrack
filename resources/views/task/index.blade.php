@@ -57,6 +57,10 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if($tasks->isEmpty())
+                            <x-no-records-found/>
+                        @endif
+
                         @foreach($tasks as $task)
                             <tr>
                                 <td>
