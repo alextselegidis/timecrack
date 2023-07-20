@@ -181,7 +181,7 @@
                 <span class="text-danger" {{ $user ? 'hidden' : ''  }}>*</span>
             </label>
             <input type="password" id="password" name="password" class="form-control"
-                   value="{{ old('password') }}" @required(!$user)>
+                   value="{{ old('password') }}" @required(!$user) autocomplete="new-password">
             @error('password')
             <span class="form-text text-danger">{{ $message }}</span>
             @enderror

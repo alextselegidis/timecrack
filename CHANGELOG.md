@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Disable the autocomplete in the email & password fields of the user form (#16)
+
 ### Fixed
 
 - Do not display recorded tasks of other users to non-admin users when visiting the tasks table (#15)
