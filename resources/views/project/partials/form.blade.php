@@ -40,7 +40,7 @@
                 <div class="form-check form-switch mb-2">
                     <input class="form-check-input" type="checkbox" role="switch"
                            id="project-user-{{$userOption->value}}" name="users[]" value="{{$userOption->value}}"
-                           @if($project->users->contains($userOption->value)) checked @endif>
+                           @if(!empty($project->users) && $project->users->contains($userOption->value)) checked @endif>
                     <label class="form-check-label small" for="project-user-{{$userOption->value}}">
                         {{$userOption->label}}
                     </label>
