@@ -67,7 +67,7 @@
 
         <div class="mb-3">
             <label for="ended-at" class="form-label">
-                {{ __('Started') }}
+                {{ __('Ended') }}
                 <span class="text-danger">*</span>
             </label>
             <input type="datetime-local" id="ended-at" name="ended_at" class="form-control" required
