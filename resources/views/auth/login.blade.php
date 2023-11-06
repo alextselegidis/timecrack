@@ -27,8 +27,8 @@
 
         <!-- Remember Me -->
         <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" name="remember_me" id="remember-me">
-            <label class="form-check-label" for="remember-me">{{ __('rememberMe') }}</label>
+            <input type="checkbox" class="form-check-input" name="remembere" id="remember">
+            <label class="form-check-label" for="remember">{{ __('rememberMe') }}</label>
         </div>
 
         <div class="d-flex justify-content-between align-items-center">
