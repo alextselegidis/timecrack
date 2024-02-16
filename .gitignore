@@ -18,5 +18,4 @@ yarn-error.log
 /.idea
 /.vscode
 /*.zip
-/docker/mysql/*
-!/docker/mysql/.gitkeep
+/docker/mysql
