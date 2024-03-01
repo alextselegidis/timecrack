@@ -24,7 +24,7 @@
                 </form>
 
                 <div class="table-responsive overflow-visible mb-3">
-                    <table class="table table-sm small table-hover table-striped align-middle">
+                    <table class="table table-sm small table-hover table-striped align-middle" style="table-layout: fixed">
                         <thead>
                         <tr>
                             <th style="width: 30%">
@@ -33,14 +33,14 @@
                             <th style="width: 30%">
                                 {{__('User')}}
                             </th>
-                            <th style="width: 30%">
-                                {{__('Summary')}}
-                            </th>
                             <th style="width: 20%">
                                 {{__('Created')}}
                             </th>
                             <th style="width: 20%">
                                 {{__('Updated')}}
+                            </th>
+                            <th style="width: 50%">
+                                {{__('Summary')}}
                             </th>
                             <th style="width: 20%">
                                 {{__('Started')}}
@@ -51,7 +51,7 @@
                             <th style="width: 20%">
                                 {{__('Duration')}}
                             </th>
-                            <th style="width: 30%">
+                            <th style="width: 20%">
                                 {{__('Actions')}}
                             </th>
                         </tr>
@@ -70,13 +70,13 @@
                                     {{$task->user->full_name}}
                                 </td>
                                 <td>
-                                    {{$task->summary}}
-                                </td>
-                                <td>
                                     {{$task->created_at->format('d.m.Y H:i')}}
                                 </td>
                                 <td>
                                     {{$task->updated_at->format('d.m.Y H:i')}}
+                                </td>
+                                <td>
+                                    {{$task->summary}}
                                 </td>
                                 <td>
                                     {{$task->started_at->format('d.m.Y H:i')}}
