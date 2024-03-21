@@ -54,6 +54,17 @@
         </div>
 
         <div class="mb-3">
+            <label for="external-id" class="form-label">
+                {{ __('External ID') }}
+            </label>
+            <input type="text" id="external-id" name="external_id" class="form-control"
+                   value="{{ old('external_id', $task->external_id ?? '') }}">
+            @error('external_id')
+                <span class="form-text text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="mb-3">
             <label for="started-at" class="form-label">
                 {{ __('Started') }}
                 <span class="text-danger">*</span>

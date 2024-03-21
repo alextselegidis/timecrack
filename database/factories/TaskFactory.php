@@ -18,17 +18,18 @@ class TaskFactory extends Factory
      */
     public function definition(): array
     {
-        $randomStartedAt = $this->faker->dateTime();
-        $randomDuration = $this->faker->randomElement([15, 30, 60, 90]);
-        $randomDurationIntervalObject =new DateInterval('PT' . $randomDuration . 'M');
-        $randomEndedAt = clone $randomStartedAt;
-        $randomEndedAt->add($randomDurationIntervalObject);
+        $startedAt = $this->faker->dateTime();
+        $duration = $this->faker->randomElement([15, 30, 60, 90]);
+        $durationIntervalObject =new DateInterval('PT' . $duration . 'M');
+        $endedAt = clone $startedAt;
+        $endedAt->add($durationIntervalObject);
 
         return [
             'project_id' => null,
             'user_id' => null,
-            'started_at' => $randomStartedAt,
-            'ended_at' => $randomEndedAt,
+            'external_id' => $this->faker->uuid(),
+            'started_at' => $startedAt,
+            'ended_at' => $endedAt,
             'summary' => $this->faker->sentence(),
             'is_billable' => $this->faker->boolean(80),
         ];

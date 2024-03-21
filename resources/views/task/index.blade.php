@@ -42,6 +42,9 @@
                             <th style="width: 50%">
                                 {{__('Summary')}}
                             </th>
+                            <th style="width: 15%">
+                                {{__('E-ID')}}
+                            </th>
                             <th style="width: 20%">
                                 {{__('Started')}}
                             </th>
@@ -80,6 +83,9 @@
                                 </td>
                                 <td>
                                     {{$task->summary}}
+                                </td>
+                                <td>
+                                    {{$task->external_id}}
                                 </td>
                                 <td>
                                     {{$task->started_at->format('d.m.Y H:i')}}

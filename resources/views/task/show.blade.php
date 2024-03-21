@@ -29,13 +29,16 @@
     <div class="container">
         <div class="row">
             <div class="col">
-
                 <p>
                     <strong>{{__('Project')}}</strong>: {{$task->project->name ?? 'N/A'}}
                 </p>
 
                 <p>
                     <strong>{{__('User')}}</strong>: {{$task->user->full_name ?? 'N/A'}}
+                </p>
+
+                <p>
+                    <strong>{{__('External ID')}}</strong>: {{$task->external_id ?? 'N/A'}}
                 </p>
 
                 <p>
