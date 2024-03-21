@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col">
                 <nav class="navbar navbar-expand-lg bg-body-tertiary">
-                    <a class="navbar-brand" href="{{route('dashboard')}}">Timecrack</a>
+                    <a class="navbar-brand" href="{{route('dashboard.index')}}">Timecrack</a>
 
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-nav"
                             aria-controls="top-nav" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,8 +13,8 @@
                     <div class="collapse navbar-collapse ms-md-4" id="top-nav">
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0 w-100">
                             <li class="nav-item">
-                                <a class="nav-link me-md-3" href="{{route('dashboard')}}">
-                                    {{__('Home')}}
+                                <a class="nav-link me-md-3" href="{{route('dashboard.index')}}">
+                                    {{__('Dashboard')}}
                                 </a>
                             </li>
                             @can('viewAny', \App\Models\Task::class)
