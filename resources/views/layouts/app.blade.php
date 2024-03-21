@@ -73,11 +73,10 @@
         <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 px-0 mt-3 border-top small">
             <div class="col-md-4 ps-0 d-flex align-items-center">
                 <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
-                    <img src="{{ asset('img/logo.png') }}" alt="logo" class="footer-logo"/>
+                    <img src="{{ asset('img/logo.png') }}" alt="logo" class="footer-logo" style="width: 16px; height: 16px;"/>
                 </a>
                 <span class="mb-3 mb-md-0 text-body-secondary">
                     <a href="https://timecrack.org" class="text-decoration-none me-2">Timecrack</a>
-
                     v{{config('app.version')}}
                 </span>
             </div>
