@@ -39,13 +39,13 @@
                             <th style="width: 30%">
                                 {{__('Email')}}
                             </th>
-                            <th style="width: 10%">
+                            <th style="width: 20%">
                                 {{__('Phone')}}
                             </th>
-                            <th style="width: 20%">
+                            <th style="width: 10%">
                                 {{__('Role')}}
                             </th>
-                            <th style="width: 30%">
+                            <th style="width: 20%">
                                 {{__('Actions')}}
                             </th>
                         </tr>

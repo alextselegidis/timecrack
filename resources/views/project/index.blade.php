@@ -27,7 +27,7 @@
                     <table class="table table-sm small table-hover table-striped align-middle">
                         <thead>
                         <tr>
-                            <th style="width: 30%">
+                            <th style="width: 50%">
                                 {{__('Name')}}
                             </th>
                             <th style="width: 20%">
@@ -36,7 +36,7 @@
                             <th style="width: 20%">
                                 {{__('Updated')}}
                             </th>
-                            <th style="width: 30%">
+                            <th style="width: 15%">
                                 {{__('Actions')}}
                             </th>
                         </tr>
