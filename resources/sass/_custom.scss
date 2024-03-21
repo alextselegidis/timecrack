@@ -9,6 +9,8 @@ html {
 }
 
 .table {
+    table-layout: fixed;
+
     .btn-group {
         min-width: 100px;
     }
