@@ -17,7 +17,7 @@
             <div class="min-vh-100 d-flex flex-column justify-content-sm-center align-items-center">
                 <div class="text-center">
                     <a href="/">
-                        <x-application-logo class="w-25 h-25"/>
+                        <img src="{{ asset('img/logo.png') }}" alt="logo" class="guest-logo-img"/>
                     </a>
                 </div>
 
