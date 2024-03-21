@@ -77,6 +77,15 @@
             @enderror
         </div>
 
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch"
+                   id="is-billable" name="is_billable" value="{{$task->is_billable ?? 1}}"
+                   @if($task->is_billable ?? true) checked @endif>
+            <label class="form-check-label small" for="is-billable">
+                {{__('Billable')}}
+            </label>
+        </div>
+
     </div>
 
 </div>

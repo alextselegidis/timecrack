@@ -23,6 +23,7 @@ class Task extends Model {
         'started_at',
         'ended_at',
         'summary',
+        'is_billable',
     ];
 
     /**

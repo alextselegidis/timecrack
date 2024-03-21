@@ -30,6 +30,7 @@ class TaskFactory extends Factory
             'started_at' => $randomStartedAt,
             'ended_at' => $randomEndedAt,
             'summary' => $this->faker->sentence(),
+            'is_billable' => $this->faker->boolean(80),
         ];
     }
 }

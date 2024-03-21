@@ -51,6 +51,9 @@
                             <th style="width: 20%">
                                 {{__('Duration')}}
                             </th>
+                            <th style="width: 15%">
+                                {{__('Billable')}}
+                            </th>
                             <th style="width: 20%">
                                 <!-- -->
                             </th>
@@ -86,6 +89,9 @@
                                 </td>
                                 <td>
                                     {{ $task->duration }}
+                                </td>
+                                <td>
+                                    {{ __($task->is_billable ? 'Yes' : 'No') }}
                                 </td>
                                 <td class="text-end">
                                     @canany(['update', 'delete'], $task)

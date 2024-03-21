@@ -46,6 +46,10 @@
                     <strong>{{__('Ended')}}</strong>: {{$task->started_at->format('d.m.Y H:i') ?? 'N/A'}}
                 </p>
 
+                <p>
+                    <strong>{{__('Billable')}}</strong>: {{ __($task->is_billable ? 'Yes' : 'No') ?? 'N/A'}}
+                </p>
+
                 {{-- TODO: Display a table with the latest tasks of this task. --}}
 
             </div>
