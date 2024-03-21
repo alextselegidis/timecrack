@@ -22,7 +22,7 @@ class TaskController extends Controller {
      */
     public function index(Request $request)
     {
-        $query = Task::query()->orderBy('created_at', 'desc');
+        $query = Task::query()->orderBy('started_at', 'desc');
 
         $q = $request->query('q');
 
