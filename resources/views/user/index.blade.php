@@ -46,7 +46,7 @@
                                 {{__('Role')}}
                             </th>
                             <th style="width: 20%">
-                                {{__('Actions')}}
+                                <!-- -->
                             </th>
                         </tr>
                         </thead>

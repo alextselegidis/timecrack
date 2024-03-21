@@ -37,7 +37,7 @@
                                 {{__('Updated')}}
                             </th>
                             <th style="width: 15%">
-                                {{__('Actions')}}
+                                <!-- -->
                             </th>
                         </tr>
                         </thead>
