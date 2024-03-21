@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller {
     /**
@@ -26,9 +27,20 @@ class TaskController extends Controller {
 
         $q = $request->query('q');
 
+        $wildcard = '%' . $q . '%';
+
         if ($q)
         {
-            $query->where('summary', 'like', '%' . $q . '%');
+            $query
+                ->where('summary', 'like', $wildcard)
+                ->orWhereHas('user', function ($subQuery) use ($wildcard) {
+                    $subQuery->where('first_name', 'like', $wildcard)
+                        ->orWhere('last_name', 'like', $wildcard)
+                        ->orWhere(DB::raw('CONCAT(TRIM(first_name), " ", TRIM(last_name))'), 'like', $wildcard);
+                })
+                ->orWhereHas('project', function($subQuery) use($wildcard) {
+                    $subQuery->where('name', 'like', $wildcard);
+                });
         }
 
         $query->with(['project', 'user']);
