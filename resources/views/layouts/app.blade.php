@@ -9,6 +9,10 @@
 
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
+
+    @if (isset($head))
+        {{ $head }}
+    @endif
 </head>
 <body class="d-flex flex-column h-100">
 <div class="flex-shrink-0">
@@ -66,7 +70,6 @@
         {{ $slot }}
     </main>
 
-
 </div>
 <div class="container mt-auto">
     <div class="row">
@@ -91,6 +94,10 @@
                 </a>
                 © {{date('Y')}} - Software Services</span>
             </div>
+
+            @if (isset($scripts))
+                {{ $scripts }}
+            @endif
 
         </footer>
     </div>

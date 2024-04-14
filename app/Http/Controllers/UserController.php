@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\UserDataTable;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,27 +17,32 @@ class UserController extends Controller {
         $this->authorizeResource(User::class, 'user');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function index(UserDataTable $dataTable)
     {
-        $query = User::query()->orderBy('updated_at', 'desc');
-
-        $q = $request->query('q');
-
-        if ($q)
-        {
-            $query->where('first_name', 'like', '%' . $q . '%');
-        }
-
-        $users = $query->cursorPaginate(25);
-
-        return view('user.index', [
-            'users' => $users,
-            'q' => $q
-        ]);
+        return $dataTable->render('user.index');
     }
+
+    // /**
+    //  * Display a listing of the resource.
+    //  */
+    // public function index(Request $request)
+    // {
+    //     $query = User::query()->orderBy('updated_at', 'desc');
+    //
+    //     $q = $request->query('q');
+    //
+    //     if ($q)
+    //     {
+    //         $query->where('first_name', 'like', '%' . $q . '%');
+    //     }
+    //
+    //     $users = $query->cursorPaginate(25);
+    //
+    //     return view('user.index', [
+    //         'users' => $users,
+    //         'q' => $q
+    //     ]);
+    // }
 
     /**
      * Show the form for creating a new resource.
