@@ -1,5 +1,21 @@
 # Release Notes
 
+## [Unreleased]
+
+### Added
+
+- Add history page for users to view their past activities and changes in the application
+- Add dashboard page for users to view an overview of their projects, tasks, and other relevant information
+
+### Changed
+
+- Change the structure of the application for better user experience
+- Update to latest Laravel version and update the dependencies to their latest versions
+- Replace use of UUID with simple ID for better performance and simplicity
+- Replace use of SCSS with simple CSS based on Bootstrap
+
+
+
 ## [0.2.0] - 2023-07-20
 
 ### Added

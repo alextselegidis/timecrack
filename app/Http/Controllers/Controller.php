@@ -1,12 +1,20 @@
 <?php
 
+/* ----------------------------------------------------------------------------
+ * Timecrack - Time Tracking Application
+ *
+ * @package     Timecrack
+ * @author      A.Tselegidis <alextselegidis@gmail.com>
+ * @copyright   Copyright (c) Alex Tselegidis
+ * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
+ * @link        https://github.com/alextselegidis/timecrack
+ * ---------------------------------------------------------------------------- */
+
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
-class Controller extends BaseController
+abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, ValidatesRequests;
+    //
 }

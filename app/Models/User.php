@@ -1,110 +1,53 @@
 <?php
 
+/* ----------------------------------------------------------------------------
+ * Timecrack - Time Tracking Application
+ *
+ * @package     Timecrack
+ * @author      A.Tselegidis <alextselegidis@gmail.com>
+ * @copyright   Copyright (c) Alex Tselegidis
+ * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
+ * @link        https://github.com/alextselegidis/timecrack
+ * ---------------------------------------------------------------------------- */
+
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable {
-    use HasApiTokens, HasFactory, Notifiable, HasUuids;
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
-    protected $fillable = [
-        'tracked_project_id',
-        'title',
-        'first_name',
-        'last_name',
-        'email',
-        'phone',
-        'phone_alt',
-        'password',
-        'email_verified_at',
-        'tracked_started_at',
-        'gender',
-        'street',
-        'street_additional',
-        'city',
-        'state',
-        'postcode',
-        'country',
-        'birthdate',
-        'role',
-    ];
+    protected $fillable = ['name', 'email', 'password', 'is_active', 'role'];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'tracked_started_at' => 'datetime',
-        'password' => 'hashed',
-    ];
-
-    public function getFullNameAttribute()
+    protected function casts(): array
     {
-        return $this->first_name . ' ' . $this->last_name;
-    }
-
-    public function getFullAddressAttribute()
-    {
-        $parts = [];
-
-        if ($this->street)
-        {
-            $parts[] = $this->street;
-        }
-
-        if ($this->street_additional)
-        {
-            $parts[] = $this->street_additional;
-        }
-        if ($this->city)
-        {
-            $parts[] = $this->city;
-        }
-
-
-        if ($this->postcode)
-        {
-            $parts[] = $this->postcode;
-        }
-
-        if ($this->country)
-        {
-            $parts[] = $this->country;
-        }
-
-        return implode(',', $parts);
-    }
-
-    public function tracked_project()
-    {
-        return $this->belongsTo(Project::class, 'tracked_project_id');
-    }
-
-    public function tasks()
-    {
-        return $this->hasMany(Task::class);
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_active' => 'boolean',
+        ];
     }
 
     public function projects()
@@ -112,15 +55,28 @@ class User extends Authenticatable {
         return $this->belongsToMany(Project::class);
     }
 
-    public static function toOptions($where = NULL)
+    public function trackings()
     {
-        $query = self::query();
+        return $this->hasMany(Tracking::class);
+    }
 
-        if ($where)
-        {
-            $query->where($where);
-        }
+    public function activeTracking()
+    {
+        return $this->hasOne(ActiveTracking::class);
+    }
 
-        return $query->selectRaw('CONCAT_WS(" ", first_name, last_name) AS label, id AS value')->get();
+    public function isAdmin(): bool
+    {
+        return $this->role === RoleEnum::ADMIN->value;
+    }
+
+    public function isTracking(): bool
+    {
+        return $this->activeTracking !== null;
+    }
+
+    public function isPaused(): bool
+    {
+        return $this->isTracking() && $this->activeTracking->paused_at !== null;
     }
 }

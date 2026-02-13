@@ -1,8 +1,17 @@
 <?php
 
+/* ----------------------------------------------------------------------------
+ * Timecrack - Time Tracking Application
+ *
+ * @package     Timecrack
+ * @author      A.Tselegidis <alextselegidis@gmail.com>
+ * @copyright   Copyright (c) Alex Tselegidis
+ * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
+ * @link        https://github.com/alextselegidis/timecrack
+ * ---------------------------------------------------------------------------- */
+
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +30,7 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                return redirect()->route('dashboard');
             }
         }
 

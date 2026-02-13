@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Enums\GenderEnum;
 use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -18,25 +18,12 @@ class UserFactory extends Factory {
      */
     public function definition(): array
     {
-        $gender = $this->faker->randomElement(array_column(GenderEnum::cases(), 'value'));
-
         return [
-            'title' => fake()->title($gender),
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
+            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'phone' => fake()->phoneNumber(),
-            'phone_alt' => fake()->phoneNumber(),
-            'gender' => $gender,
-            'street' => fake()->streetAddress(),
-            'street_additional' => fake()->streetAddress(),
-            'city' => fake()->city(),
-            'state' => fake()->state(),
-            'postcode' => fake()->postcode(),
-            'country' => fake()->country(),
-            'birthdate' => fake()->date(),
-            'password' => '$2y$10$dlo9lsJu69cshgdTJ9exEer4WJ90AQ3rvm7Ps84fnwXX3UlfZTPoa', // Default Password: "12345678"
+            'password' => Hash::make('12345678'),
+            'is_active' => true,
             'role' => RoleEnum::USER->value,
             'remember_token' => Str::random(10),
         ];

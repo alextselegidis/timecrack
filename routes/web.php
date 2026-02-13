@@ -1,42 +1,97 @@
 <?php
 
+/* ----------------------------------------------------------------------------
+ * Timecrack - Time Tracking Application
+ *
+ * @package     Timecrack
+ * @author      A.Tselegidis <alextselegidis@gmail.com>
+ * @copyright   Copyright (c) Alex Tselegidis
+ * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
+ * @link        https://github.com/alextselegidis/timecrack
+ * ---------------------------------------------------------------------------- */
+
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\SettingController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\ProjectsController;
+use App\Http\Controllers\RecoveryController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TrackingsController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\WelcomeController;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\RedirectIfAuthenticated;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+// Guest routes
+Route::middleware(RedirectIfAuthenticated::class)->group(function () {
+    // WelcomeController
+    Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
-require __DIR__ . '/auth.php';
+    // LoginController
+    Route::get('/login', [LoginController::class, 'index'])->name('login');
+    Route::post('/login', [LoginController::class, 'perform'])->name('login.perform');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::resource('task', TaskController::class);
-    Route::resource('project', ProjectController::class);
-    Route::resource('user', UserController::class);
-
-    Route::get('/about', [AboutController::class, 'index'])->name('about.index');
-
-    // TODO: Enable settings once they are ready.
-    // Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
-    // Route::put('/setting', [SettingController::class, 'save'])->name('setting.save');
+    // RecoveryController
+    Route::get('/recovery', [RecoveryController::class, 'index'])->name('recovery');
+    Route::post('/recovery', [RecoveryController::class, 'perform'])->name('recovery.perform');
 });
+
+// Auth routes
+Route::middleware('auth')->group(function () {
+    // LogoutController
+    Route::post('/logout', [LogoutController::class, 'perform'])->name('logout.perform');
+
+    // DashboardController
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Timer actions
+    Route::post('/timer/start/{project}', [DashboardController::class, 'start'])->name('timer.start');
+    Route::post('/timer/stop', [DashboardController::class, 'stop'])->name('timer.stop');
+    Route::post('/timer/pause', [DashboardController::class, 'pause'])->name('timer.pause');
+    Route::post('/timer/resume', [DashboardController::class, 'resume'])->name('timer.resume');
+    Route::post('/timer/message', [DashboardController::class, 'updateMessage'])->name('timer.message');
+
+    // TrackingsController
+    Route::resource('trackings', TrackingsController::class)->except(['show'])->names([
+        'index' => 'trackings',
+    ]);
+
+    // AccountController
+    Route::get('/account', [AccountController::class, 'index'])->name('account');
+    Route::put('/account', [AccountController::class, 'update'])->name('account.update');
+
+    // AboutController
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
+
+    // Setup routes (Admin only)
+    Route::middleware(AdminMiddleware::class)->prefix('setup')->group(function () {
+        // ProjectsController
+        Route::resource('projects', ProjectsController::class)->except(['show'])->names([
+            'index' => 'setup.projects',
+            'create' => 'setup.projects.create',
+            'store' => 'setup.projects.store',
+            'edit' => 'setup.projects.edit',
+            'update' => 'setup.projects.update',
+            'destroy' => 'setup.projects.destroy',
+        ]);
+
+        // UsersController
+        Route::resource('users', UsersController::class)->except(['show'])->names([
+            'index' => 'setup.users',
+            'create' => 'setup.users.create',
+            'store' => 'setup.users.store',
+            'edit' => 'setup.users.edit',
+            'update' => 'setup.users.update',
+            'destroy' => 'setup.users.destroy',
+        ]);
+
+        // SettingsController
+        Route::get('/settings', [SettingsController::class, 'index'])->name('setup.settings');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('setup.settings.update');
+    });
+});
+
 

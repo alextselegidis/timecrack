@@ -1,13 +1,23 @@
 <?php
 
+/* ----------------------------------------------------------------------------
+ * Timecrack - Time Tracking Application
+ *
+ * @package     Timecrack
+ * @author      A.Tselegidis <alextselegidis@gmail.com>
+ * @copyright   Copyright (c) Alex Tselegidis
+ * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
+ * @link        https://github.com/alextselegidis/timecrack
+ * ---------------------------------------------------------------------------- */
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model {
-    use HasFactory, HasUuids;
+class Project extends Model
+{
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -17,47 +27,21 @@ class Project extends Model {
     protected $fillable = [
         'name',
         'description',
+        'color',
     ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-    ];
-
-    public function tracked_users()
-    {
-        return $this->hasMany(User::class);
-    }
 
     public function users()
     {
         return $this->belongsToMany(User::class);
     }
 
-    public function tasks()
+    public function trackings()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Tracking::class);
     }
 
-    public static function toOptions($where = null)
+    public function trackedUsers()
     {
-        $query = self::query();
-
-        if ($where) {
-            $query->where($where);
-        }
-
-        return $query->selectRaw('name AS label, id AS value')->get();
+        return $this->hasMany(User::class, 'tracked_project_id');
     }
 }

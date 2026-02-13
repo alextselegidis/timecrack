@@ -1,13 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+/* ----------------------------------------------------------------------------
+ * Timecrack - Time Tracking Application
+ *
+ * @package     Timecrack
+ * @author      A.Tselegidis <alextselegidis@gmail.com>
+ * @copyright   Copyright (c) Alex Tselegidis
+ * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
+ * @link        https://github.com/alextselegidis/timecrack
+ * ---------------------------------------------------------------------------- */
 
-use Illuminate\Http\Request;
+namespace App\Http\Controllers;
 
 class AboutController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        return view('about.index');
+        return view('pages.about');
     }
 }
