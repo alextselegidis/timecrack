@@ -1,66 +1,100 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<h1 align="center">
+    <br>
+    <a href="https://github.com/alextselegidis/timecrack">
+        <img src="https://raw.githubusercontent.com/alextselegidis/timecrack/main/logo.png" alt="Timecrack" width="150">
+    </a>
+    <br>
+    Timecrack
+    <br>
+</h1>
+
+<br>
+
+<h4 align="center">
+    An online time tracking application that can be installed on your server.
+</h4>
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img alt="GitHub" src="https://img.shields.io/github/license/alextselegidis/timecrack?style=for-the-badge">
+  <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/alextselegidis/timecrack?style=for-the-badge">
+  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/alextselegidis/timecrack/total?style=for-the-badge">
 </p>
 
-## About Laravel
+<p align="center">
+  <a href="#about">About</a> •
+  <a href="#features">Features</a> •
+  <a href="#setup">Setup</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#license">License</a>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+![screenshot](screenshot.png)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## About
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Timecrack** is a time tracking application, designed for simplicity and efficiency. It lets you define your projects and tasks, and then track the time you spend on them. You can also add notes to your time entries, and view reports of your time usage.
 
-## Learning Laravel
+With Timecrack you can increase your  productivity. It is a self-hosted application, so you can run it on your own server and have full control over your data.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Features
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+The application allows you to manage and organize your bookmark links.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Clean & minimal interface
+- Tagging & search
+- Self-hosted (Docker support)
+- Multi-user capable (future/planned)
+- No tracking / no ads
 
-## Laravel Sponsors
+## Setup
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+To clone and run this application, you'll need Docker installed on your computer. From your command line:
 
-### Premium Partners
+```bash
+# Clone this repository
+$ git clone https://github.com/alextselegidis/timecrack.git
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+# Go into the repository
+$ cd timecrack
 
-## Contributing
+# Install dependencies
+$ docker compose up -d
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Then you can SSH into the PHP-FPM container and install the dependencies with `composer install`.
 
-## Code of Conduct
+Note: the current setup works with Windows and WSL & Docker.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+You can build the files by running `bash build.sh`. This command will bundle everything to a `build.zip` archive.
 
-## Security Vulnerabilities
+## Installation
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+You will need to perform the following steps to install the application on your server:
+
+* Make sure that your server has Apache/Nginx, PHP (8.2+) and MySQL installed.
+* Create a new database (or use an existing one).
+* Copy the "timecrack" source folder on your server.
+* Make sure that the "storage" directory is writable.
+* Rename the ".env.example" file to ".env" and update its contents based on your environment.
+* Open the browser on the Timecrack URL and follow the installation guide.
+
+That's it! You can now use Timecrack at your will.
+
+You will find the latest release at [github.com/alextselegidis/timecrack](https://github.com/alextselegidis/timecrack).
+You can also report problems on the [issues page](https://github.com/alextselegidis/timecrack/issues)
+and help the development progress.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Code Licensed Under [GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) | Content Under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
+
+---
+
+Website [alextselegidis.com](https://alextselegidis.com) &nbsp;&middot;&nbsp;
+GitHub [alextselegidis](https://github.com/alextselegidis) &nbsp;&middot;&nbsp;
+Twitter [@alextselegidis](https://twitter.com/AlexTselegidis)
+
+###### More Projects On Github
+###### ⇾ [Plainpad · Self Hosted Note Taking App](https://github.com/alextselegidis/plainpad)
+###### ⇾ [Easy!Appointments · Online Appointment Scheduler](https://github.com/alextselegidis/easyappointments)
+###### ⇾ [Integravy · Service Orchestration At Your Fingertips](https://github.com/alextselegidis/integravy)
