@@ -19,24 +19,24 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        return view('pages.settings', [
-            'timezone' => setting('timezone', 'UTC'),
-            'locale' => setting('locale', 'en'),
+        return view('pages.localization', [
+            'defaultLocale' => setting('default_locale', 'en'),
+            'defaultTimezone' => setting('default_timezone', 'UTC'),
         ]);
     }
 
     public function update(Request $request)
     {
         $request->validate([
-            'timezone' => ['required', 'string', 'timezone'],
-            'locale' => ['required', 'string', 'in:en,de,fr,es,it,pt,nl,ru,zh,ja'],
+            'default_locale' => ['required'],
+            'default_timezone' => ['required'],
         ]);
 
         setting([
-            'timezone' => $request->input('timezone'),
-            'locale' => $request->input('locale'),
+            'default_locale' => $request->input('default_locale'),
+            'default_timezone' => $request->input('default_timezone'),
         ]);
 
-        return redirect()->route('setup.settings')->with('success', __('Settings updated successfully.'));
+        return redirect()->route('setup.localization')->with('success', __('record_saved_message'));
     }
 }

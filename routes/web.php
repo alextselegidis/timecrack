@@ -88,9 +88,9 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'setup.users.destroy',
         ]);
 
-        // SettingsController
-        Route::get('/settings', [SettingsController::class, 'index'])->name('setup.settings');
-        Route::put('/settings', [SettingsController::class, 'update'])->name('setup.settings.update');
+        // SettingsController (Localization)
+        Route::get('/localization', [SettingsController::class, 'index'])->name('setup.localization');
+        Route::put('/localization', [SettingsController::class, 'update'])->name('setup.localization.update');
     });
 });
 

@@ -96,7 +96,7 @@ class TrackingsController extends Controller
             'message' => $request->input('message'),
         ]);
 
-        return redirect()->route('trackings')->with('success', __('Tracking created successfully.'));
+        return redirect()->route('trackings.edit', $tracking->id)->with('success', __('record_saved_message'));
     }
 
     public function edit(Request $request, Tracking $tracking)
@@ -148,7 +148,7 @@ class TrackingsController extends Controller
             'message' => $request->input('message'),
         ]);
 
-        return redirect()->route('trackings')->with('success', __('Tracking updated successfully.'));
+        return redirect()->route('trackings.edit', $tracking->id)->with('success', __('record_saved_message'));
     }
 
     public function destroy(Request $request, Tracking $tracking)
@@ -162,6 +162,6 @@ class TrackingsController extends Controller
 
         $tracking->delete();
 
-        return redirect()->route('trackings')->with('success', __('Tracking deleted successfully.'));
+        return redirect()->route('trackings')->with('success', __('record_deleted_message'));
     }
 }

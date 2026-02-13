@@ -32,6 +32,7 @@
     "create": "Create",
     "cancel": "Cancel",
     "close": "Close",
+    "copy_to_clipboard": "Copy to Clipboard",
     "save": "Save",
     "select": "Select",
     "log_in": "Log In",
@@ -69,5 +70,8 @@
     "links": "Links",
     "enterEmailMessage": "Enter the email address associated with your account and we'll send you a link to reset your password.",
     "resetPasswordMessage": "Reset Your Password",
+    "record_saved_message": "Record saved successfully.",
+    "record_deleted_message": "Record deleted successfully.",
+    "copied_to_clipboard": "Copied to clipboard!",
     "EOF": "EOF"
 }

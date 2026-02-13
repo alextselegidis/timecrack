@@ -1,6 +1,6 @@
 {{--
 /* ----------------------------------------------------------------------------
- * Timecrack - Simple Bookmark Manager
+ * Timecrack - Time Tracking Application
  *
  * @package     Timecrack
  * @author      A.Tselegidis <alextselegidis@gmail.com>
@@ -32,7 +32,7 @@
 
         <!-- Main Content -->
         <div class="flex-grow-1">
-
+            <h5 class="fw-bold mb-3">{{ __('localization') }}</h5>
 
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-4">

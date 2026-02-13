@@ -51,7 +51,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     @if(Auth::user()->isAdmin())
                                         <li>
-                                            <a class="dropdown-item {{ request()->routeIs('setup.*') ? 'active' : '' }}" href="{{ route('setup.projects') }}">
+                                            <a class="dropdown-item {{ request()->routeIs('setup.*') ? 'active' : '' }}" href="{{ route('setup.localization') }}">
                                                 <i class="bi bi-gear me-2"></i>{{ __('setup') }}
                                             </a>
                                         </li>

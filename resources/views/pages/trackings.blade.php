@@ -88,7 +88,19 @@
                                         <td class="border-0">{{ $tracking->started_at->format('M d, Y H:i') }}</td>
                                         <td class="border-0">{{ $tracking->ended_at->format('M d, Y H:i') }}</td>
                                         <td class="border-0">{{ $tracking->duration }}</td>
-                                        <td class="border-0">{{ Str::limit($tracking->message, 30) ?: '-' }}</td>
+                                        <td class="border-0">
+                                            @if($tracking->message)
+                                                {{ Str::limit($tracking->message, 30) }}
+                                                <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-message-btn" 
+                                                        data-message="{{ e($tracking->message) }}"
+                                                        title="{{ __('copy_to_clipboard') }}"
+                                                        onclick="event.stopPropagation();">
+                                                    <i class="bi bi-clipboard"></i>
+                                                </button>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         @if($isAdmin)
                                             <td class="border-0 pe-4 text-end">
                                                 <div class="dropdown" onclick="event.stopPropagation();">
@@ -141,4 +153,49 @@
     @if($isAdmin)
         @include('modals.create-modal', ['route' => route('trackings.store')])
     @endif
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.copy-message-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const message = this.getAttribute('data-message');
+            navigator.clipboard.writeText(message).then(function() {
+                const icon = btn.querySelector('i');
+                icon.classList.remove('bi-clipboard');
+                icon.classList.add('bi-clipboard-check');
+                
+                // Show toast
+                showToast('{{ __("copied_to_clipboard") }}');
+                
+                setTimeout(function() {
+                    icon.classList.remove('bi-clipboard-check');
+                    icon.classList.add('bi-clipboard');
+                }, 1500);
+            });
+        });
+    });
+});
+
+function showToast(message) {
+    const toastContainer = document.querySelector('.toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast align-items-center text-bg-success border-0 show mb-2';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    
+    setTimeout(function() {
+        toast.remove();
+    }, 3000);
+}
+</script>
 @endsection

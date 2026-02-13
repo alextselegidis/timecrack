@@ -66,7 +66,7 @@ class ProjectsController extends Controller
 
         $project->users()->sync($request->input('users', []));
 
-        return redirect()->route('setup.projects')->with('success', __('Project created successfully.'));
+        return redirect()->route('setup.projects.edit', $project->id)->with('success', __('record_saved_message'));
     }
 
     public function edit(Project $project)
@@ -94,13 +94,13 @@ class ProjectsController extends Controller
 
         $project->users()->sync($request->input('users', []));
 
-        return redirect()->route('setup.projects')->with('success', __('Project updated successfully.'));
+        return redirect()->route('setup.projects.edit', $project->id)->with('success', __('record_saved_message'));
     }
 
     public function destroy(Project $project)
     {
         $project->delete();
 
-        return redirect()->route('setup.projects')->with('success', __('Project deleted successfully.'));
+        return redirect()->route('setup.projects')->with('success', __('record_deleted_message'));
     }
 }

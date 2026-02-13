@@ -44,6 +44,6 @@ class AccountController extends Controller
 
         $user->save();
 
-        return redirect()->route('account')->with('success', __('Account updated successfully.'));
+        return redirect()->route('account')->with('success', __('record_saved_message'));
     }
 }

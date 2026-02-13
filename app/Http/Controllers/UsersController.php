@@ -16,6 +16,7 @@ use App\Enums\RoleEnum;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UsersController extends Controller
@@ -60,21 +61,15 @@ class UsersController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', Rule::in(RoleEnum::values())],
-            'is_active' => ['boolean'],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-            'role' => $request->input('role'),
-            'is_active' => $request->boolean('is_active', true),
+            'email' => 'new-user-' . strtolower(Str::random(5)) . '@example.org',
+            'password' => Hash::make(Str::random(8)),
         ]);
 
-        return redirect()->route('setup.users')->with('success', __('User created successfully.'));
+        return redirect()->route('setup.users.edit', ['user' => $user->id]);
     }
 
     public function edit(User $user)
@@ -108,13 +103,13 @@ class UsersController extends Controller
 
         $user->save();
 
-        return redirect()->route('setup.users')->with('success', __('User updated successfully.'));
+        return redirect()->route('setup.users.edit', $user->id)->with('success', __('record_saved_message'));
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return redirect()->route('setup.users')->with('success', __('User deleted successfully.'));
+        return redirect()->route('setup.users')->with('success', __('record_deleted_message'));
     }
 }
