@@ -51,4 +51,5 @@ zip -r build.zip . \
     -x 'postcss.config.js' \
     -x 'tailwind.config.js' \
     -x 'vite.config.js' \
+    -x 'SPECS.md' \
     -x '*.zip'
