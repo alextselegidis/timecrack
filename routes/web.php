@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('trackings', TrackingsController::class)->except(['show'])->names([
         'index' => 'trackings',
     ]);
+    Route::get('/trackings/export/csv', [TrackingsController::class, 'export'])->name('trackings.export');
 
     // AccountController
     Route::get('/account', [AccountController::class, 'index'])->name('account');

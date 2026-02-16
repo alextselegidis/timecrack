@@ -36,15 +36,49 @@
         <!-- Main Content -->
         <div class="flex-grow-1">
             <h5 class="fw-bold mb-3">{{ __('history') }}</h5>
-            <!-- Search -->
+            <!-- Search and Filters -->
             <form action="{{ route('trackings') }}" method="GET" class="mb-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
-                    <input type="text" id="q" name="q" class="form-control bg-light border-start-0"
-                           value="{{ $q }}"
-                           placeholder="{{ __('search') }}..." style="max-width: 300px;">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" id="q" name="q" class="form-control bg-light border-start-0"
+                                   value="{{ $q }}"
+                                   placeholder="{{ __('search') }}..." style="width: 200px;">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <label for="date_from" class="form-label small text-muted mb-1">{{ __('from') }}</label>
+                        <input type="date" id="date_from" name="date_from" class="form-control bg-light"
+                               value="{{ $dateFrom }}">
+                    </div>
+                    <div class="col-auto">
+                        <label for="date_to" class="form-label small text-muted mb-1">{{ __('to') }}</label>
+                        <input type="date" id="date_to" name="date_to" class="form-control bg-light"
+                               value="{{ $dateTo }}">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-dark">
+                            <i class="bi bi-funnel"></i>
+                            {{ __('filter') }}
+                        </button>
+                    </div>
+                    @if($q || $dateFrom || $dateTo)
+                        <div class="col-auto">
+                            <a href="{{ route('trackings') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg"></i>
+                                {{ __('clear') }}
+                            </a>
+                        </div>
+                    @endif
+                    <div class="col-auto ms-auto">
+                        <a href="{{ route('trackings.export', request()->query()) }}" class="btn btn-outline-dark">
+                            <i class="bi bi-download me-1"></i>
+                            {{ __('export_csv') }}
+                        </a>
+                    </div>
                 </div>
             </form>
             <div class="card border-0 shadow-sm rounded-3">

@@ -15,6 +15,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Tracking;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TrackingsController extends Controller
 {
@@ -29,6 +30,8 @@ class TrackingsController extends Controller
         }
 
         $q = $request->query('q');
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
 
         if ($q) {
             $query->where(function ($subQuery) use ($q) {
@@ -36,6 +39,14 @@ class TrackingsController extends Controller
                     ->orWhereHas('project', fn($pq) => $pq->where('name', 'like', '%' . $q . '%'))
                     ->orWhereHas('user', fn($uq) => $uq->where('name', 'like', '%' . $q . '%'));
             });
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('started_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('started_at', '<=', $dateTo);
         }
 
         $sort = $request->query('sort', 'started_at');
@@ -50,7 +61,85 @@ class TrackingsController extends Controller
         return view('pages.trackings', [
             'trackings' => $trackings,
             'q' => $q,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
             'isAdmin' => $user->isAdmin(),
+        ]);
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $user = $request->user();
+        $query = Tracking::query()->with(['project', 'user']);
+
+        // Non-admins can only see their own trackings
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        $q = $request->query('q');
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
+
+        if ($q) {
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('message', 'like', '%' . $q . '%')
+                    ->orWhereHas('project', fn($pq) => $pq->where('name', 'like', '%' . $q . '%'))
+                    ->orWhereHas('user', fn($uq) => $uq->where('name', 'like', '%' . $q . '%'));
+            });
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('started_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('started_at', '<=', $dateTo);
+        }
+
+        $sort = $request->query('sort', 'started_at');
+        $direction = $request->query('direction', 'desc');
+
+        if ($sort && $direction) {
+            $query->orderBy($sort, $direction);
+        }
+
+        $trackings = $query->get();
+        $isAdmin = $user->isAdmin();
+
+        $filename = 'trackings_' . date('Y-m-d_His') . '.csv';
+
+        return response()->streamDownload(function () use ($trackings, $isAdmin) {
+            $handle = fopen('php://output', 'w');
+
+            // Add BOM for UTF-8
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // Header row
+            $headers = [__('project'), __('started'), __('ended'), __('duration'), __('message')];
+            if ($isAdmin) {
+                array_splice($headers, 1, 0, [__('user')]);
+            }
+            fputcsv($handle, $headers);
+
+            // Data rows
+            foreach ($trackings as $tracking) {
+                $row = [
+                    $tracking->project->name ?? __('unknown'),
+                    $tracking->started_at->format('Y-m-d H:i'),
+                    $tracking->ended_at->format('Y-m-d H:i'),
+                    $tracking->duration,
+                    $tracking->message ?? '',
+                ];
+                if ($isAdmin) {
+                    array_splice($row, 1, 0, [$tracking->user->name ?? __('unknown')]);
+                }
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
 
