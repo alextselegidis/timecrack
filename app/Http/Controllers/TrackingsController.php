@@ -56,6 +56,9 @@ class TrackingsController extends Controller
             $query->orderBy($sort, $direction);
         }
 
+        // Calculate total duration in seconds for all filtered results (not just current page)
+        $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at) - COALESCE(paused_duration, 0)'));
+
         $trackings = $query->paginate(25);
 
         return view('pages.trackings', [
@@ -64,6 +67,7 @@ class TrackingsController extends Controller
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'isAdmin' => $user->isAdmin(),
+            'totalDurationSeconds' => $totalDurationSeconds,
         ]);
     }
 
@@ -107,7 +111,7 @@ class TrackingsController extends Controller
         $trackings = $query->get();
         $isAdmin = $user->isAdmin();
 
-        $filename = 'trackings_' . date('Y-m-d_His') . '.csv';
+        $filename = 'timecrack_trackings_' . date('Y-m-d_His') . '.csv';
 
         return response()->streamDownload(function () use ($trackings, $isAdmin) {
             $handle = fopen('php://output', 'w');
@@ -123,12 +127,14 @@ class TrackingsController extends Controller
             fputcsv($handle, $headers);
 
             // Data rows
+            $totalDurationSeconds = 0;
             foreach ($trackings as $tracking) {
+                $totalDurationSeconds += $tracking->duration_seconds;
                 $row = [
                     $tracking->project->name ?? __('unknown'),
                     $tracking->started_at->format('Y-m-d H:i'),
                     $tracking->ended_at->format('Y-m-d H:i'),
-                    $tracking->duration,
+                    number_format($tracking->duration_seconds / 3600, 2, '.', ''),
                     $tracking->message ?? '',
                 ];
                 if ($isAdmin) {
@@ -136,6 +142,19 @@ class TrackingsController extends Controller
                 }
                 fputcsv($handle, $row);
             }
+
+            // Total row
+            $totalRow = [
+                __('total'),
+                '',
+                '',
+                number_format($totalDurationSeconds / 3600, 2, '.', ''),
+                '',
+            ];
+            if ($isAdmin) {
+                array_splice($totalRow, 1, 0, ['']);
+            }
+            fputcsv($handle, $totalRow);
 
             fclose($handle);
         }, $filename, [

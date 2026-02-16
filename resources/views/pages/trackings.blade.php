@@ -173,6 +173,21 @@
                                     </tr>
                                 @endif
                             </tbody>
+                            @if($trackings->isNotEmpty())
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td class="border-0 ps-4 fw-bold" colspan="{{ $isAdmin ? 4 : 3 }}">{{ __('total') }}</td>
+                                        <td class="border-0 fw-bold">
+                                            @php
+                                                $hours = floor($totalDurationSeconds / 3600);
+                                                $minutes = floor(($totalDurationSeconds % 3600) / 60);
+                                            @endphp
+                                            {{ $hours }}h {{ $minutes }}m
+                                        </td>
+                                        <td class="border-0" colspan="{{ $isAdmin ? 2 : 1 }}"></td>
+                                    </tr>
+                                </tfoot>
+                            @endif
                         </table>
                     </div>
                 </div>

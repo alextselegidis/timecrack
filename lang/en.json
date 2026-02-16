@@ -78,5 +78,6 @@
     "record_saved_message": "Record saved successfully.",
     "record_deleted_message": "Record deleted successfully.",
     "copied_to_clipboard": "Copied to clipboard!",
+    "total": "Total",
     "EOF": "EOF"
 }
