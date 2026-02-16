@@ -12,11 +12,12 @@
 *::before,
 *::after {
     transition: background-color 0.15s ease-in-out,
-                border-color 0.15s ease-in-out,
-                box-shadow 0.15s ease-in-out,
-                color 0.15s ease-in-out,
-                opacity 0.15s ease-in-out;
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out,
+    color 0.15s ease-in-out,
+    opacity 0.15s ease-in-out;
 }
+
 /* Override Bootstrap primary color */
 :root {
     --bs-primary: #d97638;
@@ -28,20 +29,25 @@
     --bs-secondary-color: #6c757d;
     --bs-body-color: #495057;
 }
+
 /* Link colors - darker than labels */
 a {
     color: var(--bs-link-color);
 }
+
 a:hover {
     color: var(--bs-link-hover-color);
 }
+
 /* Labels use a different color */
 .form-label {
     color: #495057 !important;
 }
+
 .text-dark {
     color: #343a40 !important;
 }
+
 .btn-primary {
     --bs-btn-bg: #d97638;
     --bs-btn-border-color: #d97638;
@@ -52,6 +58,7 @@ a:hover {
     --bs-btn-disabled-bg: #d97638;
     --bs-btn-disabled-border-color: #d97638;
 }
+
 .btn-outline-primary {
     --bs-btn-color: #d97638;
     --bs-btn-border-color: #d97638;
@@ -60,83 +67,108 @@ a:hover {
     --bs-btn-active-bg: #d97638;
     --bs-btn-active-border-color: #d97638;
 }
+
 .text-primary {
     color: #d97638 !important;
 }
+
 /* Dashboard card image gradient background */
 .card .card-img-top {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
 }
+
 /* Improved card footer styling - subtle warm gray */
 .card .card-footer {
     background-color: #f5f5f5 !important;
     border-top-color: #e8e8e8 !important;
 }
+
 /* Improved background colors - warmer and softer */
 .bg-light {
     background-color: #fafafa !important;
 }
+
 .bg-body-secondary {
     background-color: #f5f5f5 !important;
 }
+
 .bg-body-tertiary {
     background-color: #f8f8f8 !important;
 }
+
 /* Main layout background - softer */
 .main-layout {
     background-color: #f5f6f8 !important;
 }
+
 .text-muted {
     color: #6c757d !important;
 }
+
 .text-body-secondary {
     color: #6c757d !important;
 }
+
 /* Responsive width utilities for lg breakpoint */
 @media (min-width: 992px) {
     .w-lg-auto {
         width: auto !important;
     }
+
     .flex-lg-grow-0 {
         flex-grow: 0 !important;
     }
+
     .rounded-lg-3 {
         border-radius: var(--bs-border-radius-lg) !important;
     }
+
     .shadow-lg-sm {
         box-shadow: var(--bs-box-shadow-sm) !important;
     }
+
     .min-vh-lg-auto {
         min-height: auto !important;
     }
+
+    .table-responsive {
+        overflow: visible;
+    }
 }
+
 /* Card hover effect */
 .card-hover-move {
     transition: transform 0.2s ease-in-out,
-                background-color 0.15s ease-in-out,
-                border-color 0.15s ease-in-out,
-                box-shadow 0.15s ease-in-out;
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
+
 .card-hover-move:hover {
     transform: translateY(-2px);
 }
+
 /* Link image styling - stretch for og_image, contain for favicon */
 .card .card-img-top.img-cover {
     object-fit: cover;
 }
+
 .card .card-img-top.img-contain {
     object-fit: contain;
 }
+
 /* Equal width buttons */
 .btn-equal-width {
     min-width: 120px;
 }
+
 /* Better button styling */
 .btn {
     font-weight: 500;
     padding: 0.5rem 1.25rem;
     border-radius: 0.375rem;
 }
+
 @media (min-width: 992px) {
     .navbar-nav .nav-item .nav-link.nav-menu-item {
         min-width: 120px;
@@ -149,30 +181,37 @@ a:hover {
         padding-bottom: 1rem;
         transition: background-color 0.2s ease;
     }
+
     .navbar-nav .nav-item .nav-link.nav-menu-item:hover {
         background-color: rgba(255, 255, 255, 0.1);
     }
+
     .navbar {
         padding-top: 0;
         padding-bottom: 0;
     }
+
     .navbar-brand {
         padding-top: 0.75rem;
         padding-bottom: 0.75rem;
     }
 }
+
 /* Table header sorting hover effect */
 .table-dark th {
     vertical-align: middle;
 }
+
 .table-dark th a {
     display: inline-flex;
     align-items: center;
     padding: 0.25rem 0;
 }
+
 .table-dark th a:hover {
     opacity: 0.8;
 }
+
 .table-dark th a::after {
     content: '\F282';
     font-family: 'bootstrap-icons';
@@ -181,6 +220,7 @@ a:hover {
     font-size: 0.75rem;
     transition: opacity 0.15s ease-in-out;
 }
+
 .table-dark th a:hover::after {
     opacity: 0.6;
 }
