@@ -25,8 +25,6 @@ class ActiveTracking extends Model
         'user_id',
         'project_id',
         'started_at',
-        'paused_at',
-        'paused_duration',
         'message',
     ];
 
@@ -37,7 +35,6 @@ class ActiveTracking extends Model
      */
     protected $casts = [
         'started_at' => 'datetime',
-        'paused_at' => 'datetime',
     ];
 
     public function user()
@@ -48,10 +45,5 @@ class ActiveTracking extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
-    }
-
-    public function isPaused(): bool
-    {
-        return $this->paused_at !== null;
     }
 }

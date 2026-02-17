@@ -6,6 +6,8 @@
 
 - Add history page for users to view their past activities and changes in the application
 - Add dashboard page for users to view an overview of their projects, tasks, and other relevant information
+- Allow users to pin a project in dashboard for quick access
+- Random color selection for new projects (can be overridden by the user when creating or editing a project)
 
 ### Changed
 
@@ -13,6 +15,8 @@
 - Update to latest Laravel version and update the dependencies to their latest versions
 - Replace use of UUID with simple ID for better performance and simplicity
 - Replace use of SCSS with simple CSS based on Bootstrap
+- Remove the pause functionality from the app 
+- Updates to the layout and functionality of the dashboard
 
 
 

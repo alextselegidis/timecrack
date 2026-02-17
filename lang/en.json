@@ -66,8 +66,6 @@
     "ended_at": "Ended At",
     "duration": "Duration",
     "message": "Message",
-    "paused": "Paused",
-    "paused_duration": "Paused Duration",
     "seconds": "seconds",
     "color": "Color",
     "unknown": "Unknown",
@@ -79,5 +77,12 @@
     "record_deleted_message": "Record deleted successfully.",
     "copied_to_clipboard": "Copied to clipboard!",
     "total": "Total",
+    "filter_by_users": "Filter by Users",
+    "select_all": "Select All",
+    "apply": "Apply",
+    "records": "records",
+    "Pin": "Pin",
+    "Unpin": "Unpin",
+    "Show more": "Show more",
     "EOF": "EOF"
 }

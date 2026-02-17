@@ -36,9 +36,6 @@
                         <h5 class="mb-1">{{ $activeTracking->project->name ?? __('Unknown Project') }}</h5>
                         <small class="text-muted">
                             {{ __('Started at') }}: {{ $activeTracking->started_at->format('H:i:s') }}
-                            @if($user->isPaused())
-                                <span class="badge bg-warning text-dark ms-2">{{ __('Paused') }}</span>
-                            @endif
                         </small>
                     </div>
                     <div class="col-md-5 mb-3 mb-md-0">
@@ -51,26 +48,10 @@
                         </form>
                     </div>
                     <div class="col-md-3 text-md-end">
-                        <div class="btn-group">
-                            @if($user->isPaused())
-                                <form action="{{ route('timer.resume') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-success" title="{{ __('Resume') }}">
-                                        <i class="bi bi-play-fill"></i>
-                                    </button>
-                                </form>
-                            @else
-                                <form action="{{ route('timer.pause') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-warning" title="{{ __('Pause') }}">
-                                        <i class="bi bi-pause-fill"></i>
-                                    </button>
-                                </form>
-                            @endif
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#stop-timer-modal" title="{{ __('Stop') }}">
-                                <i class="bi bi-stop-fill"></i>
-                            </button>
-                        </div>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#stop-timer-modal" title="{{ __('Stop') }}">
+                            <i class="bi bi-stop-fill me-1"></i>
+                            {{ __('Stop') }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -84,14 +65,71 @@
     </h5>
 
     @if($projects->count())
+        @php
+            $pinnedProjects = $projects->filter(fn($p) => in_array($p->id, $pinnedIds));
+            $unpinnedProjects = $projects->filter(fn($p) => !in_array($p->id, $pinnedIds));
+            $visibleUnpinned = $unpinnedProjects->take(4 - $pinnedProjects->count());
+            $hiddenProjects = $unpinnedProjects->skip(4 - $pinnedProjects->count());
+            $showMore = $hiddenProjects->count() > 0;
+        @endphp
+
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
-            @foreach($projects as $project)
+            {{-- Pinned Projects --}}
+            @foreach($pinnedProjects as $project)
                 <div class="col">
                     <div class="card h-100 shadow-sm card-hover-move" style="border-left: 4px solid {{ $project->color ?? '#0d6efd' }};">
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ $project->name }}</h5>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title mb-0">{{ $project->name }}</h5>
+                                <form action="{{ route('projects.toggle-pin', $project) }}" method="POST" class="ms-2">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-link p-0 text-warning" title="{{ __('Unpin') }}">
+                                        <i class="bi bi-pin-fill"></i>
+                                    </button>
+                                </form>
+                            </div>
                             @if($project->description)
-                                <p class="card-text text-muted small flex-grow-1">{{ Str::limit($project->description, 100) }}</p>
+                                <p class="card-text text-muted small flex-grow-1 mt-2">{{ Str::limit($project->description, 100) }}</p>
+                            @endif
+                            <div class="mt-auto">
+                                @if($user->isTracking() && $user->activeTracking->project_id === $project->id)
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-stopwatch me-1"></i>
+                                        {{ __('Currently Tracking') }}
+                                    </span>
+                                @elseif(!$user->isTracking())
+                                    <form action="{{ route('timer.start', $project) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-play-fill me-1"></i>
+                                            {{ __('Start Timer') }}
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-muted small">{{ __('Stop current timer to start') }}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            {{-- Visible Unpinned Projects --}}
+            @foreach($visibleUnpinned as $project)
+                <div class="col">
+                    <div class="card h-100 shadow-sm card-hover-move" style="border-left: 4px solid {{ $project->color ?? '#0d6efd' }};">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title mb-0">{{ $project->name }}</h5>
+                                <form action="{{ route('projects.toggle-pin', $project) }}" method="POST" class="ms-2">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-link p-0 text-muted" title="{{ __('Pin') }}">
+                                        <i class="bi bi-pin"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            @if($project->description)
+                                <p class="card-text text-muted small flex-grow-1 mt-2">{{ Str::limit($project->description, 100) }}</p>
                             @endif
                             <div class="mt-auto">
                                 @if($user->isTracking() && $user->activeTracking->project_id === $project->id)
@@ -116,6 +154,58 @@
                 </div>
             @endforeach
         </div>
+
+        {{-- Collapsible Hidden Projects --}}
+        @if($showMore)
+            <div class="mb-4">
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#more-projects" aria-expanded="false">
+                    <i class="bi bi-chevron-down me-1"></i>
+                    {{ __('Show more') }} ({{ $hiddenProjects->count() }})
+                </button>
+                <div class="collapse mt-3" id="more-projects">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                        @foreach($hiddenProjects as $project)
+                            <div class="col">
+                                <div class="card h-100 shadow-sm card-hover-move" style="border-left: 4px solid {{ $project->color ?? '#0d6efd' }};">
+                                    <div class="card-body d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h5 class="card-title mb-0">{{ $project->name }}</h5>
+                                            <form action="{{ route('projects.toggle-pin', $project) }}" method="POST" class="ms-2">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-link p-0 text-muted" title="{{ __('Pin') }}">
+                                                    <i class="bi bi-pin"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        @if($project->description)
+                                            <p class="card-text text-muted small flex-grow-1 mt-2">{{ Str::limit($project->description, 100) }}</p>
+                                        @endif
+                                        <div class="mt-auto">
+                                            @if($user->isTracking() && $user->activeTracking->project_id === $project->id)
+                                                <span class="badge bg-primary">
+                                                    <i class="bi bi-stopwatch me-1"></i>
+                                                    {{ __('Currently Tracking') }}
+                                                </span>
+                                            @elseif(!$user->isTracking())
+                                                <form action="{{ route('timer.start', $project) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                        <i class="bi bi-play-fill me-1"></i>
+                                                        {{ __('Start Timer') }}
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="text-muted small">{{ __('Stop current timer to start') }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
     @else
         <div class="text-center my-5 py-5">
             <div class="mb-4">
@@ -209,18 +299,11 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const startedAt = new Date('{{ $activeTracking->started_at->toIso8601String() }}');
-                const pausedAt = @json($activeTracking->paused_at ? $activeTracking->paused_at->toIso8601String() : null);
-                const pausedDuration = {{ $activeTracking->paused_duration ?? 0 }};
                 const timerDisplay = document.getElementById('timer-display');
 
                 function updateTimer() {
-                    let now = new Date();
-
-                    if (pausedAt) {
-                        now = new Date(pausedAt);
-                    }
-
-                    let elapsed = Math.floor((now - startedAt) / 1000) - pausedDuration;
+                    const now = new Date();
+                    let elapsed = Math.floor((now - startedAt) / 1000);
                     if (elapsed < 0) elapsed = 0;
 
                     const hours = Math.floor(elapsed / 3600);
@@ -234,9 +317,7 @@
                 }
 
                 updateTimer();
-                if (!pausedAt) {
-                    setInterval(updateTimer, 1000);
-                }
+                setInterval(updateTimer, 1000);
             });
         </script>
     @endif

@@ -27,7 +27,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'password', 'is_active', 'role'];
+    protected $fillable = ['name', 'email', 'password', 'is_active', 'role', 'pinned_project_ids'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -47,7 +47,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'pinned_project_ids' => 'array',
         ];
+    }
+
+    public function getPinnedProjectIds(): array
+    {
+        return $this->pinned_project_ids ?? [];
+    }
+
+    public function hasProjectPinned(int $projectId): bool
+    {
+        return in_array($projectId, $this->getPinnedProjectIds());
     }
 
     public function projects()
@@ -73,10 +84,5 @@ class User extends Authenticatable
     public function isTracking(): bool
     {
         return $this->activeTracking !== null;
-    }
-
-    public function isPaused(): bool
-    {
-        return $this->isTracking() && $this->activeTracking->paused_at !== null;
     }
 }

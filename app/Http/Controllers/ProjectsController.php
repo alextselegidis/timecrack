@@ -62,11 +62,34 @@ class ProjectsController extends Controller
             'color' => ['nullable', 'string', 'max:7'],
         ]);
 
-        $project = Project::create($request->only(['name', 'description', 'color']));
+        $data = $request->only(['name', 'description', 'color']);
+        
+        // Generate random color if not provided
+        if (empty($data['color'])) {
+            $data['color'] = $this->generateRandomColor();
+        }
+
+        $project = Project::create($data);
 
         $project->users()->sync($request->input('users', []));
 
         return redirect()->route('setup.projects.edit', $project->id)->with('success', __('record_saved_message'));
+    }
+
+    /**
+     * Generate a random pleasant color.
+     */
+    private function generateRandomColor(): string
+    {
+        $colors = [
+            '#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545',
+            '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0',
+            '#6c757d', '#495057', '#5c636a', '#5a6268', '#4e555b',
+            '#2c7be5', '#00d97e', '#e63757', '#f6c343', '#39afd1',
+            '#727cf5', '#6b5eae', '#fa5c7c', '#ff6b6b', '#4ecdc4',
+            '#45b7d1', '#96ceb4', '#ffeaa7', '#dfe6e9', '#a29bfe',
+        ];
+        return $colors[array_rand($colors)];
     }
 
     public function edit(Project $project)

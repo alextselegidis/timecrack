@@ -50,9 +50,8 @@ Route::middleware('auth')->group(function () {
     // Timer actions
     Route::post('/timer/start/{project}', [DashboardController::class, 'start'])->name('timer.start');
     Route::post('/timer/stop', [DashboardController::class, 'stop'])->name('timer.stop');
-    Route::post('/timer/pause', [DashboardController::class, 'pause'])->name('timer.pause');
-    Route::post('/timer/resume', [DashboardController::class, 'resume'])->name('timer.resume');
     Route::post('/timer/message', [DashboardController::class, 'updateMessage'])->name('timer.message');
+    Route::post('/projects/{project}/toggle-pin', [DashboardController::class, 'togglePin'])->name('projects.toggle-pin');
 
     // TrackingsController
     Route::resource('trackings', TrackingsController::class)->except(['show'])->names([

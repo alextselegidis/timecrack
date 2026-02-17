@@ -22,16 +22,18 @@ class TrackingsController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $isAdmin = $user->isAdmin();
         $query = Tracking::query()->with(['project', 'user']);
 
         // Non-admins can only see their own trackings
-        if (!$user->isAdmin()) {
+        if (!$isAdmin) {
             $query->where('user_id', $user->id);
         }
 
         $q = $request->query('q');
         $dateFrom = $request->query('date_from');
         $dateTo = $request->query('date_to');
+        $userIds = $request->query('user_ids', []);
 
         if ($q) {
             $query->where(function ($subQuery) use ($q) {
@@ -49,24 +51,45 @@ class TrackingsController extends Controller
             $query->whereDate('started_at', '<=', $dateTo);
         }
 
+        // User filter (admin only)
+        if ($isAdmin && !empty($userIds)) {
+            $query->whereIn('user_id', $userIds);
+        }
+
         $sort = $request->query('sort', 'started_at');
         $direction = $request->query('direction', 'desc');
 
-        if ($sort && $direction) {
+        // Handle sorting with joins for related columns
+        if ($sort === 'project') {
+            $query->join('projects', 'trackings.project_id', '=', 'projects.id')
+                ->orderBy('projects.name', $direction)
+                ->select('trackings.*');
+        } elseif ($sort === 'user') {
+            $query->join('users', 'trackings.user_id', '=', 'users.id')
+                ->orderBy('users.name', $direction)
+                ->select('trackings.*');
+        } elseif (in_array($sort, ['started_at', 'ended_at'])) {
             $query->orderBy($sort, $direction);
+        } else {
+            $query->orderBy('started_at', $direction);
         }
 
         // Calculate total duration in seconds for all filtered results (not just current page)
-        $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at) - COALESCE(paused_duration, 0)'));
+        $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at)'));
 
         $trackings = $query->paginate(25);
+
+        // Get all users for filter (admin only)
+        $users = $isAdmin ? \App\Models\User::query()->where('is_active', true)->orderBy('name')->get() : collect();
 
         return view('pages.trackings', [
             'trackings' => $trackings,
             'q' => $q,
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
-            'isAdmin' => $user->isAdmin(),
+            'userIds' => $userIds,
+            'users' => $users,
+            'isAdmin' => $isAdmin,
             'totalDurationSeconds' => $totalDurationSeconds,
         ]);
     }
@@ -74,16 +97,18 @@ class TrackingsController extends Controller
     public function export(Request $request): StreamedResponse
     {
         $user = $request->user();
+        $isAdmin = $user->isAdmin();
         $query = Tracking::query()->with(['project', 'user']);
 
         // Non-admins can only see their own trackings
-        if (!$user->isAdmin()) {
+        if (!$isAdmin) {
             $query->where('user_id', $user->id);
         }
 
         $q = $request->query('q');
         $dateFrom = $request->query('date_from');
         $dateTo = $request->query('date_to');
+        $userIds = $request->query('user_ids', []);
 
         if ($q) {
             $query->where(function ($subQuery) use ($q) {
@@ -101,15 +126,30 @@ class TrackingsController extends Controller
             $query->whereDate('started_at', '<=', $dateTo);
         }
 
+        // User filter (admin only)
+        if ($isAdmin && !empty($userIds)) {
+            $query->whereIn('user_id', $userIds);
+        }
+
         $sort = $request->query('sort', 'started_at');
         $direction = $request->query('direction', 'desc');
 
-        if ($sort && $direction) {
+        // Handle sorting with joins for related columns
+        if ($sort === 'project') {
+            $query->join('projects', 'trackings.project_id', '=', 'projects.id')
+                ->orderBy('projects.name', $direction)
+                ->select('trackings.*');
+        } elseif ($sort === 'user') {
+            $query->join('users', 'trackings.user_id', '=', 'users.id')
+                ->orderBy('users.name', $direction)
+                ->select('trackings.*');
+        } elseif (in_array($sort, ['started_at', 'ended_at'])) {
             $query->orderBy($sort, $direction);
+        } else {
+            $query->orderBy('started_at', $direction);
         }
 
         $trackings = $query->get();
-        $isAdmin = $user->isAdmin();
 
         $filename = 'timecrack_trackings_' . date('Y-m-d_His') . '.csv';
 
@@ -200,7 +240,6 @@ class TrackingsController extends Controller
             'user_id' => $user->id,
             'started_at' => $request->input('started_at'),
             'ended_at' => $request->input('ended_at'),
-            'paused_duration' => 0,
             'message' => $request->input('message'),
         ]);
 
@@ -243,7 +282,6 @@ class TrackingsController extends Controller
             'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
-            'paused_duration' => ['nullable', 'integer', 'min:0'],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -252,7 +290,6 @@ class TrackingsController extends Controller
             'user_id' => $request->input('user_id'),
             'started_at' => $request->input('started_at'),
             'ended_at' => $request->input('ended_at'),
-            'paused_duration' => $request->input('paused_duration', 0),
             'message' => $request->input('message'),
         ]);
 

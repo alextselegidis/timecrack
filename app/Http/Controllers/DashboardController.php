@@ -26,10 +26,42 @@ class DashboardController extends Controller
 
         // Get projects accessible to the user
         if ($user->isAdmin()) {
-            $projects = Project::query()->orderBy('name')->get();
+            $projects = Project::query()->get();
         } else {
-            $projects = $user->projects()->orderBy('name')->get();
+            $projects = $user->projects()->get();
         }
+
+        // Sort projects: pinned first, then by last use (most recent tracking)
+        $pinnedIds = $user->getPinnedProjectIds();
+        $projectIds = $projects->pluck('id')->toArray();
+        
+        // Get last tracking time for each project
+        $lastUsed = Tracking::query()
+            ->whereIn('project_id', $projectIds)
+            ->where('user_id', $user->id)
+            ->selectRaw('project_id, MAX(ended_at) as last_used')
+            ->groupBy('project_id')
+            ->pluck('last_used', 'project_id')
+            ->toArray();
+
+        $projects = $projects->sortBy(function ($project) use ($pinnedIds, $lastUsed) {
+            $isPinned = in_array($project->id, $pinnedIds) ? 0 : 1;
+            $lastUsedTime = $lastUsed[$project->id] ?? '1970-01-01';
+            return [$isPinned, $lastUsedTime];
+        })->sortBy(function ($project) use ($pinnedIds, $lastUsed) {
+            // Secondary sort: pinned first, then by most recent use (descending)
+            $isPinned = in_array($project->id, $pinnedIds) ? 0 : 1;
+            $lastUsedTime = $lastUsed[$project->id] ?? null;
+            return $isPinned;
+        })->values();
+
+        // Sort pinned projects by last use, then non-pinned by last use
+        $pinnedProjects = $projects->filter(fn($p) => in_array($p->id, $pinnedIds))
+            ->sortByDesc(fn($p) => $lastUsed[$p->id] ?? '1970-01-01');
+        $unpinnedProjects = $projects->filter(fn($p) => !in_array($p->id, $pinnedIds))
+            ->sortByDesc(fn($p) => $lastUsed[$p->id] ?? '1970-01-01');
+        
+        $projects = $pinnedProjects->merge($unpinnedProjects);
 
         // Get recent trackings for the user
         $trackings = Tracking::query()
@@ -43,7 +75,24 @@ class DashboardController extends Controller
             'projects' => $projects,
             'trackings' => $trackings,
             'user' => $user,
+            'pinnedIds' => $pinnedIds,
         ]);
+    }
+
+    public function togglePin(Request $request, Project $project)
+    {
+        $user = $request->user();
+        $pinnedIds = $user->getPinnedProjectIds();
+
+        if (in_array($project->id, $pinnedIds)) {
+            $pinnedIds = array_values(array_diff($pinnedIds, [$project->id]));
+        } else {
+            $pinnedIds[] = $project->id;
+        }
+
+        $user->update(['pinned_project_ids' => $pinnedIds]);
+
+        return redirect()->route('dashboard');
     }
 
     public function start(Request $request, Project $project)
@@ -65,8 +114,6 @@ class DashboardController extends Controller
             'user_id' => $user->id,
             'project_id' => $project->id,
             'started_at' => now(),
-            'paused_at' => null,
-            'paused_duration' => 0,
             'message' => null,
         ]);
 
@@ -88,19 +135,12 @@ class DashboardController extends Controller
 
         $activeTracking = $user->activeTracking;
 
-        // Calculate final paused duration if currently paused
-        $pausedDuration = $activeTracking->paused_duration ?? 0;
-        if ($activeTracking->isPaused()) {
-            $pausedDuration += now()->getTimestamp() - $activeTracking->paused_at->getTimestamp();
-        }
-
         // Create tracking record
         Tracking::create([
             'project_id' => $activeTracking->project_id,
             'user_id' => $user->id,
             'started_at' => $activeTracking->started_at,
             'ended_at' => now(),
-            'paused_duration' => $pausedDuration,
             'message' => $request->input('message') ?: $activeTracking->message,
         ]);
 
@@ -108,52 +148,6 @@ class DashboardController extends Controller
         $activeTracking->delete();
 
         return redirect()->route('dashboard')->with('success', __('Timer stopped and tracking saved.'));
-    }
-
-    public function pause(Request $request)
-    {
-        $user = $request->user();
-        $user->load('activeTracking');
-
-        if (!$user->isTracking()) {
-            return redirect()->route('dashboard')->with('error', __('No active timer to pause.'));
-        }
-
-        if ($user->isPaused()) {
-            return redirect()->route('dashboard')->with('error', __('Timer is already paused.'));
-        }
-
-        $user->activeTracking->update([
-            'paused_at' => now(),
-        ]);
-
-        return redirect()->route('dashboard')->with('success', __('Timer paused.'));
-    }
-
-    public function resume(Request $request)
-    {
-        $user = $request->user();
-        $user->load('activeTracking');
-
-        if (!$user->isTracking()) {
-            return redirect()->route('dashboard')->with('error', __('No active timer to resume.'));
-        }
-
-        if (!$user->isPaused()) {
-            return redirect()->route('dashboard')->with('error', __('Timer is not paused.'));
-        }
-
-        $activeTracking = $user->activeTracking;
-
-        // Add paused time to total paused duration
-        $pausedDuration = ($activeTracking->paused_duration ?? 0) + (now()->getTimestamp() - $activeTracking->paused_at->getTimestamp());
-
-        $activeTracking->update([
-            'paused_at' => null,
-            'paused_duration' => $pausedDuration,
-        ]);
-
-        return redirect()->route('dashboard')->with('success', __('Timer resumed.'));
     }
 
     public function updateMessage(Request $request)

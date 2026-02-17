@@ -38,7 +38,6 @@
         </div>
         <!-- Main Content -->
         <div class="flex-grow-1">
-            <h5 class="fw-bold mb-3">{{ __('projects') }}</h5>
             <!-- Search -->
             <form action="{{ route('setup.projects') }}" method="GET" class="mb-4">
                 <div class="input-group">

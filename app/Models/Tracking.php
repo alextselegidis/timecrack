@@ -30,7 +30,6 @@ class Tracking extends Model
         'user_id',
         'started_at',
         'ended_at',
-        'paused_duration',
         'message',
     ];
 
@@ -50,9 +49,7 @@ class Tracking extends Model
             return '';
         }
 
-        $totalSeconds = $this->ended_at->getTimestamp() - $this->started_at->getTimestamp() - ($this->paused_duration ?? 0);
-
-        return $this->ended_at->copy()->subSeconds($this->paused_duration ?? 0)->diffForHumans(
+        return $this->ended_at->diffForHumans(
             $this->started_at,
             CarbonInterface::DIFF_ABSOLUTE,
             true,
@@ -66,7 +63,7 @@ class Tracking extends Model
             return 0;
         }
 
-        return max(0, $this->ended_at->getTimestamp() - $this->started_at->getTimestamp() - ($this->paused_duration ?? 0));
+        return max(0, $this->ended_at->getTimestamp() - $this->started_at->getTimestamp());
     }
 
     public function project()
