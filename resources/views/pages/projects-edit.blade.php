@@ -15,7 +15,7 @@
 @endsection
 @section('breadcrumbs')
     @include('shared.breadcrumb', ['breadcrumbs' => [
-        ['label' => __('setup')],
+        ['label' => __('setup'), 'url' => route('setup.localization')],
         ['label' => __('projects'), 'url' => session('projects_list_url', route('setup.projects'))],
         ['label' => $project->name]
     ]])
