@@ -33,7 +33,11 @@
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-md-4 mb-3 mb-md-0">
-                        <h5 class="mb-1">{{ $activeTracking->project->name ?? __('Unknown Project') }}</h5>
+                        <h5 class="mb-1">
+                            <span class="badge" style="background-color: {{ $activeTracking->project->color ?? '#6c757d' }}">
+                                {{ $activeTracking->project->name ?? __('Unknown Project') }}
+                            </span>
+                        </h5>
                         <small class="text-muted">
                             {{ __('Started at') }}: {{ $activeTracking->started_at->format('H:i:s') }}
                         </small>
@@ -274,7 +278,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <p>{{ __('You are about to stop the timer for:') }} <strong>{{ $activeTracking->project->name ?? __('Unknown') }}</strong></p>
+                            <p>{{ __('You are about to stop the timer for:') }} <span class="badge" style="background-color: {{ $activeTracking->project->color ?? '#6c757d' }}">{{ $activeTracking->project->name ?? __('Unknown') }}</span></p>
                             <div class="mb-3">
                                 <label for="stop-message" class="form-label">{{ __('Message (optional)') }}</label>
                                 <textarea name="message" id="stop-message" class="form-control" rows="3" placeholder="{{ __('What did you work on?') }}">{{ $activeTracking->message }}</textarea>

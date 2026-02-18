@@ -242,10 +242,6 @@ a:hover {
     gap: 0.25rem;
 }
 
-.pagination svg {
-    height: 16px
-}
-
 .pagination .page-item .page-link {
     display: flex;
     align-items: center;
@@ -255,9 +251,30 @@ a:hover {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
     border-radius: 0.25rem;
+    color: #333;
+    background-color: #fff;
+    border-color: #dee2e6;
 }
 
-.pagination .page-item .page-link svg {
+.pagination .page-item .page-link:hover {
+    color: #d97638;
+    background-color: #f8f9fa;
+    border-color: #d97638;
+}
+
+.pagination .page-item.active .page-link {
+    color: #fff;
+    background-color: #333;
+    border-color: #333;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.pagination .page-item .page-link i {
     font-size: 0.75rem;
 }
 

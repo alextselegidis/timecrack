@@ -33,14 +33,14 @@
 
         <div class="mb-3">
             <label for="email" class="form-label">
-                {{__('email')}}
+                <span class="text-danger">*</span> {{__('email')}}
             </label>
             <input type="email" name="email" class="form-control" maxlength="100" required>
         </div>
 
         <div class="mb-3">
             <label for="password" class="form-label">
-                {{__('password')}}
+                <span class="text-danger">*</span> {{__('password')}}
             </label>
             <input type="password" name="password" class="form-control" maxlength="100" required>
         </div>

@@ -242,7 +242,7 @@
             </div>
             @if($trackings->hasPages())
                 <div class="d-flex justify-content-center mt-3 pagination">
-                    {{ $trackings->withQueryString()->links() }}
+                    {{ $trackings->withQueryString()->links('pagination::bootstrap-5') }}
                 </div>
             @endif
         </div>

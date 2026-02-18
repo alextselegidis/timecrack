@@ -35,8 +35,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="{{$input_name ?? 'name'}}" class="form-label">
-                            {{ __($input_name ?? 'name') }}
-                            <span class="text-danger">*</span>
+                            <span class="text-danger">*</span> {{ __($input_name ?? 'name') }}
                         </label>
                         <input type="{{$input_type ?? 'text'}}"
                                id="{{$input_name ?? 'name'}}"

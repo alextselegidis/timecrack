@@ -45,7 +45,11 @@ class ProjectsController extends Controller
 
     public function create()
     {
-        $users = User::query()->where('role', '!=', 'admin')->orderBy('name')->get();
+        $users = User::query()
+            ->where('role', '!=', 'admin')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
         return view('pages.projects-edit', [
             'project' => new Project(),
@@ -94,14 +98,23 @@ class ProjectsController extends Controller
 
     public function edit(Project $project)
     {
-        $users = User::query()->where('role', '!=', 'admin')->orderBy('name')->get();
+        $selectedUserIds = $project->users->pluck('id')->toArray();
+
+        $users = User::query()
+            ->where('role', '!=', 'admin')
+            ->where(function ($query) use ($selectedUserIds) {
+                $query->where('is_active', true)
+                      ->orWhereIn('id', $selectedUserIds);
+            })
+            ->orderBy('name')
+            ->get();
 
         session(['projects_list_url' => url()->previous()]);
 
         return view('pages.projects-edit', [
             'project' => $project,
             'users' => $users,
-            'selectedUserIds' => $project->users->pluck('id')->toArray(),
+            'selectedUserIds' => $selectedUserIds,
         ]);
     }
 

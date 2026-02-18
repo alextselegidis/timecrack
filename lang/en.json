@@ -84,5 +84,6 @@
     "Pin": "Pin",
     "Unpin": "Unpin",
     "Show more": "Show more",
+    "inactive_users_cannot_login": "Inactive users cannot log in to the application.",
     "EOF": "EOF"
 }

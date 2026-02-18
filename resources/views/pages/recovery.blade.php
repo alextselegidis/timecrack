@@ -33,7 +33,7 @@
 
         <div class="mb-3">
             <label for="email" class="form-label">
-                {{__('email')}}
+                <span class="text-danger">*</span> {{__('email')}}
             </label>
             <input type="email" name="email" class="form-control" maxlength="100" required>
         </div>

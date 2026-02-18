@@ -18,7 +18,7 @@
 
 @section('breadcrumbs')
     @include('shared.breadcrumb', ['breadcrumbs' => [
-        ['label' => __('setup'), 'url' => route('setup.projects')],
+        ['label' => __('setup')],
         ['label' => __('users')]
     ]])
 @endsection
@@ -154,7 +154,7 @@
             </div>
             @if($users->hasPages())
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $users->withQueryString()->links() }}
+                    {{ $users->withQueryString()->links('pagination::bootstrap-5') }}
                 </div>
             @endif
         </div>

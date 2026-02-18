@@ -16,7 +16,7 @@
 @endsection
 @section('breadcrumbs')
     @include('shared.breadcrumb', ['breadcrumbs' => [
-        ['label' => __('setup'), 'url' => route('setup.projects')],
+        ['label' => __('setup')],
         ['label' => __('users'), 'url' => session('users_list_url', route('setup.users'))],
         ['label' => $user->name]
     ]])
@@ -89,14 +89,6 @@
                                     <span class="form-text text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="hidden" name="is_active" value="0">
-                                        <input type="checkbox" name="is_active" value="1" class="form-check-input" id="is_active"
-                                               @if(old('is_active', $user?->is_active ?? true)) checked @endif>
-                                        <label class="form-check-label" for="is_active">{{ __('active') }}</label>
-                                    </div>
-                                </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="mb-3">
@@ -119,6 +111,15 @@
                                     @error('password_confirmation')
                                     <span class="form-text text-danger">{{ $message }}</span>
                                     @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input type="hidden" name="is_active" value="0">
+                                        <input type="checkbox" name="is_active" value="1" class="form-check-input" id="is_active"
+                                               @if(old('is_active', $user?->is_active ?? true)) checked @endif>
+                                        <label class="form-check-label" for="is_active">{{ __('active') }}</label>
+                                    </div>
+                                    <small class="text-muted">{{ __('inactive_users_cannot_login') }}</small>
                                 </div>
                             </div>
                         </div>
