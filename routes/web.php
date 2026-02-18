@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
     // AccountController
     Route::get('/account', [AccountController::class, 'index'])->name('account');
     Route::put('/account', [AccountController::class, 'update'])->name('account.update');
+    Route::post('/account/tokens', [AccountController::class, 'createToken'])->name('account.tokens.create');
+    Route::delete('/account/tokens/{tokenId}', [AccountController::class, 'revokeToken'])->name('account.tokens.revoke');
 
     // AboutController
     Route::get('/about', [AboutController::class, 'index'])->name('about');

@@ -85,5 +85,15 @@
     "Unpin": "Unpin",
     "Show more": "Show more",
     "inactive_users_cannot_login": "Inactive users cannot log in to the application.",
+    "api_tokens": "API Tokens",
+    "token_name": "Token Name",
+    "token_name_placeholder": "e.g., My Integration",
+    "token_created_message": "Your new API token has been created.",
+    "token_copy_warning": "Please copy this token now. You won't be able to see it again!",
+    "token_revoked_message": "Token revoked successfully.",
+    "no_tokens_message": "You haven't created any API tokens yet.",
+    "revoke_token_prompt": "Are you sure you want to revoke this token?",
+    "created": "Created",
+    "last_used": "Last Used",
     "EOF": "EOF"
 }

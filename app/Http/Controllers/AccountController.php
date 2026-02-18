@@ -20,8 +20,11 @@ class AccountController extends Controller
 {
     public function index(Request $request)
     {
+        $user = $request->user();
+
         return view('pages.account', [
-            'user' => $request->user(),
+            'user' => $user,
+            'tokens' => $user->tokens()->orderBy('created_at', 'desc')->get(),
         ]);
     }
 
@@ -45,5 +48,25 @@ class AccountController extends Controller
         $user->save();
 
         return redirect()->route('account')->with('success', __('record_saved_message'));
+    }
+
+    public function createToken(Request $request)
+    {
+        $request->validate([
+            'token_name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $user = $request->user();
+        $token = $user->createToken($request->input('token_name'));
+
+        return redirect()->route('account')->with('new_token', $token->plainTextToken);
+    }
+
+    public function revokeToken(Request $request, int $tokenId)
+    {
+        $user = $request->user();
+        $user->tokens()->where('id', $tokenId)->delete();
+
+        return redirect()->route('account')->with('success', __('token_revoked_message'));
     }
 }
