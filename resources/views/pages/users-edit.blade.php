@@ -56,7 +56,7 @@
                             <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="name" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('name') }}
+                                        {{ __('name') }} <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" id="name" name="name" class="form-control" required
                                            value="{{ old('name', $user?->name ?? null) }}">
@@ -66,7 +66,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('email') }}
+                                        {{ __('email') }} <span class="text-danger">*</span>
                                     </label>
                                     <input type="email" id="email" name="email" class="form-control" required
                                            value="{{ old('email', $user?->email ?? null) }}">
@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="role" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('role') }}
+                                        {{ __('role') }} <span class="text-danger">*</span>
                                     </label>
                                     <select name="role" id="role" class="form-select" required>
                                         @foreach(RoleEnum::values() as $role)

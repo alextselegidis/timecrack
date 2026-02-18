@@ -55,7 +55,7 @@
                             <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="name" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('name') }}
+                                        {{ __('name') }} <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" id="name" name="name" class="form-control" required
                                            value="{{ old('name', $project?->name ?? null) }}">

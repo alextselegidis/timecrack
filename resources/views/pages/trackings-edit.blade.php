@@ -54,7 +54,7 @@
                             <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="project_id" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('project') }}
+                                        {{ __('project') }} <span class="text-danger">*</span>
                                     </label>
                                     <select name="project_id" id="project_id" class="form-select" required>
                                         <option value="">{{ __('select') }}...</option>
@@ -70,7 +70,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="user_id" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('user') }}
+                                        {{ __('user') }} <span class="text-danger">*</span>
                                     </label>
                                     <select name="user_id" id="user_id" class="form-select" required>
                                         <option value="">{{ __('select') }}...</option>
@@ -97,7 +97,7 @@
                             <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="started_at" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('started_at') }}
+                                        {{ __('started_at') }} <span class="text-danger">*</span>
                                     </label>
                                     <input type="datetime-local" id="started_at" name="started_at" class="form-control" required
                                            value="{{ old('started_at', $tracking?->started_at?->format('Y-m-d\TH:i')) }}">
@@ -107,7 +107,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="ended_at" class="form-label text-dark small fw-medium">
-                                        <span class="text-danger">*</span> {{ __('ended_at') }}
+                                        {{ __('ended_at') }} <span class="text-danger">*</span>
                                     </label>
                                     <input type="datetime-local" id="ended_at" name="ended_at" class="form-control" required
                                            value="{{ old('ended_at', $tracking?->ended_at?->format('Y-m-d\TH:i')) }}">
