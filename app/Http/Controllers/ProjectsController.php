@@ -109,8 +109,6 @@ class ProjectsController extends Controller
             ->orderBy('name')
             ->get();
 
-        session(['projects_list_url' => url()->previous()]);
-
         return view('pages.projects-edit', [
             'project' => $project,
             'users' => $users,

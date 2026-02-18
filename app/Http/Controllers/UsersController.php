@@ -74,8 +74,6 @@ class UsersController extends Controller
 
     public function edit(User $user)
     {
-        session(['users_list_url' => url()->previous()]);
-
         return view('pages.users-edit', [
             'user' => $user,
             'roles' => RoleEnum::values(),

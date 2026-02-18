@@ -214,8 +214,6 @@ class TrackingsController extends Controller
         $projects = Project::query()->orderBy('name')->get();
         $users = \App\Models\User::query()->where('is_active', true)->orderBy('name')->get();
 
-        session(['trackings_list_url' => url()->previous()]);
-
         return view('pages.trackings-edit', [
             'tracking' => new Tracking(),
             'projects' => $projects,
@@ -263,8 +261,6 @@ class TrackingsController extends Controller
 
         $projects = Project::query()->orderBy('name')->get();
         $users = \App\Models\User::query()->where('is_active', true)->orderBy('name')->get();
-
-        session(['trackings_list_url' => url()->previous()]);
 
         return view('pages.trackings-edit', [
             'tracking' => $tracking,

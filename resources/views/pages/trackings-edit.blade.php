@@ -20,7 +20,7 @@
 @endsection
 @section('breadcrumbs')
     @include('shared.breadcrumb', ['breadcrumbs' => [
-        ['label' => __('history'), 'url' => session('trackings_list_url', route('trackings'))],
+        ['label' => __('history'), 'url' => route('trackings')],
         ['label' => $isNew ? __('create') : __('tracking') . ' #' . $tracking->id]
     ]])
 @endsection
