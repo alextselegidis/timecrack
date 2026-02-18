@@ -23,6 +23,12 @@
 @endsection
 
 @section('navActions')
+    @if($isAdmin)
+        <a href="{{ route('trackings.create') }}" class="nav-link">
+            <i class="bi bi-plus-square me-2"></i>
+            {{ __('add') }}
+        </a>
+    @endif
 @endsection
 
 @section('content')

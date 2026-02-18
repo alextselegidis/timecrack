@@ -206,16 +206,21 @@ class TrackingsController extends Controller
     {
         $user = $request->user();
 
-        if ($user->isAdmin()) {
-            $projects = Project::query()->orderBy('name')->get();
-        } else {
-            $projects = $user->projects()->orderBy('name')->get();
+        // Only admins can create trackings manually
+        if (!$user->isAdmin()) {
+            abort(403, 'Unauthorized action.');
         }
+
+        $projects = Project::query()->orderBy('name')->get();
+        $users = \App\Models\User::query()->where('is_active', true)->orderBy('name')->get();
+
+        session(['trackings_list_url' => url()->previous()]);
 
         return view('pages.trackings-edit', [
             'tracking' => new Tracking(),
             'projects' => $projects,
-            'isAdmin' => $user->isAdmin(),
+            'users' => $users,
+            'isAdmin' => true,
         ]);
     }
 
@@ -230,14 +235,15 @@ class TrackingsController extends Controller
 
         $request->validate([
             'project_id' => ['required', 'exists:projects,id'],
+            'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        Tracking::create([
+        $tracking = Tracking::create([
             'project_id' => $request->input('project_id'),
-            'user_id' => $user->id,
+            'user_id' => $request->input('user_id'),
             'started_at' => $request->input('started_at'),
             'ended_at' => $request->input('ended_at'),
             'message' => $request->input('message'),

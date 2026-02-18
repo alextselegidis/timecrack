@@ -9,47 +9,54 @@
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 --}}
+@php $isNew = !$tracking->exists; @endphp
 @extends('layouts.main-layout')
 @section('pageTitle')
-    {{ __('tracking') }} #{{ $tracking->id }}
+    @if($isNew)
+        {{ __('create') }} {{ __('tracking') }}
+    @else
+        {{ __('tracking') }} #{{ $tracking->id }}
+    @endif
 @endsection
 @section('breadcrumbs')
     @include('shared.breadcrumb', ['breadcrumbs' => [
         ['label' => __('history'), 'url' => session('trackings_list_url', route('trackings'))],
-        ['label' => __('tracking') . ' #' . $tracking->id]
+        ['label' => $isNew ? __('create') : __('tracking') . ' #' . $tracking->id]
     ]])
 @endsection
 @section('navActions')
-    <a href="#" class="nav-link me-lg-3" data-bs-toggle="modal" data-bs-target="#create-modal">
-        <i class="bi bi-plus-square me-2"></i>
-        {{ __('add') }}
-    </a>
-    <form action="{{ route('trackings.destroy', $tracking->id) }}"
-          method="POST"
-          onsubmit="return confirm('{{ __('delete_record_prompt') }}')">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="nav-link">
-            <i class="bi bi-trash me-2"></i>
-            {{ __('delete') }}
-        </button>
-    </form>
+    @unless($isNew)
+        <form action="{{ route('trackings.destroy', $tracking->id) }}"
+              method="POST"
+              onsubmit="return confirm('{{ __('delete_record_prompt') }}')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="nav-link">
+                <i class="bi bi-trash me-2"></i>
+                {{ __('delete') }}
+            </button>
+        </form>
+    @endunless
 @endsection
 @section('content')
     <div class="d-flex flex-column flex-lg-row gap-4">
+        @unless($isNew)
         <!-- Edit Sidebar -->
         <div class="flex-shrink-0" style="min-width: 180px;">
             @include('shared.edit-sidebar', ['items' => [
                 ['label' => __('details'), 'route' => 'trackings.edit', 'params' => ['tracking' => $tracking->id], 'icon' => 'file-text']
             ]])
         </div>
+        @endunless
         <!-- Main Content -->
         <div class="flex-grow-1">
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-4">
-                    <form action="{{ route('trackings.update', ['tracking' => $tracking->id]) }}" method="POST" id="edit-form">
+                    <form action="{{ $isNew ? route('trackings.store') : route('trackings.update', ['tracking' => $tracking->id]) }}" method="POST" id="edit-form">
                         @csrf
-                        @method('PUT')
+                        @unless($isNew)
+                            @method('PUT')
+                        @endunless
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="mb-3">
@@ -128,5 +135,4 @@
             </div>
         </div>
     </div>
-    @include('modals.create-modal', ['route' => route('trackings.store')])
 @endsection
