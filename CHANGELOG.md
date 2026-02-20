@@ -19,7 +19,6 @@
 - Updates to the layout and functionality of the dashboard
 
 
-
 ## [0.2.0] - 2023-07-20
 
 ### Added
