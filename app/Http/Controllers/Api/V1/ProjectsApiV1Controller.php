@@ -10,14 +10,17 @@
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
+use Orion\Concerns\DisableAuthorization;
 use Orion\Http\Controllers\Controller;
 
-class ProjectsController extends Controller
+class ProjectsApiV1Controller extends Controller
 {
+    use DisableAuthorization;
+
     protected $model = Project::class;
 
     /**
@@ -59,11 +62,23 @@ class ProjectsController extends Controller
     /**
      * Only admins can create projects.
      */
-    public function authorizeResource(string $ability, $model = null): void
+    protected function beforeStore($request, $model)
     {
-        $user = request()->user();
+        if (!$request->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
 
-        if (in_array($ability, ['create', 'update', 'delete']) && !$user->isAdmin()) {
+    protected function beforeUpdate($request, $model)
+    {
+        if (!$request->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    protected function beforeDestroy($request, $model)
+    {
+        if (!$request->user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
     }

@@ -10,13 +10,13 @@
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
-class MeController extends Controller
+class MeApiV1Controller extends Controller
 {
     /**
      * Get the authenticated user's profile.

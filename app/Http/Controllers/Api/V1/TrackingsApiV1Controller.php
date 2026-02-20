@@ -10,14 +10,17 @@
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Tracking;
 use Illuminate\Database\Eloquent\Builder;
+use Orion\Concerns\DisableAuthorization;
 use Orion\Http\Controllers\Controller;
 
-class TrackingsController extends Controller
+class TrackingsApiV1Controller extends Controller
 {
+    use DisableAuthorization;
+
     protected $model = Tracking::class;
 
     /**
@@ -55,11 +58,23 @@ class TrackingsController extends Controller
     /**
      * Only admins can create/update/delete trackings via API.
      */
-    public function authorizeResource(string $ability, $model = null): void
+    protected function beforeStore($request, $model)
     {
-        $user = request()->user();
+        if (!$request->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
 
-        if (in_array($ability, ['create', 'update', 'delete']) && !$user->isAdmin()) {
+    protected function beforeUpdate($request, $model)
+    {
+        if (!$request->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    protected function beforeDestroy($request, $model)
+    {
+        if (!$request->user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
     }
@@ -67,7 +82,7 @@ class TrackingsController extends Controller
     /**
      * Include relations in the response.
      */
-    protected function alwaysIncludes(): array
+    public function alwaysIncludes(): array
     {
         return ['project', 'user'];
     }

@@ -22,9 +22,9 @@ info:
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 servers:
-  - url: http://localhost/api
+  - url: http://localhost/api/v1
     description: Local development server
-  - url: https://your-domain.com/api
+  - url: https://your-domain.com/api/v1
     description: Production server
 
 tags:
@@ -241,6 +241,200 @@ components:
         errors:
           type: object
 
+    OrionSearchRequest:
+      type: object
+      description: Request body for Orion search endpoints
+      properties:
+        scopes:
+          type: array
+          description: Array of scope objects to apply
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Scope name
+              parameters:
+                type: array
+                description: Optional scope parameters
+                items: {}
+        filters:
+          type: array
+          description: Array of filter objects
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [and, or]
+                default: and
+              field:
+                type: string
+                description: Field name to filter on
+              operator:
+                type: string
+                enum: ['=', '!=', '<', '>', '<=', '>=', 'like', 'not like', 'in', 'not in', 'is null', 'is not null']
+                default: '='
+              value:
+                description: Value to filter by (type depends on operator)
+              nested:
+                type: array
+                description: Nested filter groups
+                items:
+                  type: object
+        search:
+          type: object
+          description: Full-text search configuration
+          properties:
+            value:
+              type: string
+              description: Search term
+            case_sensitive:
+              type: boolean
+              default: false
+        sort:
+          type: array
+          description: Array of sort objects
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              direction:
+                type: string
+                enum: [asc, desc]
+                default: asc
+        aggregates:
+          type: array
+          description: Array of aggregate objects for relation statistics
+          items:
+            type: object
+            properties:
+              relation:
+                type: string
+                description: Relation name
+              type:
+                type: string
+                enum: [count, min, max, avg, sum, exists]
+              field:
+                type: string
+                description: Field for min/max/avg/sum aggregates
+              filters:
+                type: array
+                description: Optional filters for the aggregate
+                items:
+                  type: object
+        includes:
+          type: array
+          description: Array of relation includes
+          items:
+            type: object
+            properties:
+              relation:
+                type: string
+              filters:
+                type: array
+                items:
+                  type: object
+
+  parameters:
+    OrionPage:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    OrionLimit:
+      name: limit
+      in: query
+      description: Number of results per page (max 500)
+      schema:
+        type: integer
+        default: 15
+        minimum: 1
+        maximum: 500
+    OrionSort:
+      name: sort
+      in: query
+      description: |
+        Sort results by field. Prefix with `-` for descending order.
+        Examples: `name`, `-created_at`, `name,-updated_at`
+      schema:
+        type: string
+    OrionIncludes:
+      name: include
+      in: query
+      description: |
+        Comma-separated list of relations to include.
+        Examples: `users`, `trackings`, `project,user`
+      schema:
+        type: string
+    OrionFilters:
+      name: filters
+      in: query
+      description: |
+        JSON-encoded array of filter objects for advanced filtering.
+        Each filter object has: `field`, `operator`, `value`.
+        
+        Supported operators: `=`, `!=`, `<`, `>`, `<=`, `>=`, `like`, `not like`, `in`, `not in`, `is null`, `is not null`
+        
+        Example: `[{"field":"name","operator":"like","value":"%project%"}]`
+      schema:
+        type: string
+    OrionSearch:
+      name: search
+      in: query
+      description: |
+        JSON-encoded search object with `value` and optional `case_sensitive` flag.
+        Searches across all searchable fields defined on the model.
+        
+        Example: `{"value":"website"}`
+      schema:
+        type: string
+    OrionScopes:
+      name: scopes
+      in: query
+      description: |
+        JSON-encoded array of scope objects to apply.
+        Each scope object has: `name` and optional `parameters`.
+        
+        Example: `[{"name":"active"}]`
+      schema:
+        type: string
+    OrionAggregate:
+      name: aggregate
+      in: query
+      description: |
+        JSON-encoded array of aggregate objects for relation counts/sums.
+        Each object has: `relation`, `type` (count, min, max, avg, sum), optional `field`, optional `filters`.
+        
+        Example: `[{"relation":"trackings","type":"count"}]`
+      schema:
+        type: string
+    OrionWithTrashed:
+      name: with_trashed
+      in: query
+      description: Include soft-deleted records (if model uses SoftDeletes)
+      schema:
+        type: boolean
+        default: false
+    OrionOnlyTrashed:
+      name: only_trashed
+      in: query
+      description: Return only soft-deleted records (if model uses SoftDeletes)
+      schema:
+        type: boolean
+        default: false
+    OrionForceDelete:
+      name: force
+      in: query
+      description: Permanently delete a soft-deleted record (use with DELETE requests)
+      schema:
+        type: boolean
+        default: false
+
 security:
   - bearerAuth: []
 
@@ -307,16 +501,16 @@ paths:
       summary: List projects
       description: Returns a paginated list of projects. Non-admin users only see projects assigned to them.
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 15
+        - $ref: '#/components/parameters/OrionPage'
+        - $ref: '#/components/parameters/OrionLimit'
+        - $ref: '#/components/parameters/OrionSort'
+        - $ref: '#/components/parameters/OrionIncludes'
+        - $ref: '#/components/parameters/OrionFilters'
+        - $ref: '#/components/parameters/OrionSearch'
+        - $ref: '#/components/parameters/OrionScopes'
+        - $ref: '#/components/parameters/OrionAggregate'
+        - $ref: '#/components/parameters/OrionWithTrashed'
+        - $ref: '#/components/parameters/OrionOnlyTrashed'
       responses:
         '200':
           description: Successful response
@@ -361,6 +555,40 @@ paths:
         '422':
           description: Validation error
 
+  /projects/search:
+    post:
+      tags:
+        - Projects
+      summary: Search projects
+      description: |
+        Advanced search endpoint for projects with filtering, sorting, and aggregation.
+        Non-admin users only see projects assigned to them.
+      parameters:
+        - $ref: '#/components/parameters/OrionPage'
+        - $ref: '#/components/parameters/OrionLimit'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrionSearchRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthenticated
+
   /projects/{id}:
     get:
       tags:
@@ -373,6 +601,8 @@ paths:
           required: true
           schema:
             type: integer
+        - $ref: '#/components/parameters/OrionIncludes'
+        - $ref: '#/components/parameters/OrionAggregate'
       responses:
         '200':
           description: Successful response
@@ -433,6 +663,7 @@ paths:
           required: true
           schema:
             type: integer
+        - $ref: '#/components/parameters/OrionForceDelete'
       responses:
         '200':
           description: Project deleted successfully
@@ -450,16 +681,16 @@ paths:
       summary: List trackings
       description: Returns a paginated list of time trackings. Non-admin users only see their own trackings.
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 15
+        - $ref: '#/components/parameters/OrionPage'
+        - $ref: '#/components/parameters/OrionLimit'
+        - $ref: '#/components/parameters/OrionSort'
+        - $ref: '#/components/parameters/OrionIncludes'
+        - $ref: '#/components/parameters/OrionFilters'
+        - $ref: '#/components/parameters/OrionSearch'
+        - $ref: '#/components/parameters/OrionScopes'
+        - $ref: '#/components/parameters/OrionAggregate'
+        - $ref: '#/components/parameters/OrionWithTrashed'
+        - $ref: '#/components/parameters/OrionOnlyTrashed'
       responses:
         '200':
           description: Successful response
@@ -504,6 +735,40 @@ paths:
         '422':
           description: Validation error
 
+  /trackings/search:
+    post:
+      tags:
+        - Trackings
+      summary: Search trackings
+      description: |
+        Advanced search endpoint for trackings with filtering, sorting, and aggregation.
+        Non-admin users only see their own trackings.
+      parameters:
+        - $ref: '#/components/parameters/OrionPage'
+        - $ref: '#/components/parameters/OrionLimit'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrionSearchRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Tracking'
+        '401':
+          description: Unauthenticated
+
   /trackings/{id}:
     get:
       tags:
@@ -516,6 +781,8 @@ paths:
           required: true
           schema:
             type: integer
+        - $ref: '#/components/parameters/OrionIncludes'
+        - $ref: '#/components/parameters/OrionAggregate'
       responses:
         '200':
           description: Successful response
@@ -576,6 +843,7 @@ paths:
           required: true
           schema:
             type: integer
+        - $ref: '#/components/parameters/OrionForceDelete'
       responses:
         '200':
           description: Tracking deleted successfully
@@ -593,16 +861,16 @@ paths:
       summary: List users
       description: Returns a paginated list of users. Admin only.
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 15
+        - $ref: '#/components/parameters/OrionPage'
+        - $ref: '#/components/parameters/OrionLimit'
+        - $ref: '#/components/parameters/OrionSort'
+        - $ref: '#/components/parameters/OrionIncludes'
+        - $ref: '#/components/parameters/OrionFilters'
+        - $ref: '#/components/parameters/OrionSearch'
+        - $ref: '#/components/parameters/OrionScopes'
+        - $ref: '#/components/parameters/OrionAggregate'
+        - $ref: '#/components/parameters/OrionWithTrashed'
+        - $ref: '#/components/parameters/OrionOnlyTrashed'
       responses:
         '200':
           description: Successful response
@@ -649,6 +917,42 @@ paths:
         '422':
           description: Validation error
 
+  /users/search:
+    post:
+      tags:
+        - Users
+      summary: Search users
+      description: |
+        Advanced search endpoint for users with filtering, sorting, and aggregation.
+        Admin only.
+      parameters:
+        - $ref: '#/components/parameters/OrionPage'
+        - $ref: '#/components/parameters/OrionLimit'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrionSearchRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+
   /users/{id}:
     get:
       tags:
@@ -661,6 +965,8 @@ paths:
           required: true
           schema:
             type: integer
+        - $ref: '#/components/parameters/OrionIncludes'
+        - $ref: '#/components/parameters/OrionAggregate'
       responses:
         '200':
           description: Successful response
@@ -723,6 +1029,7 @@ paths:
           required: true
           schema:
             type: integer
+        - $ref: '#/components/parameters/OrionForceDelete'
       responses:
         '200':
           description: User deleted successfully

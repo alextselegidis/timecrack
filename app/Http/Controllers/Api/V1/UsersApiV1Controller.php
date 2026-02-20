@@ -10,25 +10,29 @@
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use Orion\Concerns\DisableAuthorization;
 use Orion\Http\Controllers\Controller;
 
-class UsersController extends Controller
+class UsersApiV1Controller extends Controller
 {
+    use DisableAuthorization;
+
     protected $model = User::class;
 
     /**
      * Only admins can access user management.
      */
-    public function authorizeResource(string $ability, $model = null): void
+    public function __construct()
     {
-        $user = request()->user();
-
-        if (!$user->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->middleware(function ($request, $next) {
+            if (!$request->user()->isAdmin()) {
+                abort(403, 'Unauthorized action.');
+            }
+            return $next($request);
+        });
     }
 
     /**

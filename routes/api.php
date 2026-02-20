@@ -10,10 +10,10 @@
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 
-use App\Http\Controllers\Api\MeController;
-use App\Http\Controllers\Api\ProjectsController;
-use App\Http\Controllers\Api\TrackingsController;
-use App\Http\Controllers\Api\UsersController;
+use App\Http\Controllers\Api\V1\MeApiV1Controller;
+use App\Http\Controllers\Api\V1\ProjectsApiV1Controller;
+use App\Http\Controllers\Api\V1\TrackingsApiV1Controller;
+use App\Http\Controllers\Api\V1\UsersApiV1Controller;
 use Illuminate\Support\Facades\Route;
 use Orion\Facades\Orion;
 
@@ -28,13 +28,13 @@ use Orion\Facades\Orion;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Current user profile
-    Route::get('/me', [MeController::class, 'show']);
-    Route::put('/me', [MeController::class, 'update']);
+    Route::get('/me', [MeApiV1Controller::class, 'show']);
+    Route::put('/me', [MeApiV1Controller::class, 'update']);
 
     // Orion resource routes
-    Orion::resource('projects', ProjectsController::class);
-    Orion::resource('trackings', TrackingsController::class);
-    Orion::resource('users', UsersController::class);
+    Orion::resource('projects', ProjectsApiV1Controller::class);
+    Orion::resource('trackings', TrackingsApiV1Controller::class);
+    Orion::resource('users', UsersApiV1Controller::class);
 });
