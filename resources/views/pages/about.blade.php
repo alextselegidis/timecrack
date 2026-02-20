@@ -53,7 +53,7 @@
             <div class="mb-4 text-secondary">
                 {{ __('premium_description') }}
             </div>
-            <a href="https://timecrack.org/premium" class="btn btn-warning btn-lg px-5" target="_blank">
+            <a href="https://timecrack.org/premium" class="btn btn-primary btn-lg w-100" target="_blank">
                 <i class="bi bi-star me-2"></i>
                 {{ __('get_premium') }}
             </a>
