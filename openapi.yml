@@ -3,20 +3,110 @@ info:
   title: Timecrack API
   version: 1.0.0
   description: |
-    REST API for Timecrack time tracking application.
-    
+    REST API for Timecrack time tracking application powered by Laravel Orion. Authenticate using Bearer tokens generated from your account settings.
+
     ## Authentication
-    
-    All API endpoints require authentication using a Bearer token. Generate an API token from your account settings page.
-    
+    All API endpoints require authentication via Bearer token. Generate tokens from your Account page.
+
     Include the token in the Authorization header:
     ```
     Authorization: Bearer YOUR_API_TOKEN
     ```
+
+    ## Pagination
+    List endpoints support pagination via query parameters:
+    - `page` - Page number (default: 1)
+    - `per_page` - Items per page (default: 15, max: 100)
+
+    ## Filtering (GET requests)
+    Use the `filter` query parameter to filter results:
+    ```
+    ?filter[name]=Website
+    ?filter[created_at]=2024-01-01
+    ```
+
+    ## Sorting (GET requests)
+    Use the `sort` query parameter. Prefix with `-` for descending order:
+    ```
+    ?sort=-created_at
+    ?sort=name,-updated_at
+    ```
+
+    ## Including Relations
+    Use the `include` query parameter to include related resources:
+    ```
+    ?include=project,user
+    ```
+
+    ## Advanced Search (POST /search)
+    Each resource has a `/search` endpoint that accepts a JSON body with advanced options:
+
+    ### Scopes
+    Apply model scopes:
+    ```json
+    {
+      "scopes": [
+        {"name": "active"},
+        {"name": "whereStatus", "parameters": ["completed"]}
+      ]
+    }
+    ```
+
+    ### Filters
+    Filter with operators (`=`, `!=`, `<`, `<=`, `>`, `>=`, `like`, `not like`, `in`, `not in`):
+    ```json
+    {
+      "filters": [
+        {"field": "project_id", "operator": "=", "value": 1},
+        {"field": "created_at", "operator": ">=", "value": "2024-01-01"},
+        {"type": "or", "field": "message", "operator": "like", "value": "%bug fix%"}
+      ]
+    }
+    ```
+
+    ### Search
+    Full-text search across searchable fields:
+    ```json
+    {
+      "search": {
+        "value": "website redesign"
+      }
+    }
+    ```
+
+    ### Sort
+    Sort by multiple fields:
+    ```json
+    {
+      "sort": [
+        {"field": "started_at", "direction": "desc"},
+        {"field": "project_id", "direction": "asc"}
+      ]
+    }
+    ```
+
+    ### Aggregates
+    Get aggregate data on relationships:
+    ```json
+    {
+      "aggregates": [
+        {"relation": "trackings", "type": "count"},
+        {"relation": "users", "type": "count"}
+      ]
+    }
+    ```
+    Supported aggregate types: `count`, `sum`, `avg`, `min`, `max`, `exists`
+
+    ## Batch Operations
+    - `POST /batch` - Create multiple resources
+    - `PATCH /batch` - Update multiple resources
+    - `DELETE /batch` - Delete multiple resources
+
+  termsOfService: https://github.com/alextselegidis/timecrack
   contact:
     name: Timecrack
     url: https://github.com/alextselegidis/timecrack
-    email: alextselegidis@gmail.com
+    email: info@alextselegidis.com
   license:
     name: GPL-3.0
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -241,13 +331,13 @@ components:
         errors:
           type: object
 
-    OrionSearchRequest:
+    SearchRequest:
       type: object
-      description: Request body for Orion search endpoints
+      description: Advanced search request body for POST /search endpoints
       properties:
         scopes:
           type: array
-          description: Array of scope objects to apply
+          description: Model scopes to apply
           items:
             type: object
             properties:
@@ -256,11 +346,14 @@ components:
                 description: Scope name
               parameters:
                 type: array
-                description: Optional scope parameters
-                items: {}
+                description: Scope parameters
+                items:
+                  type: string
+            required:
+              - name
         filters:
           type: array
-          description: Array of filter objects
+          description: Filter conditions
           items:
             type: object
             properties:
@@ -268,33 +361,38 @@ components:
                 type: string
                 enum: [and, or]
                 default: and
+                description: Logical operator for combining with previous filters
               field:
                 type: string
                 description: Field name to filter on
               operator:
                 type: string
-                enum: ['=', '!=', '<', '>', '<=', '>=', 'like', 'not like', 'in', 'not in', 'is null', 'is not null']
+                enum: ['=', '!=', '<', '<=', '>', '>=', 'like', 'not like', 'in', 'not in']
                 default: '='
               value:
-                description: Value to filter by (type depends on operator)
-              nested:
-                type: array
-                description: Nested filter groups
-                items:
-                  type: object
+                oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  - type: array
+                    items:
+                      type: string
+                description: Filter value
+            required:
+              - field
+              - value
         search:
           type: object
-          description: Full-text search configuration
+          description: Full-text search
           properties:
             value:
               type: string
               description: Search term
-            case_sensitive:
-              type: boolean
-              default: false
+          required:
+            - value
         sort:
           type: array
-          description: Array of sort objects
+          description: Sort configuration
           items:
             type: object
             properties:
@@ -304,41 +402,76 @@ components:
                 type: string
                 enum: [asc, desc]
                 default: asc
+            required:
+              - field
         aggregates:
           type: array
-          description: Array of aggregate objects for relation statistics
+          description: Aggregate calculations on relationships
           items:
             type: object
             properties:
               relation:
                 type: string
-                description: Relation name
+                description: Relationship name
               type:
                 type: string
-                enum: [count, min, max, avg, sum, exists]
+                enum: [count, sum, avg, min, max, exists]
               field:
                 type: string
-                description: Field for min/max/avg/sum aggregates
+                description: Field for sum/avg/min/max aggregates
               filters:
                 type: array
-                description: Optional filters for the aggregate
+                description: Filters to apply on the relation
                 items:
                   type: object
-        includes:
+                  properties:
+                    field:
+                      type: string
+                    operator:
+                      type: string
+                    value:
+                      type: string
+            required:
+              - relation
+              - type
+
+    BatchCreateRequest:
+      type: object
+      properties:
+        resources:
           type: array
-          description: Array of relation includes
+          description: Array of resources to create
+          items:
+            type: object
+      required:
+        - resources
+
+    BatchUpdateRequest:
+      type: object
+      properties:
+        resources:
+          type: array
+          description: Array of resources to update (must include id)
           items:
             type: object
             properties:
-              relation:
-                type: string
-              filters:
-                type: array
-                items:
-                  type: object
+              id:
+                type: integer
+            required:
+              - id
+      required:
+        - resources
+
+    BatchResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
 
   parameters:
-    OrionPage:
+    PageParam:
       name: page
       in: query
       description: Page number for pagination
@@ -346,105 +479,64 @@ components:
         type: integer
         default: 1
         minimum: 1
-    OrionLimit:
-      name: limit
+    PerPageParam:
+      name: per_page
       in: query
-      description: Number of results per page (max 500)
+      description: Number of items per page (max 100)
       schema:
         type: integer
         default: 15
         minimum: 1
-        maximum: 500
-    OrionSort:
+        maximum: 100
+    SortParam:
       name: sort
       in: query
       description: |
-        Sort results by field. Prefix with `-` for descending order.
-        Examples: `name`, `-created_at`, `name,-updated_at`
+        Sort field(s). Prefix with `-` for descending order.
+        Multiple fields can be comma-separated.
       schema:
         type: string
-    OrionIncludes:
+      examples:
+        ascending:
+          value: name
+          summary: Sort by name ascending
+        descending:
+          value: -created_at
+          summary: Sort by created_at descending
+        multiple:
+          value: name,-created_at
+          summary: Sort by name asc, then created_at desc
+    IncludeParam:
       name: include
       in: query
-      description: |
-        Comma-separated list of relations to include.
-        Examples: `users`, `trackings`, `project,user`
+      description: Comma-separated list of relations to include
       schema:
         type: string
-    OrionFilters:
-      name: filters
+    WithCountParam:
+      name: with_count
       in: query
-      description: |
-        JSON-encoded array of filter objects for advanced filtering.
-        Each filter object has: `field`, `operator`, `value`.
-        
-        Supported operators: `=`, `!=`, `<`, `>`, `<=`, `>=`, `like`, `not like`, `in`, `not in`, `is null`, `is not null`
-        
-        Example: `[{"field":"name","operator":"like","value":"%project%"}]`
+      description: Comma-separated list of relations to count
       schema:
         type: string
-    OrionSearch:
-      name: search
-      in: query
-      description: |
-        JSON-encoded search object with `value` and optional `case_sensitive` flag.
-        Searches across all searchable fields defined on the model.
-        
-        Example: `{"value":"website"}`
+    IdPathParam:
+      name: id
+      in: path
+      required: true
+      description: Resource ID
       schema:
-        type: string
-    OrionScopes:
-      name: scopes
-      in: query
-      description: |
-        JSON-encoded array of scope objects to apply.
-        Each scope object has: `name` and optional `parameters`.
-        
-        Example: `[{"name":"active"}]`
-      schema:
-        type: string
-    OrionAggregate:
-      name: aggregate
-      in: query
-      description: |
-        JSON-encoded array of aggregate objects for relation counts/sums.
-        Each object has: `relation`, `type` (count, min, max, avg, sum), optional `field`, optional `filters`.
-        
-        Example: `[{"relation":"trackings","type":"count"}]`
-      schema:
-        type: string
-    OrionWithTrashed:
-      name: with_trashed
-      in: query
-      description: Include soft-deleted records (if model uses SoftDeletes)
-      schema:
-        type: boolean
-        default: false
-    OrionOnlyTrashed:
-      name: only_trashed
-      in: query
-      description: Return only soft-deleted records (if model uses SoftDeletes)
-      schema:
-        type: boolean
-        default: false
-    OrionForceDelete:
-      name: force
-      in: query
-      description: Permanently delete a soft-deleted record (use with DELETE requests)
-      schema:
-        type: boolean
-        default: false
+        type: integer
 
 security:
   - bearerAuth: []
 
 paths:
+  # ============== ME ==============
   /me:
     get:
       tags:
         - Me
-      summary: Get current user profile
-      description: Returns the authenticated user's profile information.
+      summary: Get current user
+      description: Returns the authenticated user's information
       responses:
         '200':
           description: Successful response
@@ -494,23 +586,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  # ============== PROJECTS ==============
   /projects:
     get:
       tags:
         - Projects
-      summary: List projects
-      description: Returns a paginated list of projects. Non-admin users only see projects assigned to them.
+      summary: List all projects
+      description: Returns a paginated list of projects with filtering, sorting, and relation loading. Non-admin users only see projects assigned to them.
       parameters:
-        - $ref: '#/components/parameters/OrionPage'
-        - $ref: '#/components/parameters/OrionLimit'
-        - $ref: '#/components/parameters/OrionSort'
-        - $ref: '#/components/parameters/OrionIncludes'
-        - $ref: '#/components/parameters/OrionFilters'
-        - $ref: '#/components/parameters/OrionSearch'
-        - $ref: '#/components/parameters/OrionScopes'
-        - $ref: '#/components/parameters/OrionAggregate'
-        - $ref: '#/components/parameters/OrionWithTrashed'
-        - $ref: '#/components/parameters/OrionOnlyTrashed'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PerPageParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/IncludeParam'
+        - $ref: '#/components/parameters/WithCountParam'
+        - name: filter[name]
+          in: query
+          schema:
+            type: string
+        - name: filter[created_at]
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: filter[updated_at]
+          in: query
+          schema:
+            type: string
+            format: date
       responses:
         '200':
           description: Successful response
@@ -559,19 +661,36 @@ paths:
     post:
       tags:
         - Projects
-      summary: Search projects
+      summary: Advanced search projects
       description: |
-        Advanced search endpoint for projects with filtering, sorting, and aggregation.
+        Search projects with advanced filtering, scopes, sorting, and aggregates.
         Non-admin users only see projects assigned to them.
+        Searchable fields: name, description
       parameters:
-        - $ref: '#/components/parameters/OrionPage'
-        - $ref: '#/components/parameters/OrionLimit'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PerPageParam'
+        - $ref: '#/components/parameters/IncludeParam'
       requestBody:
-        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrionSearchRequest'
+              $ref: '#/components/schemas/SearchRequest'
+            examples:
+              simpleSearch:
+                summary: Simple text search
+                value:
+                  search:
+                    value: "website"
+              filteredSearch:
+                summary: Search with filters
+                value:
+                  filters:
+                    - field: name
+                      operator: "like"
+                      value: "%redesign%"
+                  sort:
+                    - field: name
+                      direction: asc
       responses:
         '200':
           description: Successful response
@@ -589,6 +708,80 @@ paths:
         '401':
           description: Unauthenticated
 
+  /projects/batch:
+    post:
+      tags:
+        - Projects
+      summary: Batch create projects
+      description: Create multiple projects at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateRequest'
+      responses:
+        '200':
+          description: Projects created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+        '422':
+          description: Validation error
+    patch:
+      tags:
+        - Projects
+      summary: Batch update projects
+      description: Update multiple projects at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateRequest'
+      responses:
+        '200':
+          description: Projects updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+        '422':
+          description: Validation error
+    delete:
+      tags:
+        - Projects
+      summary: Batch delete projects
+      description: Delete multiple projects at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resources:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of project IDs to delete
+      responses:
+        '200':
+          description: Projects deleted
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+
   /projects/{id}:
     get:
       tags:
@@ -596,13 +789,8 @@ paths:
       summary: Get a project
       description: Returns a single project by ID.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/OrionIncludes'
-        - $ref: '#/components/parameters/OrionAggregate'
+        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: '#/components/parameters/IncludeParam'
       responses:
         '200':
           description: Successful response
@@ -623,11 +811,7 @@ paths:
       summary: Update a project
       description: Updates an existing project. Admin only.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
@@ -658,12 +842,7 @@ paths:
       summary: Delete a project
       description: Deletes a project. Admin only.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/OrionForceDelete'
+        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
           description: Project deleted successfully
@@ -674,23 +853,47 @@ paths:
         '404':
           description: Project not found
 
+  # ============== TRACKINGS ==============
   /trackings:
     get:
       tags:
         - Trackings
-      summary: List trackings
-      description: Returns a paginated list of time trackings. Non-admin users only see their own trackings.
+      summary: List all trackings
+      description: Returns a paginated list of time trackings with filtering, sorting, and relation loading. Non-admin users only see their own trackings.
       parameters:
-        - $ref: '#/components/parameters/OrionPage'
-        - $ref: '#/components/parameters/OrionLimit'
-        - $ref: '#/components/parameters/OrionSort'
-        - $ref: '#/components/parameters/OrionIncludes'
-        - $ref: '#/components/parameters/OrionFilters'
-        - $ref: '#/components/parameters/OrionSearch'
-        - $ref: '#/components/parameters/OrionScopes'
-        - $ref: '#/components/parameters/OrionAggregate'
-        - $ref: '#/components/parameters/OrionWithTrashed'
-        - $ref: '#/components/parameters/OrionOnlyTrashed'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PerPageParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/IncludeParam'
+        - $ref: '#/components/parameters/WithCountParam'
+        - name: filter[project_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[user_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[started_at]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[ended_at]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_at]
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: filter[updated_at]
+          in: query
+          schema:
+            type: string
+            format: date
       responses:
         '200':
           description: Successful response
@@ -739,19 +942,39 @@ paths:
     post:
       tags:
         - Trackings
-      summary: Search trackings
+      summary: Advanced search trackings
       description: |
-        Advanced search endpoint for trackings with filtering, sorting, and aggregation.
+        Search trackings with advanced filtering, scopes, sorting, and aggregates.
         Non-admin users only see their own trackings.
+        Searchable fields: message
       parameters:
-        - $ref: '#/components/parameters/OrionPage'
-        - $ref: '#/components/parameters/OrionLimit'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PerPageParam'
+        - $ref: '#/components/parameters/IncludeParam'
       requestBody:
-        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrionSearchRequest'
+              $ref: '#/components/schemas/SearchRequest'
+            examples:
+              simpleSearch:
+                summary: Simple text search
+                value:
+                  search:
+                    value: "bug fix"
+              filteredSearch:
+                summary: Search with filters
+                value:
+                  filters:
+                    - field: project_id
+                      operator: "="
+                      value: 1
+                    - field: started_at
+                      operator: ">="
+                      value: "2024-01-01"
+                  sort:
+                    - field: started_at
+                      direction: desc
       responses:
         '200':
           description: Successful response
@@ -769,6 +992,80 @@ paths:
         '401':
           description: Unauthenticated
 
+  /trackings/batch:
+    post:
+      tags:
+        - Trackings
+      summary: Batch create trackings
+      description: Create multiple trackings at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateRequest'
+      responses:
+        '200':
+          description: Trackings created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+        '422':
+          description: Validation error
+    patch:
+      tags:
+        - Trackings
+      summary: Batch update trackings
+      description: Update multiple trackings at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateRequest'
+      responses:
+        '200':
+          description: Trackings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+        '422':
+          description: Validation error
+    delete:
+      tags:
+        - Trackings
+      summary: Batch delete trackings
+      description: Delete multiple trackings at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resources:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of tracking IDs to delete
+      responses:
+        '200':
+          description: Trackings deleted
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+
   /trackings/{id}:
     get:
       tags:
@@ -776,13 +1073,8 @@ paths:
       summary: Get a tracking
       description: Returns a single tracking entry by ID.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/OrionIncludes'
-        - $ref: '#/components/parameters/OrionAggregate'
+        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: '#/components/parameters/IncludeParam'
       responses:
         '200':
           description: Successful response
@@ -803,11 +1095,7 @@ paths:
       summary: Update a tracking
       description: Updates an existing tracking entry. Admin only.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
@@ -838,12 +1126,7 @@ paths:
       summary: Delete a tracking
       description: Deletes a tracking entry. Admin only.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/OrionForceDelete'
+        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
           description: Tracking deleted successfully
@@ -854,23 +1137,46 @@ paths:
         '404':
           description: Tracking not found
 
+  # ============== USERS ==============
   /users:
     get:
       tags:
         - Users
-      summary: List users
-      description: Returns a paginated list of users. Admin only.
+      summary: List all users
+      description: Returns a paginated list of users with filtering, sorting, and relation loading. Admin only.
       parameters:
-        - $ref: '#/components/parameters/OrionPage'
-        - $ref: '#/components/parameters/OrionLimit'
-        - $ref: '#/components/parameters/OrionSort'
-        - $ref: '#/components/parameters/OrionIncludes'
-        - $ref: '#/components/parameters/OrionFilters'
-        - $ref: '#/components/parameters/OrionSearch'
-        - $ref: '#/components/parameters/OrionScopes'
-        - $ref: '#/components/parameters/OrionAggregate'
-        - $ref: '#/components/parameters/OrionWithTrashed'
-        - $ref: '#/components/parameters/OrionOnlyTrashed'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PerPageParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/IncludeParam'
+        - $ref: '#/components/parameters/WithCountParam'
+        - name: filter[name]
+          in: query
+          schema:
+            type: string
+        - name: filter[email]
+          in: query
+          schema:
+            type: string
+        - name: filter[role]
+          in: query
+          schema:
+            type: string
+            enum: [admin, user]
+        - name: filter[is_active]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[created_at]
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: filter[updated_at]
+          in: query
+          schema:
+            type: string
+            format: date
       responses:
         '200':
           description: Successful response
@@ -921,19 +1227,39 @@ paths:
     post:
       tags:
         - Users
-      summary: Search users
+      summary: Advanced search users
       description: |
-        Advanced search endpoint for users with filtering, sorting, and aggregation.
+        Search users with advanced filtering, scopes, sorting, and aggregates.
         Admin only.
+        Searchable fields: name, email
       parameters:
-        - $ref: '#/components/parameters/OrionPage'
-        - $ref: '#/components/parameters/OrionLimit'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PerPageParam'
+        - $ref: '#/components/parameters/IncludeParam'
       requestBody:
-        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrionSearchRequest'
+              $ref: '#/components/schemas/SearchRequest'
+            examples:
+              simpleSearch:
+                summary: Simple text search
+                value:
+                  search:
+                    value: "john"
+              filteredSearch:
+                summary: Search with filters
+                value:
+                  filters:
+                    - field: role
+                      operator: "="
+                      value: admin
+                    - field: is_active
+                      operator: "="
+                      value: true
+                  sort:
+                    - field: name
+                      direction: asc
       responses:
         '200':
           description: Successful response
@@ -953,6 +1279,80 @@ paths:
         '403':
           description: Forbidden - Admin access required
 
+  /users/batch:
+    post:
+      tags:
+        - Users
+      summary: Batch create users
+      description: Create multiple users at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateRequest'
+      responses:
+        '200':
+          description: Users created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+        '422':
+          description: Validation error
+    patch:
+      tags:
+        - Users
+      summary: Batch update users
+      description: Update multiple users at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateRequest'
+      responses:
+        '200':
+          description: Users updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+        '422':
+          description: Validation error
+    delete:
+      tags:
+        - Users
+      summary: Batch delete users
+      description: Delete multiple users at once. Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resources:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of user IDs to delete
+      responses:
+        '200':
+          description: Users deleted
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Admin access required
+
   /users/{id}:
     get:
       tags:
@@ -960,13 +1360,8 @@ paths:
       summary: Get a user
       description: Returns a single user by ID. Admin only.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/OrionIncludes'
-        - $ref: '#/components/parameters/OrionAggregate'
+        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: '#/components/parameters/IncludeParam'
       responses:
         '200':
           description: Successful response
@@ -989,11 +1384,7 @@ paths:
       summary: Update a user
       description: Updates an existing user. Admin only.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
@@ -1024,12 +1415,7 @@ paths:
       summary: Delete a user
       description: Deletes a user. Admin only.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/OrionForceDelete'
+        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
           description: User deleted successfully
