@@ -43,5 +43,20 @@
                 </a>
             </div>
         </div>
+
+        <div class="mx-auto mb-5 text-center" style="max-width: 600px">
+            <hr class="my-5">
+            <h2 class="fs-4 mb-4">
+                <i class="bi bi-star-fill text-warning me-2"></i>
+                {{ __('premium') }}
+            </h2>
+            <div class="mb-4 text-secondary">
+                {{ __('premium_description') }}
+            </div>
+            <a href="https://timecrack.org/premium" class="btn btn-warning btn-lg px-5" target="_blank">
+                <i class="bi bi-star me-2"></i>
+                {{ __('get_premium') }}
+            </a>
+        </div>
     </div>
 @endsection
