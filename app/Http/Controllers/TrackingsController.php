@@ -80,6 +80,9 @@ class TrackingsController extends Controller
         // Calculate total billable hours for all filtered results
         $totalBillableHours = (clone $query)->sum('billable_hours');
 
+        // Calculate total non-billable hours (duration - billable)
+        $totalNonBillableHours = ($totalDurationSeconds / 3600) - $totalBillableHours;
+
         $trackings = $query->paginate(25);
 
         // Get all users for filter (admin only)
@@ -95,6 +98,7 @@ class TrackingsController extends Controller
             'isAdmin' => $isAdmin,
             'totalDurationSeconds' => $totalDurationSeconds,
             'totalBillableHours' => $totalBillableHours,
+            'totalNonBillableHours' => $totalNonBillableHours,
         ]);
     }
 
@@ -164,7 +168,7 @@ class TrackingsController extends Controller
             fwrite($handle, "\xEF\xBB\xBF");
 
             // Header row
-            $headers = [__('project'), __('started'), __('ended'), __('duration'), __('billable_hours'), __('message')];
+            $headers = [__('project'), __('started'), __('ended'), __('duration'), __('billable_hours'), __('non_billable_hours'), __('message')];
             if ($isAdmin) {
                 array_splice($headers, 1, 0, [__('user')]);
             }
@@ -173,15 +177,19 @@ class TrackingsController extends Controller
             // Data rows
             $totalDurationSeconds = 0;
             $totalBillableHours = 0;
+            $totalNonBillableHours = 0;
             foreach ($trackings as $tracking) {
                 $totalDurationSeconds += $tracking->duration_seconds;
                 $totalBillableHours += $tracking->billable_hours ?? 0;
+                $nonBillableHours = ($tracking->duration_seconds / 3600) - ($tracking->billable_hours ?? 0);
+                $totalNonBillableHours += $nonBillableHours;
                 $row = [
                     $tracking->project->name ?? __('unknown'),
-                    $tracking->started_at->format('Y-m-d H:i'),
-                    $tracking->ended_at->format('Y-m-d H:i'),
+                    $tracking->started_at->format('d/m/Y H:i'),
+                    $tracking->ended_at->format('d/m/Y H:i'),
                     number_format($tracking->duration_seconds / 3600, 2, '.', ''),
                     $tracking->billable_hours !== null ? number_format($tracking->billable_hours, 2, '.', '') : '',
+                    number_format($nonBillableHours, 2, '.', ''),
                     $tracking->message ?? '',
                 ];
                 if ($isAdmin) {
@@ -197,6 +205,7 @@ class TrackingsController extends Controller
                 '',
                 number_format($totalDurationSeconds / 3600, 2, '.', ''),
                 number_format($totalBillableHours, 2, '.', ''),
+                number_format($totalNonBillableHours, 2, '.', ''),
                 '',
             ];
             if ($isAdmin) {

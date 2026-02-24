@@ -230,12 +230,14 @@
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle mb-0">
+                    <table class="table table-sm table-striped table-hover align-middle mb-0">
                         <thead class="table-dark">
                             <tr>
                                 <th class="border-0 ps-4">{{ __('project') }}</th>
                                 <th class="border-0">{{ __('started') }}</th>
                                 <th class="border-0">{{ __('duration') }}</th>
+                                <th class="border-0">{{ __('billable') }}</th>
+                                <th class="border-0">{{ __('non_billable') }}</th>
                                 <th class="border-0 pe-4">{{ __('message') }}</th>
                             </tr>
                         </thead>
@@ -247,9 +249,34 @@
                                             {{ $tracking->project->name ?? __('unknown') }}
                                         </span>
                                     </td>
-                                    <td class="border-0">{{ $tracking->started_at->format('M d, Y H:i') }}</td>
-                                    <td class="border-0">{{ $tracking->duration }}</td>
-                                    <td class="border-0 pe-4">{{ Str::limit($tracking->message, 50) ?: '-' }}</td>
+                                    <td class="border-0">{{ $tracking->started_at->format('d/m/Y H:i') }}</td>
+                                    <td class="border-0" data-bs-toggle="tooltip" data-bs-title="{{ $tracking->duration_decimal }}">{{ $tracking->duration }}</td>
+                                    <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ number_format($tracking->billable_hours, 2) }}h" @endif>
+                                        @if($tracking->billable_hours !== null)
+                                            @php
+                                                $bh = $tracking->billable_hours;
+                                                $bhHours = (int) floor($bh);
+                                                $bhMinutes = (int) round(($bh - $bhHours) * 60);
+                                            @endphp
+                                            {{ $bhHours }}h {{ $bhMinutes }}m
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td class="border-0" @php $nbh = ($tracking->duration_seconds / 3600) - ($tracking->billable_hours ?? 0); @endphp @if($nbh > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbh, 2) }}h" @endif>
+                                        @if($nbh > 0)
+                                            @php
+                                                $nbhHours = (int) floor($nbh);
+                                                $nbhMinutes = (int) round(($nbh - $nbhHours) * 60);
+                                            @endphp
+                                            {{ $nbhHours }}h {{ $nbhMinutes }}m
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td class="border-0 pe-4" @if($tracking->message && strlen($tracking->message) > 30) data-bs-toggle="tooltip" data-bs-title="{{ e($tracking->message) }}" @endif>
+                                        {{ Str::limit($tracking->message, 30) ?: '-' }}
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -303,6 +330,13 @@
     @endif
 @endsection
 @section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        });
+    </script>
     @if($user->isTracking())
         @php $activeTracking = $user->activeTracking; @endphp
         <script>

@@ -9,6 +9,7 @@
 - Allow users to pin a project in dashboard for quick access
 - Random color selection for new projects (can be overridden by the user when creating or editing a project)
 - Add a "billable" field for each tracking  
+- Add non-billable column to the history table
 
 ### Changed
 
