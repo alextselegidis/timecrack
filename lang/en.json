@@ -68,6 +68,7 @@
     "started_at": "Started At",
     "ended_at": "Ended At",
     "duration": "Duration",
+    "billable_hours": "Billable Hours",
     "message": "Message",
     "seconds": "seconds",
     "color": "Color",

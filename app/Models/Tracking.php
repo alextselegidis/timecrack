@@ -12,7 +12,6 @@
 
 namespace App\Models;
 
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -30,6 +29,7 @@ class Tracking extends Model
         'user_id',
         'started_at',
         'ended_at',
+        'billable_hours',
         'message',
     ];
 
@@ -41,6 +41,7 @@ class Tracking extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
+        'billable_hours' => 'decimal:2',
     ];
 
     public function getDurationAttribute()
@@ -49,12 +50,20 @@ class Tracking extends Model
             return '';
         }
 
-        return $this->ended_at->diffForHumans(
-            $this->started_at,
-            CarbonInterface::DIFF_ABSOLUTE,
-            true,
-            4
-        );
+        $totalMinutes = (int) floor($this->duration_seconds / 60);
+        $hours = (int) floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+
+        return "{$hours}h {$minutes}m";
+    }
+
+    public function getDurationDecimalAttribute()
+    {
+        if (!$this->started_at || !$this->ended_at) {
+            return '';
+        }
+
+        return number_format($this->duration_seconds / 3600, 2) . 'h';
     }
 
     public function getDurationSecondsAttribute(): int

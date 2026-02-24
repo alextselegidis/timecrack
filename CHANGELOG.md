@@ -8,6 +8,7 @@
 - Add dashboard page for users to view an overview of their projects, tasks, and other relevant information
 - Allow users to pin a project in dashboard for quick access
 - Random color selection for new projects (can be overridden by the user when creating or editing a project)
+- Add a "billable" field for each tracking  
 
 ### Changed
 

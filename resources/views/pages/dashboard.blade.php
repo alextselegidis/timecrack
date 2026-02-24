@@ -283,6 +283,11 @@
                                 <label for="stop-message" class="form-label">{{ __('Message (optional)') }}</label>
                                 <textarea name="message" id="stop-message" class="form-control" rows="3" placeholder="{{ __('What did you work on?') }}">{{ $activeTracking->message }}</textarea>
                             </div>
+                            <div class="mb-3">
+                                <label for="billable_hours" class="form-label">{{ __('billable_hours') }}</label>
+                                <input type="number" name="billable_hours" id="billable_hours" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                <small class="form-text text-muted">{{ __('Defaults to elapsed duration if left empty') }}</small>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
@@ -304,6 +309,13 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const startedAt = new Date('{{ $activeTracking->started_at->toIso8601String() }}');
                 const timerDisplay = document.getElementById('timer-display');
+                const billableHoursInput = document.getElementById('billable_hours');
+
+                function getElapsedHours() {
+                    const now = new Date();
+                    let elapsed = Math.max(0, (now - startedAt) / 1000);
+                    return (elapsed / 3600).toFixed(2);
+                }
 
                 function updateTimer() {
                     const now = new Date();
@@ -322,6 +334,14 @@
 
                 updateTimer();
                 setInterval(updateTimer, 1000);
+
+                // Set default billable hours when modal opens
+                const stopModal = document.getElementById('stop-timer-modal');
+                if (stopModal) {
+                    stopModal.addEventListener('show.bs.modal', function() {
+                        billableHoursInput.value = getElapsedHours();
+                    });
+                }
             });
         </script>
     @endif

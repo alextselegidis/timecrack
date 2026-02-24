@@ -122,6 +122,18 @@
                                     <span class="form-text text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
+                                <div class="mb-3">
+                                    <label for="billable_hours" class="form-label text-dark small fw-medium">
+                                        {{ __('billable_hours') }}
+                                    </label>
+                                    <input type="number" id="billable_hours" name="billable_hours" class="form-control"
+                                           step="0.01" min="0"
+                                           value="{{ old('billable_hours', $tracking?->billable_hours) }}"
+                                           placeholder="0.00">
+                                    @error('billable_hours')
+                                    <span class="form-text text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                     </form>

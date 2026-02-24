@@ -141,6 +141,7 @@
                                         </a>
                                     </th>
                                     <th class="border-0">{{ __('duration') }}</th>
+                                    <th class="border-0">{{ __('billable_hours') }}</th>
                                     <th class="border-0">{{ __('message') }}</th>
                                     @if($isAdmin)
                                         <th class="border-0 pe-4 text-end" style="width: 100px;"></th>
@@ -174,7 +175,19 @@
                                         @endif
                                         <td class="border-0">{{ $tracking->started_at->format('M d, Y H:i') }}</td>
                                         <td class="border-0">{{ $tracking->ended_at->format('M d, Y H:i') }}</td>
-                                        <td class="border-0">{{ $tracking->duration }}</td>
+                                        <td class="border-0" data-bs-toggle="tooltip" data-bs-title="{{ $tracking->duration_decimal }}">{{ $tracking->duration }}</td>
+                                        <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ number_format($tracking->billable_hours, 2) }}h" @endif>
+                                            @if($tracking->billable_hours !== null)
+                                                @php
+                                                    $bh = $tracking->billable_hours;
+                                                    $bhHours = (int) floor($bh);
+                                                    $bhMinutes = (int) round(($bh - $bhHours) * 60);
+                                                @endphp
+                                                {{ $bhHours }}h {{ $bhMinutes }}m
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td class="border-0">
                                             @if($tracking->message)
                                                 {{ Str::limit($tracking->message, 30) }}
@@ -220,7 +233,7 @@
                                 @endforeach
                                 @if($trackings->isEmpty())
                                     <tr>
-                                        <td colspan="{{ $isAdmin ? 7 : 5 }}" class="border-0 text-center text-muted py-5">
+                                        <td colspan="{{ $isAdmin ? 8 : 6 }}" class="border-0 text-center text-muted py-5">
                                             <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                             {{ __('no_records_found') }}
                                         </td>
@@ -231,12 +244,20 @@
                                 <tfoot class="table-light">
                                     <tr>
                                         <td class="border-0 ps-4 fw-bold" colspan="{{ $isAdmin ? 4 : 3 }}">{{ __('total') }} ({{ $trackings->total() }} {{ __('records') }})</td>
-                                        <td class="border-0 fw-bold">
+                                        <td class="border-0 fw-bold" data-bs-toggle="tooltip" data-bs-title="{{ number_format($totalDurationSeconds / 3600, 2) }}h">
                                             @php
-                                                $hours = floor($totalDurationSeconds / 3600);
-                                                $minutes = floor(($totalDurationSeconds % 3600) / 60);
+                                                $totalHours = $totalDurationSeconds / 3600;
+                                                $totalDurH = (int) floor($totalHours);
+                                                $totalDurM = (int) round(($totalHours - $totalDurH) * 60);
                                             @endphp
-                                            {{ $hours }}h {{ $minutes }}m
+                                            {{ $totalDurH }}h {{ $totalDurM }}m
+                                        </td>
+                                        <td class="border-0 fw-bold" data-bs-toggle="tooltip" data-bs-title="{{ number_format($totalBillableHours, 2) }}h">
+                                            @php
+                                                $totalBillH = (int) floor($totalBillableHours);
+                                                $totalBillM = (int) round(($totalBillableHours - $totalBillH) * 60);
+                                            @endphp
+                                            {{ $totalBillH }}h {{ $totalBillM }}m
                                         </td>
                                         <td class="border-0" colspan="{{ $isAdmin ? 2 : 1 }}"></td>
                                     </tr>
@@ -316,6 +337,10 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
     let highlightedRow = null;
 
     document.querySelectorAll('.copy-message-btn').forEach(function(btn) {

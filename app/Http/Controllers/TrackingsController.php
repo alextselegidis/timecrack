@@ -77,6 +77,9 @@ class TrackingsController extends Controller
         // Calculate total duration in seconds for all filtered results (not just current page)
         $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at)'));
 
+        // Calculate total billable hours for all filtered results
+        $totalBillableHours = (clone $query)->sum('billable_hours');
+
         $trackings = $query->paginate(25);
 
         // Get all users for filter (admin only)
@@ -91,6 +94,7 @@ class TrackingsController extends Controller
             'users' => $users,
             'isAdmin' => $isAdmin,
             'totalDurationSeconds' => $totalDurationSeconds,
+            'totalBillableHours' => $totalBillableHours,
         ]);
     }
 
@@ -160,7 +164,7 @@ class TrackingsController extends Controller
             fwrite($handle, "\xEF\xBB\xBF");
 
             // Header row
-            $headers = [__('project'), __('started'), __('ended'), __('duration'), __('message')];
+            $headers = [__('project'), __('started'), __('ended'), __('duration'), __('billable_hours'), __('message')];
             if ($isAdmin) {
                 array_splice($headers, 1, 0, [__('user')]);
             }
@@ -168,13 +172,16 @@ class TrackingsController extends Controller
 
             // Data rows
             $totalDurationSeconds = 0;
+            $totalBillableHours = 0;
             foreach ($trackings as $tracking) {
                 $totalDurationSeconds += $tracking->duration_seconds;
+                $totalBillableHours += $tracking->billable_hours ?? 0;
                 $row = [
                     $tracking->project->name ?? __('unknown'),
                     $tracking->started_at->format('Y-m-d H:i'),
                     $tracking->ended_at->format('Y-m-d H:i'),
                     number_format($tracking->duration_seconds / 3600, 2, '.', ''),
+                    $tracking->billable_hours !== null ? number_format($tracking->billable_hours, 2, '.', '') : '',
                     $tracking->message ?? '',
                 ];
                 if ($isAdmin) {
@@ -189,6 +196,7 @@ class TrackingsController extends Controller
                 '',
                 '',
                 number_format($totalDurationSeconds / 3600, 2, '.', ''),
+                number_format($totalBillableHours, 2, '.', ''),
                 '',
             ];
             if ($isAdmin) {
@@ -236,6 +244,7 @@ class TrackingsController extends Controller
             'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
+            'billable_hours' => ['nullable', 'numeric', 'min:0'],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -244,6 +253,7 @@ class TrackingsController extends Controller
             'user_id' => $request->input('user_id'),
             'started_at' => $request->input('started_at'),
             'ended_at' => $request->input('ended_at'),
+            'billable_hours' => $request->input('billable_hours'),
             'message' => $request->input('message'),
         ]);
 
@@ -284,6 +294,7 @@ class TrackingsController extends Controller
             'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
+            'billable_hours' => ['nullable', 'numeric', 'min:0'],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -292,6 +303,7 @@ class TrackingsController extends Controller
             'user_id' => $request->input('user_id'),
             'started_at' => $request->input('started_at'),
             'ended_at' => $request->input('ended_at'),
+            'billable_hours' => $request->input('billable_hours'),
             'message' => $request->input('message'),
         ]);
 
