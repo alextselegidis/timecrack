@@ -258,7 +258,14 @@ class TrackingsController extends Controller
             'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
-            'billable_hours' => ['nullable', 'numeric', 'min:0'],
+            'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
+                if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
+                    $maxHours = (strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600;
+                    if ($value > round($maxHours, 2)) {
+                        $fail(__('Billable hours cannot exceed the duration between start and end times.'));
+                    }
+                }
+            }],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -308,7 +315,14 @@ class TrackingsController extends Controller
             'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
-            'billable_hours' => ['nullable', 'numeric', 'min:0'],
+            'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
+                if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
+                    $maxHours = (strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600;
+                    if ($value > round($maxHours, 2)) {
+                        $fail(__('Billable hours cannot exceed the duration between start and end times.'));
+                    }
+                }
+            }],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
 

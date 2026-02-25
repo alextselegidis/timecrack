@@ -129,13 +129,15 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', __('No active timer to stop.'));
         }
 
-        $request->validate([
-            'message' => ['nullable', 'string', 'max:1000'],
-            'billable_hours' => ['nullable', 'numeric', 'min:0'],
-        ]);
-
         $activeTracking = $user->activeTracking;
         $endedAt = now();
+
+        $maxHours = round(max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp()) / 3600, 2);
+
+        $request->validate([
+            'message' => ['nullable', 'string', 'max:1000'],
+            'billable_hours' => ['nullable', 'numeric', 'min:0', 'max:' . $maxHours],
+        ]);
 
         // Calculate billable hours: use provided value, or default to duration in hours
         $billableHours = $request->input('billable_hours');

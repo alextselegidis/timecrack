@@ -106,5 +106,6 @@
     "discard_tracking_prompt": "Are you sure you want to discard this tracking? This cannot be undone.",
     "Tracking discarded.": "Tracking discarded.",
     "No active timer to discard.": "No active timer to discard.",
+    "Billable hours cannot exceed the duration between start and end times.": "Billable hours cannot exceed the duration between start and end times.",
     "EOF": "EOF"
 }
