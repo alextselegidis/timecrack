@@ -28,7 +28,7 @@ use Orion\Facades\Orion;
 |
 */
 
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware('auth:sanctum')->name('api.')->group(function () {
     // Current user profile
     Route::get('/me', [MeApiV1Controller::class, 'show']);
     Route::put('/me', [MeApiV1Controller::class, 'update']);
