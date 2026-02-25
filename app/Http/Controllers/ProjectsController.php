@@ -62,12 +62,12 @@ class ProjectsController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'description' => ['nullable', 'string'],
             'color' => ['nullable', 'string', 'max:7'],
         ]);
 
         $data = $request->only(['name', 'description', 'color']);
-        
+
         // Generate random color if not provided
         if (empty($data['color'])) {
             $data['color'] = $this->generateRandomColor();
@@ -120,7 +120,7 @@ class ProjectsController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'description' => ['nullable', 'string'],
             'color' => ['nullable', 'string', 'max:7'],
         ]);
 

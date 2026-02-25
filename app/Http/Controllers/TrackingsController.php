@@ -266,7 +266,7 @@ class TrackingsController extends Controller
                     }
                 }
             }],
-            'message' => ['nullable', 'string', 'max:1000'],
+            'message' => ['nullable', 'string'],
         ]);
 
         $tracking = Tracking::create([
@@ -323,7 +323,7 @@ class TrackingsController extends Controller
                     }
                 }
             }],
-            'message' => ['nullable', 'string', 'max:1000'],
+            'message' => ['nullable', 'string'],
         ]);
 
         $tracking->update([

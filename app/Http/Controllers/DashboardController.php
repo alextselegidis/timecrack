@@ -34,7 +34,7 @@ class DashboardController extends Controller
         // Sort projects: pinned first, then by last use (most recent tracking)
         $pinnedIds = $user->getPinnedProjectIds();
         $projectIds = $projects->pluck('id')->toArray();
-        
+
         // Get last tracking time for each project
         $lastUsed = Tracking::query()
             ->whereIn('project_id', $projectIds)
@@ -60,7 +60,7 @@ class DashboardController extends Controller
             ->sortByDesc(fn($p) => $lastUsed[$p->id] ?? '1970-01-01');
         $unpinnedProjects = $projects->filter(fn($p) => !in_array($p->id, $pinnedIds))
             ->sortByDesc(fn($p) => $lastUsed[$p->id] ?? '1970-01-01');
-        
+
         $projects = $pinnedProjects->merge($unpinnedProjects);
 
         // Get recent trackings for the user
@@ -135,7 +135,7 @@ class DashboardController extends Controller
         $maxHours = round(max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp()) / 3600, 2);
 
         $request->validate([
-            'message' => ['nullable', 'string', 'max:1000'],
+            'message' => ['nullable', 'string'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', 'max:' . $maxHours],
         ]);
 
@@ -186,7 +186,7 @@ class DashboardController extends Controller
         }
 
         $request->validate([
-            'message' => ['nullable', 'string', 'max:1000'],
+            'message' => ['nullable', 'string'],
         ]);
 
         $user->activeTracking->update([

@@ -133,7 +133,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: API Token
-  
+
   schemas:
     User:
       type: object
@@ -231,7 +231,6 @@ components:
           example: "New Project"
         description:
           type: string
-          maxLength: 1000
           nullable: true
         color:
           type: string
@@ -261,7 +260,6 @@ components:
           format: date-time
         message:
           type: string
-          maxLength: 1000
           nullable: true
 
     UserInput:
