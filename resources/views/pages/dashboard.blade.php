@@ -312,7 +312,12 @@
                             </div>
                             <div class="mb-3">
                                 <label for="billable_hours" class="form-label">{{ __('billable_hours') }}</label>
-                                <input type="number" name="billable_hours" id="billable_hours" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                <div class="input-group">
+                                    <input type="number" name="billable_hours" id="billable_hours" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    <button type="button" class="btn btn-outline-secondary" id="reset-billable-hours" title="{{ __('Reset to elapsed duration') }}">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+                                </div>
                                 <small class="form-text text-muted">{{ __('Defaults to elapsed duration if left empty') }}</small>
                             </div>
                         </div>
@@ -380,6 +385,14 @@
                 const stopModal = document.getElementById('stop-timer-modal');
                 if (stopModal) {
                     stopModal.addEventListener('show.bs.modal', function() {
+                        billableHoursInput.value = getElapsedHours();
+                    });
+                }
+
+                // Reset billable hours button
+                const resetBtn = document.getElementById('reset-billable-hours');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', function() {
                         billableHoursInput.value = getElapsedHours();
                     });
                 }

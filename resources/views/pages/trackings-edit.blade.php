@@ -126,10 +126,15 @@
                                     <label for="billable_hours" class="form-label text-dark small fw-medium">
                                         {{ __('billable_hours') }}
                                     </label>
-                                    <input type="number" id="billable_hours" name="billable_hours" class="form-control"
-                                           step="0.01" min="0"
-                                           value="{{ old('billable_hours', $tracking?->billable_hours) }}"
-                                           placeholder="0.00">
+                                    <div class="input-group">
+                                        <input type="number" id="billable_hours" name="billable_hours" class="form-control"
+                                               step="0.01" min="0"
+                                               value="{{ old('billable_hours', $tracking?->billable_hours) }}"
+                                               placeholder="0.00">
+                                        <button type="button" class="btn btn-outline-secondary" id="reset-billable-hours" title="{{ __('Reset to elapsed duration') }}">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                    </div>
                                     @error('billable_hours')
                                     <span class="form-text text-danger">{{ $message }}</span>
                                     @enderror
@@ -154,6 +159,7 @@
             const startedAt = document.getElementById('started_at');
             const endedAt = document.getElementById('ended_at');
             const billableHours = document.getElementById('billable_hours');
+            const resetBtn = document.getElementById('reset-billable-hours');
             let manuallyEdited = false;
 
             billableHours.addEventListener('input', function () {
@@ -161,7 +167,7 @@
             });
 
             function calculateBillableHours() {
-                if (manuallyEdited || !startedAt.value || !endedAt.value) return;
+                if (!startedAt.value || !endedAt.value) return;
                 const start = new Date(startedAt.value);
                 const end = new Date(endedAt.value);
                 const diffMs = end - start;
@@ -170,8 +176,18 @@
                 }
             }
 
-            startedAt.addEventListener('change', calculateBillableHours);
-            endedAt.addEventListener('change', calculateBillableHours);
+            function autoCalculate() {
+                if (manuallyEdited) return;
+                calculateBillableHours();
+            }
+
+            startedAt.addEventListener('change', autoCalculate);
+            endedAt.addEventListener('change', autoCalculate);
+
+            resetBtn.addEventListener('click', function () {
+                manuallyEdited = false;
+                calculateBillableHours();
+            });
         });
     </script>
 @endsection

@@ -107,5 +107,6 @@
     "Tracking discarded.": "Tracking discarded.",
     "No active timer to discard.": "No active timer to discard.",
     "Billable hours cannot exceed the duration between start and end times.": "Billable hours cannot exceed the duration between start and end times.",
+    "Reset to elapsed duration": "Reset to elapsed duration",
     "EOF": "EOF"
 }
