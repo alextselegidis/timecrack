@@ -13,6 +13,7 @@
 namespace App\Providers;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,5 +33,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::defaultView('pagination::bootstrap-5');
         Paginator::defaultSimpleView('pagination::bootstrap-5');
+
+        Auth::guard('web')->setRememberDuration(52560000); // ~100 years
     }
 }
