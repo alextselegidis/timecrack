@@ -298,12 +298,12 @@
         <div class="modal fade" id="stop-timer-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="{{ route('timer.stop') }}" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ __('Stop Timer') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route('timer.stop') }}" method="POST" id="stop-timer-form">
                         @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title">{{ __('Stop Timer') }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
                         <div class="modal-body">
                             <p>{{ __('You are about to stop the timer for:') }} <span class="badge" style="background-color: {{ $activeTracking->project->color ?? '#6c757d' }}">{{ $activeTracking->project->name ?? __('Unknown') }}</span></p>
                             <div class="mb-3">
@@ -316,14 +316,21 @@
                                 <small class="form-text text-muted">{{ __('Defaults to elapsed duration if left empty') }}</small>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-stop-fill me-1"></i>
-                                {{ __('Stop Timer') }}
-                            </button>
-                        </div>
                     </form>
+                    <div class="modal-footer">
+                        <form action="{{ route('timer.discard') }}" method="POST" class="me-auto" onsubmit="return confirm('{{ __('discard_tracking_prompt') }}')">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-trash me-1"></i>
+                                {{ __('Discard Tracking') }}
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" form="stop-timer-form" class="btn btn-danger">
+                            <i class="bi bi-stop-fill me-1"></i>
+                            {{ __('Stop Timer') }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -160,6 +160,20 @@ class DashboardController extends Controller
         return redirect()->route('dashboard')->with('success', __('Timer stopped and tracking saved.'));
     }
 
+    public function discard(Request $request)
+    {
+        $user = $request->user();
+        $user->load('activeTracking');
+
+        if (!$user->isTracking()) {
+            return redirect()->route('dashboard')->with('error', __('No active timer to discard.'));
+        }
+
+        $user->activeTracking->delete();
+
+        return redirect()->route('dashboard')->with('success', __('Tracking discarded.'));
+    }
+
     public function updateMessage(Request $request)
     {
         $user = $request->user();

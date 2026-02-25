@@ -102,5 +102,9 @@
     "revoke_token_prompt": "Are you sure you want to revoke this token?",
     "created": "Created",
     "last_used": "Last Used",
+    "Discard Tracking": "Discard Tracking",
+    "discard_tracking_prompt": "Are you sure you want to discard this tracking? This cannot be undone.",
+    "Tracking discarded.": "Tracking discarded.",
+    "No active timer to discard.": "No active timer to discard.",
     "EOF": "EOF"
 }

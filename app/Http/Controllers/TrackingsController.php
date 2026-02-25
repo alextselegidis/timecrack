@@ -330,6 +330,6 @@ class TrackingsController extends Controller
 
         $tracking->delete();
 
-        return redirect()->route('trackings')->with('success', __('record_deleted_message'));
+        return redirect()->back()->with('success', __('record_deleted_message'));
     }
 }

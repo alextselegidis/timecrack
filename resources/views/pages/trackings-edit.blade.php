@@ -148,3 +148,30 @@
         </div>
     </div>
 @endsection
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startedAt = document.getElementById('started_at');
+            const endedAt = document.getElementById('ended_at');
+            const billableHours = document.getElementById('billable_hours');
+            let manuallyEdited = false;
+
+            billableHours.addEventListener('input', function () {
+                manuallyEdited = true;
+            });
+
+            function calculateBillableHours() {
+                if (manuallyEdited || !startedAt.value || !endedAt.value) return;
+                const start = new Date(startedAt.value);
+                const end = new Date(endedAt.value);
+                const diffMs = end - start;
+                if (diffMs > 0) {
+                    billableHours.value = (diffMs / 3600000).toFixed(2);
+                }
+            }
+
+            startedAt.addEventListener('change', calculateBillableHours);
+            endedAt.addEventListener('change', calculateBillableHours);
+        });
+    </script>
+@endsection
