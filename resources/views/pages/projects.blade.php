@@ -53,7 +53,7 @@
                 <div class="card-body p-0">
                     <!-- Table -->
                     <div class="table-responsive" style="overflow: visible;">
-                        <table class="table table-striped table-hover align-middle mb-0">
+                        <table class="table table-sm table-striped table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
                                     <th class="border-0 ps-4">
