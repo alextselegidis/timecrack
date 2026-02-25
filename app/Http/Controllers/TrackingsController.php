@@ -231,8 +231,13 @@ class TrackingsController extends Controller
         $projects = Project::query()->orderBy('name')->get();
         $users = \App\Models\User::query()->where('is_active', true)->orderBy('name')->get();
 
+        $tracking = new Tracking();
+        $tracking->started_at = now()->subMinutes(60);
+        $tracking->ended_at = now();
+        $tracking->billable_hours = 1;
+
         return view('pages.trackings-edit', [
-            'tracking' => new Tracking(),
+            'tracking' => $tracking,
             'projects' => $projects,
             'users' => $users,
             'isAdmin' => true,
