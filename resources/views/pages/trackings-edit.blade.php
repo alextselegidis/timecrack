@@ -172,7 +172,7 @@
                 const end = new Date(endedAt.value);
                 const diffMs = end - start;
                 if (diffMs > 0) {
-                    billableHours.value = (diffMs / 3600000).toFixed(2);
+                    billableHours.value = (Math.floor(diffMs / 36000) / 100).toFixed(2);
                 }
             }
 

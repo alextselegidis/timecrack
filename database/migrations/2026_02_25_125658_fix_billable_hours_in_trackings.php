@@ -21,7 +21,7 @@ return new class extends Migration {
     {
         DB::statement('
             UPDATE trackings
-            SET billable_hours = ROUND(TIMESTAMPDIFF(SECOND, started_at, ended_at) / 3600, 2)
+            SET billable_hours = FLOOR(TIMESTAMPDIFF(SECOND, started_at, ended_at) / 36) / 100
         ');
     }
 

@@ -77,11 +77,12 @@ class TrackingsController extends Controller
         // Calculate total duration in seconds for all filtered results (not just current page)
         $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at)'));
 
-        // Calculate total billable hours for all filtered results
-        $totalBillableHours = (clone $query)->sum('billable_hours');
+        // Calculate total billable hours in seconds for all filtered results
+        $totalBillableSeconds = (int) round((clone $query)->sum(\DB::raw('billable_hours * 3600')));
 
-        // Calculate total non-billable hours (duration - billable)
-        $totalNonBillableHours = ($totalDurationSeconds / 3600) - $totalBillableHours;
+        // Cap billable to duration to prevent rounding accumulation discrepancies
+        $totalBillableSeconds = min($totalBillableSeconds, $totalDurationSeconds);
+        $totalNonBillableSeconds = max(0, $totalDurationSeconds - $totalBillableSeconds);
 
         $trackings = $query->paginate(25);
 
@@ -97,8 +98,8 @@ class TrackingsController extends Controller
             'users' => $users,
             'isAdmin' => $isAdmin,
             'totalDurationSeconds' => $totalDurationSeconds,
-            'totalBillableHours' => $totalBillableHours,
-            'totalNonBillableHours' => $totalNonBillableHours,
+            'totalBillableSeconds' => $totalBillableSeconds,
+            'totalNonBillableSeconds' => $totalNonBillableSeconds,
         ]);
     }
 

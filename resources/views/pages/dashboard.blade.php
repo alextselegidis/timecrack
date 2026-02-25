@@ -360,7 +360,7 @@
                 function getElapsedHours() {
                     const now = new Date();
                     let elapsed = Math.max(0, (now - startedAt) / 1000);
-                    return (elapsed / 3600).toFixed(2);
+                    return (Math.floor(elapsed / 36) / 100).toFixed(2);
                 }
 
                 function updateTimer() {
