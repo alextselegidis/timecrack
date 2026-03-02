@@ -182,20 +182,17 @@ class TrackingsController extends Controller
 
             // Data rows
             $totalDurationSeconds = 0;
-            $totalBillableHours = 0;
-            $totalNonBillableHours = 0;
+            $totalNonBillableSeconds = 0;
             foreach ($trackings as $tracking) {
                 $totalDurationSeconds += $tracking->duration_seconds;
-                $totalBillableHours += $tracking->billable_hours ?? 0;
-                $nonBillableHours = $tracking->non_billable_hours;
-                $totalNonBillableHours += $nonBillableHours;
+                $totalNonBillableSeconds += $tracking->non_billable_seconds;
                 $row = [
                     $tracking->project->name ?? __('unknown'),
                     $tracking->started_at->format('d/m/Y H:i'),
                     $tracking->ended_at->format('d/m/Y H:i'),
                     number_format($tracking->duration_seconds / 3600, 2, '.', ''),
                     $tracking->billable_hours !== null ? number_format($tracking->billable_hours, 2, '.', '') : '',
-                    number_format($nonBillableHours, 2, '.', ''),
+                    number_format($tracking->non_billable_hours, 2, '.', ''),
                     $tracking->message ?? '',
                 ];
                 if ($isAdmin) {
@@ -204,14 +201,17 @@ class TrackingsController extends Controller
                 fputcsv($handle, $row);
             }
 
+            // Derive billable as complement so that billable + non-billable = duration
+            $totalBillableSeconds = $totalDurationSeconds - $totalNonBillableSeconds;
+
             // Total row
             $totalRow = [
                 __('total'),
                 '',
                 '',
                 number_format($totalDurationSeconds / 3600, 2, '.', ''),
-                number_format($totalBillableHours, 2, '.', ''),
-                number_format($totalNonBillableHours, 2, '.', ''),
+                number_format($totalBillableSeconds / 3600, 2, '.', ''),
+                number_format($totalNonBillableSeconds / 3600, 2, '.', ''),
                 '',
             ];
             if ($isAdmin) {
