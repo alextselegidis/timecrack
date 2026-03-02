@@ -263,7 +263,7 @@
                                             -
                                         @endif
                                     </td>
-                                    <td class="border-0" @php $nbh = ($tracking->duration_seconds / 3600) - ($tracking->billable_hours ?? 0); @endphp @if($nbh > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbh, 2) }}h" @endif>
+                                    <td class="border-0" @php $nbh = $tracking->non_billable_hours; @endphp @if($nbh > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbh, 2) }}h" @endif>
                                         @if($nbh > 0)
                                             @php
                                                 $nbhHours = (int) floor($nbh);
@@ -360,7 +360,7 @@
                 function getElapsedHours() {
                     const now = new Date();
                     let elapsed = Math.max(0, (now - startedAt) / 1000);
-                    return (Math.floor(elapsed / 36) / 100).toFixed(2);
+                    return (elapsed / 3600).toFixed(2);
                 }
 
                 function updateTimer() {

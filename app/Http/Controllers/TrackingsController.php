@@ -77,12 +77,17 @@ class TrackingsController extends Controller
         // Calculate total duration in seconds for all filtered results (not just current page)
         $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at)'));
 
-        // Calculate total billable hours in seconds for all filtered results
-        $totalBillableSeconds = (int) round((clone $query)->sum(\DB::raw('billable_hours * 3600')));
+        // Sum per-row non-billable using the same centihour comparison as the model attribute
+        // so that rows where billable matches duration contribute 0 (not rounding artifacts)
+        $totalNonBillableSeconds = (int) (clone $query)->sum(\DB::raw(
+            'CASE WHEN ROUND(COALESCE(billable_hours, 0) * 100) >= ROUND(TIMESTAMPDIFF(SECOND, started_at, ended_at) / 36)'
+            . ' THEN 0'
+            . ' ELSE GREATEST(0, TIMESTAMPDIFF(SECOND, started_at, ended_at) - ROUND(COALESCE(billable_hours, 0) * 3600))'
+            . ' END'
+        ));
 
-        // Cap billable to duration to prevent rounding accumulation discrepancies
-        $totalBillableSeconds = min($totalBillableSeconds, $totalDurationSeconds);
-        $totalNonBillableSeconds = max(0, $totalDurationSeconds - $totalBillableSeconds);
+        // Derive billable as the complement so that billable + non-billable = duration
+        $totalBillableSeconds = $totalDurationSeconds - $totalNonBillableSeconds;
 
         $trackings = $query->paginate(25);
 
@@ -182,7 +187,7 @@ class TrackingsController extends Controller
             foreach ($trackings as $tracking) {
                 $totalDurationSeconds += $tracking->duration_seconds;
                 $totalBillableHours += $tracking->billable_hours ?? 0;
-                $nonBillableHours = ($tracking->duration_seconds / 3600) - ($tracking->billable_hours ?? 0);
+                $nonBillableHours = $tracking->non_billable_hours;
                 $totalNonBillableHours += $nonBillableHours;
                 $row = [
                     $tracking->project->name ?? __('unknown'),

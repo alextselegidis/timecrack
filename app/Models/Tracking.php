@@ -75,6 +75,31 @@ class Tracking extends Model
         return max(0, $this->ended_at->getTimestamp() - $this->started_at->getTimestamp());
     }
 
+    /**
+     * Get non-billable seconds, comparing billable and duration at the same
+     * 0.01 h precision (centihours) so that rounding artifacts are eliminated.
+     */
+    public function getNonBillableSecondsAttribute(): int
+    {
+        if (!$this->started_at || !$this->ended_at) {
+            return 0;
+        }
+
+        $billableCentihours = (int) round(($this->billable_hours ?? 0) * 100);
+        $durationCentihours = (int) round($this->duration_seconds / 36);
+
+        if ($billableCentihours >= $durationCentihours) {
+            return 0;
+        }
+
+        return max(0, $this->duration_seconds - (int) round(($this->billable_hours ?? 0) * 3600));
+    }
+
+    public function getNonBillableHoursAttribute(): float
+    {
+        return round($this->non_billable_seconds / 3600, 2);
+    }
+
     public function project()
     {
         return $this->belongsTo(Project::class);

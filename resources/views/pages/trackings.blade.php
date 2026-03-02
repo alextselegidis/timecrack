@@ -189,7 +189,7 @@
                                                 -
                                             @endif
                                         </td>
-                                        <td class="border-0" @php $nbhSeconds = max(0, $tracking->duration_seconds - (int) round(($tracking->billable_hours ?? 0) * 3600)); @endphp @if($nbhSeconds > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbhSeconds / 3600, 2) }}h" @endif>
+                                        <td class="border-0" @php $nbhSeconds = $tracking->non_billable_seconds; @endphp @if($nbhSeconds > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbhSeconds / 3600, 2) }}h" @endif>
                                             @if($nbhSeconds > 0)
                                                 @php
                                                     $nbhHours = intdiv($nbhSeconds, 3600);

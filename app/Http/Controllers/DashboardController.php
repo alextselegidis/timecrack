@@ -143,7 +143,7 @@ class DashboardController extends Controller
         $billableHours = $request->input('billable_hours');
         if ($billableHours === null || $billableHours === '') {
             $durationSeconds = max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp());
-            $billableHours = floor($durationSeconds / 36) / 100;
+            $billableHours = round($durationSeconds / 3600, 2);
         }
 
         // Create tracking record
