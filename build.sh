@@ -4,8 +4,6 @@
 
 composer install
 
-npm install
-
 # Empty Storage
 
 find storage/app -type f ! -name '.gitignore' -exec rm -f {} \;
@@ -21,19 +19,15 @@ php artisan clear-compiled
 
 # Remove Various
 
-rm build.zip
+rm timecrack-0.0.0.zip
 
 rm public/hot
 
 find . -name ".DS_Store" -delete
 
-# Build Assets
-
-npm run build
-
 # Zip Files
 
-zip -r build.zip . \
+zip -r timecrack-0.0.0.zip . \
     -x '.git/*' \
     -x '.idea/*' \
     -x '.run/*' \
@@ -49,7 +43,6 @@ zip -r build.zip . \
     -x 'build.sh' \
     -x 'docker-compose.yml' \
     -x 'postcss.config.js' \
-    -x 'tailwind.config.js' \
     -x 'vite.config.js' \
     -x 'SPECS.md' \
     -x '*.zip'
