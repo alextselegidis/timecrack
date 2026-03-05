@@ -132,18 +132,18 @@ class DashboardController extends Controller
         $activeTracking = $user->activeTracking;
         $endedAt = now();
 
-        $maxHours = round(max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp()) / 3600, 2);
+        $durationSeconds = max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp());
+        $maxHours = floor($durationSeconds * 100 / 3600) / 100;
 
         $request->validate([
             'message' => ['nullable', 'string'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', 'max:' . $maxHours],
         ]);
 
-        // Calculate billable hours: use provided value, or default to duration in hours
+        // Calculate billable hours: use provided value, or default to duration in hours (floored to centihours)
         $billableHours = $request->input('billable_hours');
         if ($billableHours === null || $billableHours === '') {
-            $durationSeconds = max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp());
-            $billableHours = round($durationSeconds / 3600, 2);
+            $billableHours = $maxHours;
         }
 
         // Create tracking record

@@ -266,8 +266,8 @@ class TrackingsController extends Controller
             'ended_at' => ['required', 'date', 'after:started_at'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
                 if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = (strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600;
-                    if ($value > round($maxHours, 2)) {
+                    $maxHours = floor((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) * 100 / 3600) / 100;
+                    if ($value > $maxHours) {
                         $fail(__('Billable hours cannot exceed the duration between start and end times.'));
                     }
                 }
@@ -323,8 +323,8 @@ class TrackingsController extends Controller
             'ended_at' => ['required', 'date', 'after:started_at'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
                 if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = (strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600;
-                    if ($value > round($maxHours, 2)) {
+                    $maxHours = floor((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) * 100 / 3600) / 100;
+                    if ($value > $maxHours) {
                         $fail(__('Billable hours cannot exceed the duration between start and end times.'));
                     }
                 }

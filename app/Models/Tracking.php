@@ -63,7 +63,7 @@ class Tracking extends Model
             return '';
         }
 
-        return number_format($this->duration_seconds / 3600, 2) . 'h';
+        return number_format(floor($this->duration_seconds * 100 / 3600) / 100, 2) . 'h';
     }
 
     public function getDurationSecondsAttribute(): int
