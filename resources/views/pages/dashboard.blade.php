@@ -254,20 +254,20 @@
                                     <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ number_format($tracking->billable_hours, 2) }}h" @endif>
                                         @if($tracking->billable_hours !== null)
                                             @php
-                                                $bh = $tracking->billable_hours;
-                                                $bhHours = (int) floor($bh);
-                                                $bhMinutes = (int) round(($bh - $bhHours) * 60);
+                                                $bhSeconds = (int) round($tracking->billable_hours * 3600);
+                                                $bhHours = intdiv($bhSeconds, 3600);
+                                                $bhMinutes = intdiv($bhSeconds % 3600, 60);
                                             @endphp
                                             {{ $bhHours }}h {{ $bhMinutes }}m
                                         @else
                                             -
                                         @endif
                                     </td>
-                                    <td class="border-0" @php $nbh = $tracking->non_billable_hours; @endphp @if($nbh > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbh, 2) }}h" @endif>
-                                        @if($nbh > 0)
+                                    <td class="border-0" @php $nbhSeconds = $tracking->non_billable_seconds; @endphp @if($nbhSeconds > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbhSeconds / 3600, 2) }}h" @endif>
+                                        @if($nbhSeconds > 0)
                                             @php
-                                                $nbhHours = (int) floor($nbh);
-                                                $nbhMinutes = (int) round(($nbh - $nbhHours) * 60);
+                                                $nbhHours = intdiv($nbhSeconds, 3600);
+                                                $nbhMinutes = intdiv($nbhSeconds % 3600, 60);
                                             @endphp
                                             {{ $nbhHours }}h {{ $nbhMinutes }}m
                                         @else
