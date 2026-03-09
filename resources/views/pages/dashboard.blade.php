@@ -235,6 +235,7 @@
                             <tr>
                                 <th class="border-0 ps-4">{{ __('project') }}</th>
                                 <th class="border-0">{{ __('started') }}</th>
+                                <th class="border-0">{{ __('ended') }}</th>
                                 <th class="border-0">{{ __('duration') }}</th>
                                 <th class="border-0">{{ __('billable') }}</th>
                                 <th class="border-0">{{ __('non_billable') }}</th>
@@ -250,6 +251,7 @@
                                         </span>
                                     </td>
                                     <td class="border-0">{{ $tracking->started_at->format('d/m/Y') }} <strong>{{ $tracking->started_at->format('H:i') }}</strong></td>
+                                    <td class="border-0">{{ $tracking->ended_at->format('d/m/Y') }} <strong>{{ $tracking->ended_at->format('H:i') }}</strong></td>
                                     <td class="border-0" data-bs-toggle="tooltip" data-bs-title="{{ $tracking->duration_decimal }}">{{ $tracking->duration }}</td>
                                     <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ number_format($tracking->billable_hours, 2) }}h" @endif>
                                         @if($tracking->billable_hours !== null)
