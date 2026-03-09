@@ -38,7 +38,7 @@ With Timecrack you can increase your  productivity. It is a self-hosted applicat
 
 ## Features
 
-The application allows you to manage and organize your bookmark links.
+The application allows you to manage and organize your time trackings.
 
 - Clean & minimal interface
 - Tagging & search
