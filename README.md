@@ -76,7 +76,8 @@ You will need to perform the following steps to install the application on your 
 * Copy the "timecrack" source folder on your server.
 * Make sure that the "storage" directory is writable.
 * Rename the ".env.example" file to ".env" and update its contents based on your environment.
-* Open the browser on the Timecrack URL and follow the installation guide.
+* Run the php artisan migrate:fresh command from the terminal.
+*  Open the browser on the Timecrack URL and log in with admin@example.org and 12345678 as the password.
 
 That's it! You can now use Timecrack at your will.
 
