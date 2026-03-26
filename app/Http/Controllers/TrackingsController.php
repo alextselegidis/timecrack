@@ -77,10 +77,10 @@ class TrackingsController extends Controller
         // Calculate total duration in seconds for all filtered results (not just current page)
         $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at)'));
 
-        // Sum per-row non-billable using the same centihour comparison as the model attribute
+        // Sum per-row non-billable: compare billable_hours with the rounded duration
         // so that rows where billable matches duration contribute 0 (not rounding artifacts)
         $totalNonBillableSeconds = (int) (clone $query)->sum(\DB::raw(
-            'CASE WHEN ROUND(COALESCE(billable_hours, 0) * 100) >= ROUND(TIMESTAMPDIFF(SECOND, started_at, ended_at) / 36)'
+            'CASE WHEN ROUND(COALESCE(billable_hours, 0), 2) >= ROUND(TIMESTAMPDIFF(SECOND, started_at, ended_at) / 3600, 2)'
             . ' THEN 0'
             . ' ELSE GREATEST(0, TIMESTAMPDIFF(SECOND, started_at, ended_at) - ROUND(COALESCE(billable_hours, 0) * 3600))'
             . ' END'
@@ -191,7 +191,7 @@ class TrackingsController extends Controller
                     $tracking->started_at->format('d/m/Y H:i'),
                     $tracking->ended_at->format('d/m/Y H:i'),
                     number_format($tracking->duration_seconds / 3600, 2, '.', ''),
-                    $tracking->billable_hours !== null ? number_format($tracking->billable_hours, 2, '.', '') : '',
+                    number_format(($tracking->duration_seconds - $tracking->non_billable_seconds) / 3600, 2, '.', ''),
                     number_format($tracking->non_billable_hours, 2, '.', ''),
                     $tracking->message ?? '',
                 ];
@@ -266,7 +266,7 @@ class TrackingsController extends Controller
             'ended_at' => ['required', 'date', 'after:started_at'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
                 if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = floor((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) * 100 / 3600) / 100;
+                    $maxHours = round((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600, 2);
                     if ($value > $maxHours) {
                         $fail(__('Billable hours cannot exceed the duration between start and end times.'));
                     }
@@ -323,7 +323,7 @@ class TrackingsController extends Controller
             'ended_at' => ['required', 'date', 'after:started_at'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
                 if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = floor((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) * 100 / 3600) / 100;
+                    $maxHours = round((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600, 2);
                     if ($value > $maxHours) {
                         $fail(__('Billable hours cannot exceed the duration between start and end times.'));
                     }

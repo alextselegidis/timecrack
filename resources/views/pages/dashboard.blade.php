@@ -362,7 +362,7 @@
                 function getElapsedHours() {
                     const now = new Date();
                     let elapsedMs = Math.max(0, now - startedAt);
-                    return (Math.floor(elapsedMs / 36000) / 100).toFixed(2);
+                    return (Math.round(elapsedMs / 36000) / 100).toFixed(2);
                 }
 
                 function updateTimer() {

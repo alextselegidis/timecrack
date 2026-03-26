@@ -133,7 +133,7 @@ class DashboardController extends Controller
         $endedAt = now();
 
         $durationSeconds = max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp());
-        $maxHours = floor($durationSeconds * 100 / 3600) / 100;
+        $maxHours = round($durationSeconds / 3600, 2);
 
         $request->validate([
             'message' => ['nullable', 'string'],

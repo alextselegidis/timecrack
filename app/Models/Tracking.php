@@ -63,7 +63,7 @@ class Tracking extends Model
             return '';
         }
 
-        return number_format(floor($this->duration_seconds * 100 / 3600) / 100, 2) . 'h';
+        return number_format(round($this->duration_seconds / 3600, 2), 2) . 'h';
     }
 
     public function getDurationSecondsAttribute(): int
@@ -77,7 +77,7 @@ class Tracking extends Model
 
     /**
      * Get non-billable seconds, comparing billable and duration at the same
-     * 0.01 h precision (centihours) so that rounding artifacts are eliminated.
+     * 0.01 h precision so that rounding artifacts are eliminated.
      */
     public function getNonBillableSecondsAttribute(): int
     {
@@ -85,10 +85,13 @@ class Tracking extends Model
             return 0;
         }
 
-        $billableCentihours = (int) round(($this->billable_hours ?? 0) * 100);
-        $durationCentihours = (int) round($this->duration_seconds / 36);
+        // Compare both values rounded to 2 decimal places using the same PHP
+        // arithmetic, so that a billable_hours stored via either PHP round() or
+        // MySQL ROUND() is treated as equal to the duration when it matches.
+        $billableHours = round($this->billable_hours ?? 0, 2);
+        $durationHours = round($this->duration_seconds / 3600, 2);
 
-        if ($billableCentihours >= $durationCentihours) {
+        if ($billableHours >= $durationHours) {
             return 0;
         }
 
