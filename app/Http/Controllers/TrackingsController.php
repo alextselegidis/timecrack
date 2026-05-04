@@ -275,12 +275,18 @@ class TrackingsController extends Controller
             'message' => ['nullable', 'string'],
         ]);
 
+        $billableHours = $request->input('billable_hours');
+        $durationSeconds = strtotime($request->input('ended_at')) - strtotime($request->input('started_at'));
+        if ($durationSeconds < 60) {
+            $billableHours = 0;
+        }
+
         $tracking = Tracking::create([
             'project_id' => $request->input('project_id'),
             'user_id' => $request->input('user_id'),
             'started_at' => $request->input('started_at'),
             'ended_at' => $request->input('ended_at'),
-            'billable_hours' => $request->input('billable_hours'),
+            'billable_hours' => $billableHours,
             'message' => $request->input('message'),
         ]);
 
@@ -332,12 +338,18 @@ class TrackingsController extends Controller
             'message' => ['nullable', 'string'],
         ]);
 
+        $billableHours = $request->input('billable_hours');
+        $durationSeconds = strtotime($request->input('ended_at')) - strtotime($request->input('started_at'));
+        if ($durationSeconds < 60) {
+            $billableHours = 0;
+        }
+
         $tracking->update([
             'project_id' => $request->input('project_id'),
             'user_id' => $request->input('user_id'),
             'started_at' => $request->input('started_at'),
             'ended_at' => $request->input('ended_at'),
-            'billable_hours' => $request->input('billable_hours'),
+            'billable_hours' => $billableHours,
             'message' => $request->input('message'),
         ]);
 

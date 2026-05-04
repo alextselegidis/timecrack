@@ -358,6 +358,17 @@
                 const startedAt = new Date('{{ $activeTracking->started_at->toIso8601String() }}');
                 const timerDisplay = document.getElementById('timer-display');
                 const billableHoursInput = document.getElementById('billable_hours');
+                const stopForm = document.getElementById('stop-timer-form');
+
+                // Tracks whether the user has manually edited the billable hours
+                // input. While false, the field is auto-filled with the live
+                // elapsed time and is cleared on submit so the server can compute
+                // billable_hours from its own (authoritative) duration. This
+                // avoids a race where the value pre-filled at modal-open time
+                // becomes stale by the time the form is submitted, producing a
+                // billable value 0.01h smaller than the server-computed
+                // duration (and thus spurious non-billable seconds).
+                let manuallyEdited = false;
 
                 function getElapsedHours() {
                     const now = new Date();
@@ -378,10 +389,20 @@
                         String(hours).padStart(2, '0') + ':' +
                         String(minutes).padStart(2, '0') + ':' +
                         String(seconds).padStart(2, '0');
+
+                    if (billableHoursInput && !manuallyEdited) {
+                        billableHoursInput.value = getElapsedHours();
+                    }
                 }
 
                 updateTimer();
                 setInterval(updateTimer, 1000);
+
+                if (billableHoursInput) {
+                    billableHoursInput.addEventListener('input', function() {
+                        manuallyEdited = true;
+                    });
+                }
 
                 // Set default billable hours when modal opens
                 const stopModal = document.getElementById('stop-timer-modal');
@@ -395,7 +416,16 @@
                 const resetBtn = document.getElementById('reset-billable-hours');
                 if (resetBtn) {
                     resetBtn.addEventListener('click', function() {
+                        manuallyEdited = false;
                         billableHoursInput.value = getElapsedHours();
+                    });
+                }
+
+                if (stopForm) {
+                    stopForm.addEventListener('submit', function() {
+                        if (!manuallyEdited && billableHoursInput) {
+                            billableHoursInput.value = '';
+                        }
                     });
                 }
             });

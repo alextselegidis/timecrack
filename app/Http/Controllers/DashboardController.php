@@ -146,6 +146,11 @@ class DashboardController extends Controller
             $billableHours = $maxHours;
         }
 
+        // Sub-minute trackings are treated as accidental and not billed.
+        if ($durationSeconds < 60) {
+            $billableHours = 0;
+        }
+
         // Create tracking record
         Tracking::create([
             'project_id' => $activeTracking->project_id,

@@ -1,5 +1,10 @@
 # Release Notes
 
+## [Unreleased]
+
+- Fix billable hours calculation for short duration trackings and update related UI logic
+
+
 ## [1.0.0] - 2026-03-26
 
 ### Added
