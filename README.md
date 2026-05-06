@@ -81,6 +81,49 @@ You will need to perform the following steps to install the application on your 
 
 That's it! You can now use Timecrack at your will.
 
+## Demo data
+
+A dedicated `DemoSeeder` is shipped to populate the database with a realistic
+demo dataset (one manager, three IT developers, eight software projects and
+one month of past time-tracking entries). It is **not** wired into
+`DatabaseSeeder.php` and therefore never runs during a normal `db:seed` —
+you have to invoke it explicitly:
+
+```bash
+php artisan db:seed --class=DemoSeeder
+```
+
+### "Migrate with seed"
+
+When you read references to *"migrate with seed"* in Laravel docs or in
+this project, it refers to running the database migrations and then
+immediately invoking the registered seeders in a single command:
+
+```bash
+# Run any pending migrations and then run DatabaseSeeder
+php artisan migrate --seed
+
+# Drop all tables, re-run every migration from scratch and then seed
+php artisan migrate:fresh --seed
+```
+
+Both commands only execute the seeders that are wired into
+`DatabaseSeeder::run()`. Because `DemoSeeder` is intentionally **not**
+registered there, neither `migrate --seed` nor `migrate:fresh --seed` will
+populate the demo dataset — that still has to be triggered explicitly with
+the `--class=DemoSeeder` invocation shown above (and can be combined with
+a fresh migration if you want a clean slate):
+
+```bash
+php artisan migrate:fresh && php artisan db:seed --class=DemoSeeder
+```
+
+The seeder is idempotent: running it again refreshes the trackings of the
+demo team without duplicating users or projects. All demo accounts use
+`12345678` as the password and emails of the form `<firstname>@example.org`
+(e.g. `sarah@example.org`, `david@example.org`, `priya@example.org`,
+`lukas@example.org`).
+
 You will find the latest release at [github.com/alextselegidis/timecrack](https://github.com/alextselegidis/timecrack).
 You can also report problems on the [issues page](https://github.com/alextselegidis/timecrack/issues)
 and help the development progress.
