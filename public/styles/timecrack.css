@@ -7,7 +7,65 @@
  * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
-/* Global transition for smooth effects */
+
+/* ---------------------------------------------------------------------------
+ * Design tokens
+ * ------------------------------------------------------------------------- */
+
+:root {
+    /* Brand */
+    --tc-brand: #d97638;
+    --tc-brand-dark: #c46a32;
+    --tc-brand-darker: #b05e2c;
+    --tc-brand-darkest: #9c5226;
+    --tc-brand-subtle: rgba(217, 118, 56, 0.12);
+    --tc-brand-highlight: rgba(217, 118, 56, 0.22);
+
+    /* Neutrals, kept slightly warm so they sit next to the brand orange */
+    --tc-ink: #26241f;
+    --tc-body: #4b4741;
+    --tc-muted: #5c564d;
+    --tc-border: #e6e2dc;
+    --tc-border-strong: #b9b2a8;
+    --tc-surface: #ffffff;
+    --tc-surface-sunken: #f6f5f2;
+    --tc-canvas: #f4f3f0;
+    --tc-dark: #2b2925;
+    --tc-dark-hover: #201f1c;
+    --tc-dark-active: #141310;
+    --tc-dark-border: rgba(38, 36, 31, 0.55);
+
+    /* Shape and depth */
+    --tc-radius-sm: 0.5rem;
+    --tc-radius: 0.75rem;
+    --tc-radius-lg: 1rem;
+    --tc-shadow-sm: 0 1px 2px rgba(38, 36, 31, 0.05), 0 1px 3px rgba(38, 36, 31, 0.04);
+    --tc-shadow: 0 2px 4px rgba(38, 36, 31, 0.05), 0 8px 24px rgba(38, 36, 31, 0.06);
+
+    /* Minimum size of an interactive element on a touch screen */
+    --tc-touch-target: 44px;
+
+    /* Bootstrap overrides */
+    --bs-primary: var(--tc-brand);
+    --bs-primary-rgb: 217, 118, 56;
+    --bs-link-color: var(--tc-brand-dark);
+    --bs-link-color-rgb: 196, 106, 50;
+    --bs-link-hover-color: var(--tc-brand-darker);
+    --bs-link-hover-color-rgb: 176, 94, 44;
+    --bs-body-color: var(--tc-body);
+    --bs-secondary-color: var(--tc-muted);
+    --bs-border-color: var(--tc-border);
+    --bs-border-radius: var(--tc-radius-sm);
+    --bs-border-radius-lg: var(--tc-radius);
+    --bs-body-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --bs-box-shadow-sm: var(--tc-shadow-sm);
+    --bs-focus-ring-color: var(--tc-brand-subtle);
+}
+
+/* ---------------------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------------------- */
+
 *,
 *::before,
 *::after {
@@ -18,136 +76,118 @@
     opacity 0.15s ease-in-out;
 }
 
-/* Override Bootstrap primary color */
-:root {
-    --bs-primary: #d97638;
-    --bs-primary-rgb: 217, 118, 56;
-    --bs-link-color: #c46a32;
-    --bs-link-color-rgb: 196, 106, 50;
-    --bs-link-hover-color: #b05e2c;
-    --bs-link-hover-color-rgb: 176, 94, 44;
-    --bs-secondary-color: #6c757d;
-    --bs-body-color: #495057;
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
 }
 
-/* Link colors - darker than labels */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Keep content clear of the notch and the home indicator when installed as a PWA. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+h1, h2, h3, h4, h5, h6, .display-6 {
+    color: var(--tc-ink);
+    letter-spacing: -0.01em;
+}
+
 a {
     color: var(--bs-link-color);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
 }
 
 a:hover {
     color: var(--bs-link-hover-color);
 }
 
-/* Labels use a different color */
+/* Durations, times and totals line up column by column */
+.table td,
+.table th,
+#timer-display,
+.badge {
+    font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+    outline: 2px solid var(--tc-brand);
+    outline-offset: 2px;
+}
+
 .form-label {
-    color: #495057 !important;
+    color: var(--tc-body) !important;
+    font-weight: 500;
 }
 
 .text-dark {
-    color: #343a40 !important;
+    color: var(--tc-ink) !important;
 }
 
-.btn-primary {
-    --bs-btn-bg: #d97638;
-    --bs-btn-border-color: #d97638;
-    --bs-btn-hover-bg: #c46a32;
-    --bs-btn-hover-border-color: #b05e2c;
-    --bs-btn-active-bg: #b05e2c;
-    --bs-btn-active-border-color: #9c5226;
-    --bs-btn-disabled-bg: #d97638;
-    --bs-btn-disabled-border-color: #d97638;
-}
-
-.btn-outline-primary {
-    --bs-btn-color: #d97638;
-    --bs-btn-border-color: #d97638;
-    --bs-btn-hover-bg: #d97638;
-    --bs-btn-hover-border-color: #d97638;
-    --bs-btn-active-bg: #d97638;
-    --bs-btn-active-border-color: #d97638;
-}
-
-.btn-dark {
-    --bs-btn-bg: #333;
-    --bs-btn-border-color: #333;
-    --bs-btn-hover-bg: #222;
-    --bs-btn-hover-border-color: #222;
-    --bs-btn-active-bg: #111;
-    --bs-btn-active-border-color: #111;
-    --bs-btn-disabled-bg: #333;
-    --bs-btn-disabled-border-color: #333;
+.text-muted,
+.text-body-secondary {
+    color: var(--tc-muted) !important;
 }
 
 .text-primary {
-    color: #d97638 !important;
+    color: var(--tc-brand) !important;
 }
 
-/* Dashboard card image gradient background */
-.card .card-img-top {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-}
+/* ---------------------------------------------------------------------------
+ * Surfaces
+ * ------------------------------------------------------------------------- */
 
-/* Improved card footer styling - subtle warm gray */
-.card .card-footer {
-    background-color: #f5f5f5 !important;
-    border-top-color: #e8e8e8 !important;
-}
-
-/* Improved background colors - warmer and softer */
 .bg-light {
-    background-color: #fafafa !important;
+    background-color: var(--tc-canvas) !important;
 }
 
 .bg-body-secondary {
-    background-color: #f5f5f5 !important;
+    background-color: var(--tc-surface-sunken) !important;
 }
 
 .bg-body-tertiary {
-    background-color: #f8f8f8 !important;
+    background-color: #faf9f7 !important;
 }
 
-/* Main layout background - softer */
 .main-layout {
-    background-color: #f5f6f8 !important;
+    background-color: var(--tc-canvas) !important;
 }
 
-.text-muted {
-    color: #6c757d !important;
+.card {
+    border-color: var(--tc-border);
+    border-radius: var(--tc-radius);
 }
 
-.text-body-secondary {
-    color: #6c757d !important;
+.card.shadow-sm {
+    box-shadow: var(--tc-shadow-sm) !important;
 }
 
-/* Responsive width utilities for lg breakpoint */
-@media (min-width: 992px) {
-    .w-lg-auto {
-        width: auto !important;
-    }
-
-    .flex-lg-grow-0 {
-        flex-grow: 0 !important;
-    }
-
-    .rounded-lg-3 {
-        border-radius: var(--bs-border-radius-lg) !important;
-    }
-
-    .shadow-lg-sm {
-        box-shadow: var(--bs-box-shadow-sm) !important;
-    }
-
-    .min-vh-lg-auto {
-        min-height: auto !important;
-    }
-
-    .table-responsive {
-        overflow: visible;
-    }
+.card .card-header,
+.card .card-footer {
+    border-color: var(--tc-border);
 }
 
-/* Card hover effect */
+.card .card-footer {
+    background-color: var(--tc-surface-sunken) !important;
+}
+
+.card .card-img-top {
+    background: linear-gradient(135deg, #faf9f7 0%, var(--tc-surface-sunken) 100%) !important;
+}
+
+.card .card-img-top.img-cover {
+    object-fit: cover;
+}
+
+.card .card-img-top.img-contain {
+    object-fit: contain;
+}
+
 .card-hover-move {
     transition: transform 0.2s ease-in-out,
     background-color 0.15s ease-in-out,
@@ -157,28 +197,155 @@ a:hover {
 
 .card-hover-move:hover {
     transform: translateY(-2px);
+    box-shadow: var(--tc-shadow) !important;
 }
 
-/* Link image styling - stretch for og_image, contain for favicon */
-.card .card-img-top.img-cover {
-    object-fit: cover;
+.modal-content {
+    border: 0;
+    border-radius: var(--tc-radius-lg);
+    box-shadow: var(--tc-shadow);
 }
 
-.card .card-img-top.img-contain {
-    object-fit: contain;
-}
+/* ---------------------------------------------------------------------------
+ * Buttons and form controls
+ * ------------------------------------------------------------------------- */
 
-/* Equal width buttons */
-.btn-equal-width {
-    min-width: 120px;
-}
-
-/* Better button styling */
 .btn {
     font-weight: 500;
     padding-right: 1.25rem;
     padding-left: 1.25rem;
-    border-radius: 0.375rem;
+    border-radius: var(--tc-radius-sm);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--tc-brand);
+    --bs-btn-border-color: var(--tc-brand);
+    --bs-btn-hover-bg: var(--tc-brand-dark);
+    --bs-btn-hover-border-color: var(--tc-brand-darker);
+    --bs-btn-active-bg: var(--tc-brand-darker);
+    --bs-btn-active-border-color: var(--tc-brand-darkest);
+    --bs-btn-disabled-bg: var(--tc-brand);
+    --bs-btn-disabled-border-color: var(--tc-brand);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--tc-brand);
+    --bs-btn-border-color: var(--tc-brand);
+    --bs-btn-hover-bg: var(--tc-brand);
+    --bs-btn-hover-border-color: var(--tc-brand);
+    --bs-btn-active-bg: var(--tc-brand);
+    --bs-btn-active-border-color: var(--tc-brand);
+}
+
+.btn-dark {
+    --bs-btn-bg: var(--tc-dark);
+    --bs-btn-border-color: var(--tc-dark);
+    --bs-btn-hover-bg: var(--tc-dark-hover);
+    --bs-btn-hover-border-color: var(--tc-dark-hover);
+    --bs-btn-active-bg: var(--tc-dark-active);
+    --bs-btn-active-border-color: var(--tc-dark-active);
+    --bs-btn-disabled-bg: var(--tc-dark);
+    --bs-btn-disabled-border-color: var(--tc-dark);
+}
+
+/* "Secondary" is dark, not gray, so the interface only mixes cinnamon orange and dark. */
+.btn-secondary {
+    --bs-btn-bg: var(--tc-dark);
+    --bs-btn-border-color: var(--tc-dark);
+    --bs-btn-hover-bg: var(--tc-dark-hover);
+    --bs-btn-hover-border-color: var(--tc-dark-hover);
+    --bs-btn-active-bg: var(--tc-dark-active);
+    --bs-btn-active-border-color: var(--tc-dark-active);
+    --bs-btn-disabled-bg: var(--tc-dark);
+    --bs-btn-disabled-border-color: var(--tc-dark);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--tc-ink);
+    --bs-btn-border-color: var(--tc-dark);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--tc-dark);
+    --bs-btn-hover-border-color: var(--tc-dark);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--tc-dark-active);
+    --bs-btn-active-border-color: var(--tc-dark-active);
+    --bs-btn-disabled-color: var(--tc-muted);
+    --bs-btn-disabled-border-color: var(--tc-dark-border);
+}
+
+.text-secondary {
+    color: var(--tc-ink) !important;
+}
+
+.bg-secondary {
+    background-color: var(--tc-dark) !important;
+}
+
+.btn-equal-width {
+    min-width: 120px;
+}
+
+.form-control,
+.form-select {
+    border-radius: var(--tc-radius-sm);
+    background-color: var(--tc-surface);
+    border-color: var(--tc-border-strong);
+    color: var(--tc-ink);
+}
+
+.form-control::placeholder {
+    color: var(--tc-muted);
+    opacity: 1;
+}
+
+.input-group-text {
+    background-color: var(--tc-surface);
+    border-color: var(--tc-border-strong);
+    color: var(--tc-muted);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--tc-brand);
+    box-shadow: 0 0 0 0.25rem var(--tc-brand-subtle);
+}
+
+.form-check-input:checked {
+    background-color: var(--tc-brand);
+    border-color: var(--tc-brand);
+}
+
+.form-check-input:focus {
+    border-color: var(--tc-brand);
+    box-shadow: 0 0 0 0.25rem var(--tc-brand-subtle);
+}
+
+/* ---------------------------------------------------------------------------
+ * Navigation
+ * ------------------------------------------------------------------------- */
+
+.dropdown-menu {
+    border-color: var(--tc-border);
+    border-radius: var(--tc-radius);
+    box-shadow: var(--tc-shadow);
+    padding: 0.375rem;
+}
+
+.dropdown-item {
+    border-radius: var(--tc-radius-sm);
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--tc-brand);
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
 }
 
 @media (min-width: 992px) {
@@ -209,9 +376,28 @@ a:hover {
     }
 }
 
-/* Table header sorting hover effect */
+/* ---------------------------------------------------------------------------
+ * Tables
+ * ------------------------------------------------------------------------- */
+
+.table {
+    --bs-table-striped-bg: #faf9f7;
+    --bs-table-hover-bg: var(--tc-brand-subtle);
+}
+
+.table-dark {
+    --bs-table-bg: var(--tc-dark);
+}
+
+.table-light {
+    --bs-table-bg: var(--tc-surface-sunken);
+    --bs-table-color: var(--tc-ink);
+}
+
 .table-dark th {
     vertical-align: middle;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .table-dark th a {
@@ -237,7 +423,43 @@ a:hover {
     opacity: 0.6;
 }
 
-/* Fix pagination styling */
+/* Bootstrap 5.3 paints striped rows with an inset box-shadow, so a plain background
+   color is invisible on them. Setting the "state" variable overrides both the striping
+   and the hover color. */
+.table > tbody > tr.row-highlighted > * {
+    --bs-table-bg-state: var(--tc-brand-highlight);
+}
+
+/* A wide table has to scroll inside its card instead of stretching the page. That only works
+   if the flex parents of the card are allowed to shrink below their content width. */
+.d-flex > .flex-grow-1,
+.table-responsive {
+    min-width: 0;
+}
+
+/* Every row stays on a single line, so the times are always readable at a glance. The two
+   columns that hold free text are bound to a width and truncated, the full value stays
+   available in the tooltip. */
+@media (min-width: 768px) {
+    .table > :not(caption) > * > * {
+        white-space: nowrap;
+    }
+
+    .table .message-value {
+        max-width: 12rem;
+    }
+
+    .table td .badge {
+        max-width: 11rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * Pagination
+ * ------------------------------------------------------------------------- */
+
 .pagination {
     gap: 0.25rem;
 }
@@ -246,43 +468,189 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 2rem;
-    height: 2rem;
+    min-width: 2.25rem;
+    height: 2.25rem;
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
-    border-radius: 0.25rem;
-    color: #333;
-    background-color: #fff;
-    border-color: #dee2e6;
+    border-radius: var(--tc-radius-sm);
+    color: var(--tc-ink);
+    background-color: var(--tc-surface);
+    border-color: var(--tc-border-strong);
 }
 
 .pagination .page-item .page-link:hover {
-    color: #d97638;
-    background-color: #f8f9fa;
-    border-color: #d97638;
+    color: var(--tc-brand);
+    background-color: var(--tc-surface-sunken);
+    border-color: var(--tc-brand);
 }
 
 .pagination .page-item.active .page-link {
     color: #fff;
-    background-color: #333;
-    border-color: #333;
+    background-color: var(--tc-dark);
+    border-color: var(--tc-dark);
 }
 
 .pagination .page-item.disabled .page-link {
-    color: #6c757d;
-    background-color: #fff;
-    border-color: #dee2e6;
+    color: var(--tc-muted);
+    background-color: var(--tc-surface);
+    border-color: var(--tc-border-strong);
 }
 
 .pagination .page-item .page-link i {
     font-size: 0.75rem;
 }
 
-/* Highlighted row for copied message */
-.table tbody tr.row-highlighted {
-    background-color: rgba(217, 118, 56, 0.15) !important;
+/* ---------------------------------------------------------------------------
+ * Responsive helpers
+ * ------------------------------------------------------------------------- */
+
+@media (min-width: 992px) {
+    .w-lg-auto {
+        width: auto !important;
+    }
+
+    .flex-lg-grow-0 {
+        flex-grow: 0 !important;
+    }
+
+    .rounded-lg-3 {
+        border-radius: var(--bs-border-radius-lg) !important;
+    }
+
+    .shadow-lg-sm {
+        box-shadow: var(--bs-box-shadow-sm) !important;
+    }
+
+    .min-vh-lg-auto {
+        min-height: auto !important;
+    }
 }
 
-.table tbody tr.row-highlighted td {
-    background-color: transparent !important;
+/* ---------------------------------------------------------------------------
+ * Mobile
+ * ------------------------------------------------------------------------- */
+
+@media (max-width: 767.98px) {
+    /* Touch targets. Small buttons inside tables and cards keep their looks but
+       become large enough to hit reliably. */
+    .btn,
+    .form-control,
+    .form-select,
+    .page-link,
+    .dropdown-item,
+    .navbar-nav .nav-link {
+        min-height: var(--tc-touch-target);
+    }
+
+    .btn:not(.btn-link):not(.btn-close) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-link,
+    .btn-close {
+        min-width: var(--tc-touch-target);
+        min-height: var(--tc-touch-target);
+    }
+
+    .btn-sm {
+        padding-right: 0.875rem;
+        padding-left: 0.875rem;
+    }
+
+    /* The active timer stays in reach while scrolling through the projects. */
+    .timer-card {
+        position: sticky;
+        top: 0.5rem;
+        z-index: 1020;
+    }
+
+    /* Tables turn into one card per row. The labels come from the table head and
+       are attached by scripts/timecrack.js. */
+    .table-responsive {
+        overflow: visible;
+    }
+
+    .table-stacked {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-stacked thead {
+        display: none;
+    }
+
+    .table-stacked,
+    .table-stacked tbody,
+    .table-stacked tfoot,
+    .table-stacked tr,
+    .table-stacked td {
+        display: block;
+        width: auto;
+    }
+
+    .table-stacked > tbody > tr,
+    .table-stacked > tfoot > tr {
+        background-color: var(--tc-surface);
+        border: 1px solid var(--tc-border);
+        border-radius: var(--tc-radius);
+        box-shadow: var(--tc-shadow-sm);
+        padding: 0.25rem 0.875rem;
+        margin: 0 0.75rem 0.75rem;
+    }
+
+    .table-stacked > tbody > tr:first-child {
+        margin-top: 0.75rem;
+    }
+
+    .table-stacked > tfoot > tr {
+        background-color: var(--tc-surface-sunken);
+    }
+
+    .table-stacked > * > tr > td {
+        border: 0 !important;
+        padding: 0.375rem 0 !important;
+    }
+
+    /* Rows without cell labels (empty state, totals spanning columns) stay plain. */
+    .table-stacked > * > tr > td[data-label]:not([data-label='']) {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid var(--tc-surface-sunken) !important;
+    }
+
+    .table-stacked > * > tr > td[data-label]:not([data-label='']) {
+        text-align: left;
+    }
+
+    .table-stacked > * > tr > td[data-label]:not([data-label=''])::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        color: var(--tc-muted);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .table-stacked > * > tr > td:last-child {
+        border-bottom: 0 !important;
+    }
+
+    /* Dropdown actions of a row align with the rest of the card. */
+    .table-stacked .dropdown-menu {
+        right: 0;
+        left: auto;
+    }
+}
+
+/* Keep the footer and any fixed toast clear of the home indicator. */
+@supports (padding: env(safe-area-inset-bottom)) {
+    footer,
+    .toast-container {
+        padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+    }
 }

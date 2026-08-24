@@ -1,11 +1,11 @@
 /* ----------------------------------------------------------------------------
- * Bookmarx - Simple Bookmark Manager
+ * Timecrack - Time Tracking Application
  *
- * @package     Bookmarx
+ * @package     Timecrack
  * @author      A.Tselegidis <alextselegidis@gmail.com>
  * @copyright   Copyright (c) Alex Tselegidis
  * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
- * @link        https://github.com/alextselegidis/bookmarx
+ * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 
 // Auto-hide alert
@@ -121,3 +121,42 @@ document.addEventListener('show.bs.dropdown', function (event) {
         }
     });
 })();
+
+// Label the table cells so that tables can be shown as one card per row on small
+// screens (see the mobile section of styles/timecrack.css)
+
+document.querySelectorAll('table.table').forEach(function (table) {
+    const headers = Array.from(table.querySelectorAll('thead th')).map(function (th) {
+        return th.textContent.replace(/\s+/g, ' ').trim();
+    });
+
+    if (!headers.length) {
+        return;
+    }
+
+    table.classList.add('table-stacked');
+
+    table.querySelectorAll('tbody > tr, tfoot > tr').forEach(function (row) {
+        let column = 0;
+
+        Array.from(row.children).forEach(function (cell) {
+            const span = cell.colSpan || 1;
+
+            // Cells spanning several columns (totals, empty states) get no label.
+            cell.setAttribute('data-label', span > 1 ? '' : headers[column] || '');
+
+            column += span;
+        });
+    });
+});
+
+// Row dropdowns live inside a horizontally scrollable table, which would clip them. The
+// fixed positioning strategy takes the menu out of the scroll container.
+
+document.querySelectorAll('.table-responsive .dropdown-toggle').forEach(function (toggle) {
+    bootstrap.Dropdown.getOrCreateInstance(toggle, {
+        popperConfig: {
+            strategy: 'fixed',
+        },
+    });
+});

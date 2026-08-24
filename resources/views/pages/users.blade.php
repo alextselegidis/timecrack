@@ -52,7 +52,7 @@
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-0">
                     <!-- Table -->
-                    <div class="table-responsive" style="overflow: visible;">
+                    <div class="table-responsive">
                         <table class="table table-sm table-striped table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
@@ -103,7 +103,7 @@
                                             </a>
                                         </td>
                                         <td class="border-0">
-                                            <span class="badge bg-light text-dark">{{ __($user->role) }}</span>
+                                            <span class="badge bg-dark text-white">{{ __($user->role) }}</span>
                                         </td>
                                         <td class="border-0">
                                             @if($user->is_active)

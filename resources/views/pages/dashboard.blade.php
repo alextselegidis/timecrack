@@ -22,7 +22,7 @@
     {{-- ACTIVE TIMER --}}
     @if($user->isTracking())
         @php $activeTracking = $user->activeTracking; @endphp
-        <div class="card border-primary mb-4 shadow-sm">
+        <div class="card border-primary mb-4 shadow-sm timer-card">
             <div class="card-header bg-primary text-white d-flex align-items-center">
                 <i class="bi bi-stopwatch me-2 fs-4"></i>
                 <span class="fs-5 fw-bold">{{ __('Active Timer') }}</span>
@@ -277,7 +277,7 @@
                                         @endif
                                     </td>
                                     <td class="border-0 pe-4" @if($tracking->message && strlen($tracking->message) > 30) data-bs-toggle="tooltip" data-bs-title="{{ e($tracking->message) }}" @endif>
-                                        {{ Str::limit($tracking->message, 30) ?: '-' }}
+                                        <span class="d-inline-block text-truncate align-middle message-value">{{ Str::limit($tracking->message, 30) ?: '-' }}</span>
                                     </td>
                                 </tr>
                             @endforeach

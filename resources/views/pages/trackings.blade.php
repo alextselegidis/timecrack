@@ -97,7 +97,7 @@
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-0">
                     <!-- Table -->
-                    <div class="table-responsive" style="overflow: visible;">
+                    <div class="table-responsive">
                         <table class="table table-sm table-striped table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
@@ -202,7 +202,7 @@
                                         </td>
                                         <td class="border-0" @if($tracking->message && strlen($tracking->message) > 30) data-bs-toggle="tooltip" data-bs-title="{{ e($tracking->message) }}" @endif>
                                             @if($tracking->message)
-                                                {{ Str::limit($tracking->message, 30) }}
+                                                <span class="d-inline-block text-truncate align-middle message-value">{{ Str::limit($tracking->message, 30) }}</span>
                                                 <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-message-btn"
                                                         data-message="{{ e($tracking->message) }}"
                                                         data-tracking-id="{{ $tracking->id }}"
