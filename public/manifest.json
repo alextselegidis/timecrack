@@ -1,0 +1,31 @@
+{
+    "name": "Timecrack",
+    "short_name": "Timecrack",
+    "description": "Timecrack is a time tracking application designed to help users easily track their work hours.",
+    "id": "./",
+    "scope": "./",
+    "start_url": "./dashboard",
+    "display": "standalone",
+    "theme_color": "#d97638",
+    "background_color": "#f5f6f8",
+    "icons": [
+        {
+            "src": "images/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "images/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "images/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

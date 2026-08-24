@@ -13,24 +13,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
-    <base href="{{url('')}}/">
-
-    <title>@yield('pageTitle') | Timecrack</title>
-    <meta name="description" content="Timecrack is a time tracking application designed to help users easily track their work hours.">
-    <meta name="theme-color" content="#0d6efd">
-
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
-
-    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="vendor/pace-js/pace-theme-default.min.css">
-    <link rel="stylesheet" href="vendor/pace-js/pace-theme-flat-top.tmpl.css">
-    <link rel="stylesheet" href="styles/timecrack.css?{{config('app.version')}}">
-
-    @yield('styles')
+    @include('shared.head')
 </head>
 <body class="bg-light auth-layout">
 
