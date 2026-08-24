@@ -2,9 +2,6 @@
 
 ## [Unreleased]
 
-
-## [Unreleased]
-
 ### Added
 
 - Install Timecrack as an app (PWA) with a web manifest, app icons, a service worker and an offline page
