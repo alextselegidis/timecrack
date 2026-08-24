@@ -1,12 +1,12 @@
 <?php
 /* ----------------------------------------------------------------------------
- * Clientverse - Simple Bookmark Manager
+ * Timecrack - Time Tracking Application
  *
- * @package     Clientverse
+ * @package     Timecrack
  * @author      A.Tselegidis <alextselegidis@gmail.com>
  * @copyright   Copyright (c) Alex Tselegidis
  * @license     https://opensource.org/licenses/GPL-3.0 - GPLv3
- * @link        https://github.com/alextselegidis/clientverse
+ * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 namespace App\Http\Middleware;
 
@@ -27,7 +27,7 @@ class ExtendRememberSession
         $rememberCookieName = Auth::guard('web')->getRecallerName();
 
         if ($request->cookies->has($rememberCookieName)) {
-            $rememberDuration = Config::get('auth.guards.web.remember', 52560000);
+            $rememberDuration = Config::get('auth.guards.web.remember', 576000);
 
             Config::set('session.lifetime', $rememberDuration);
         }

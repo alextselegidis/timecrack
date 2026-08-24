@@ -39,6 +39,12 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+
+            // Lifetime of the "remember me" cookie in minutes. Browsers cap persistent
+            // cookies at 400 days (576000 minutes) and reject any "Expires" date with a
+            // year above 9999 (RFC 6265), which silently turns the cookie into a session
+            // cookie, so this value must stay within that range.
+            'remember' => (int) env('AUTH_REMEMBER_MINUTES', 576000),
         ],
     ],
 

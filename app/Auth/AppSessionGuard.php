@@ -22,10 +22,10 @@ class AppSessionGuard extends SessionGuard
      * The default Laravel implementation returns `remember_<guard>_<sha1(SessionGuard::class)>`,
      * which is identical for every Laravel install. When two installs share a domain, the
      * "remember me" cookie set by one would clobber/log out the other. We suffix the cookie
-     * with a short hash of APP_URL so each install has its own cookie.
+     * with a short hash of APP_KEY, which is unique per install by definition.
      */
     public function getRecallerName()
     {
-        return parent::getRecallerName().'_'.substr(sha1((string) config('app.url')), 0, 8);
+        return parent::getRecallerName().'_'.substr(sha1((string) config('app.key')), 0, 8);
     }
 }

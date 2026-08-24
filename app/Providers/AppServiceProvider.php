@@ -60,6 +60,6 @@ class AppServiceProvider extends ServiceProvider
             return $guard;
         });
 
-        Auth::guard('web')->setRememberDuration(52560000); // ~100 years
+        Auth::guard('web')->setRememberDuration(config('auth.guards.web.remember'));
     }
 }
