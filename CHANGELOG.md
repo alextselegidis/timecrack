@@ -2,7 +2,34 @@
 
 ## [Unreleased]
 
+
+## [Unreleased]
+
+### Added
+
+- Install Timecrack as an app (PWA) with a web manifest, app icons, a service worker and an offline page
+- Show tables as one card per row on phones, with the column names as labels
+- Show the latest blog posts of timecrack.org on the about page, cached for a day
+
+### Changed
+
+- Refresh the look of the application with a new set of design tokens (typography, colors, radii and shadows)
+- Replace the gray secondary elements with dark ones, so the interface only combines cinnamon orange and dark
+- Darker borders, muted text and outlined buttons for more contrast, and a white background for every input
+- Keep every table row on a single line on larger screens, so the times are always readable, and scroll
+  wide tables inside their card instead of stretching the page
+- Larger touch targets, sticky active timer and safe area padding on mobile devices
+- Allow pinch to zoom on mobile devices again
+- Derive the session and "remember me" cookie names from `APP_KEY` instead of `APP_URL`, so that two
+  installations on the same domain can no longer log each other out
+- Move the shared markup of the page head into a single `shared.head` view
+
+### Fixed
+
 - Fix billable hours calculation for short duration trackings and update related UI logic
+- Keep the "remember me" lifetime within the 400 days that browsers accept for a persistent cookie
+- Fix the test suite, which was failing on a missing database and on tests for routes that no longer exist
+- Highlight the copied row of the history table on striped rows as well
 
 
 ## [1.0.0] - 2026-03-26
