@@ -57,6 +57,21 @@
                         @unless($isNew)
                             @method('PUT')
                         @endunless
+                        @if(session('overlapping_trackings'))
+                            <div class="alert alert-warning">
+                                <div class="fw-medium">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    {{ __('overlap_detected_message') }}
+                                </div>
+                                <ul class="mb-2 mt-2">
+                                    @foreach(session('overlapping_trackings') as $overlap)
+                                        <li>{{ $overlap }}</li>
+                                    @endforeach
+                                </ul>
+                                <div class="small mb-0">{{ __('overlap_confirm_message') }}</div>
+                            </div>
+                            <input type="hidden" name="overlap_confirmed" value="1">
+                        @endif
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="mb-3">

@@ -15,6 +15,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Tracking;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -90,7 +91,7 @@ class TrackingsController extends Controller
         // Derive billable as the complement so that billable + non-billable = duration
         $totalBillableSeconds = $totalDurationSeconds - $totalNonBillableSeconds;
 
-        $trackings = $query->paginate(25);
+        $trackings = $query->withOverlapFlag()->paginate(25);
 
         // Get all users for filter (admin only)
         $users = $isAdmin ? \App\Models\User::query()->where('is_active', true)->orderBy('name')->get() : collect();
@@ -164,7 +165,7 @@ class TrackingsController extends Controller
             $query->orderBy('started_at', $direction);
         }
 
-        $trackings = $query->get();
+        $trackings = $query->withOverlapFlag()->get();
 
         $filename = 'timecrack_trackings_' . date('Y-m-d_His') . '.csv';
 
@@ -175,7 +176,7 @@ class TrackingsController extends Controller
             fwrite($handle, "\xEF\xBB\xBF");
 
             // Header row
-            $headers = [__('project'), __('started'), __('ended'), __('duration'), __('billable_hours'), __('non_billable_hours'), __('message')];
+            $headers = [__('project'), __('started'), __('ended'), __('duration'), __('billable_hours'), __('non_billable_hours'), __('message'), __('overlap')];
             if ($isAdmin) {
                 array_splice($headers, 1, 0, [__('user')]);
             }
@@ -195,6 +196,7 @@ class TrackingsController extends Controller
                     number_format(($tracking->duration_seconds - $tracking->non_billable_seconds) / 3600, 2, '.', ''),
                     number_format($tracking->non_billable_hours, 2, '.', ''),
                     $tracking->message ?? '',
+                    $tracking->is_overlapping ? __('yes') : __('no'),
                 ];
                 if ($isAdmin) {
                     array_splice($row, 1, 0, [$tracking->user->name ?? __('unknown')]);
@@ -213,6 +215,7 @@ class TrackingsController extends Controller
                 number_format($totalDurationSeconds / 3600, 2, '.', ''),
                 number_format($totalBillableSeconds / 3600, 2, '.', ''),
                 number_format($totalNonBillableSeconds / 3600, 2, '.', ''),
+                '',
                 '',
             ];
             if ($isAdmin) {
@@ -280,6 +283,10 @@ class TrackingsController extends Controller
         // The form fields carry local time, the database keeps everything in UTC.
         $startedAt = Carbon::parse($request->input('started_at'), user_timezone())->utc();
         $endedAt = Carbon::parse($request->input('ended_at'), user_timezone())->utc();
+
+        if ($response = $this->overlapWarning($request, $startedAt, $endedAt)) {
+            return $response;
+        }
 
         $billableHours = $request->input('billable_hours');
         $durationSeconds = $endedAt->getTimestamp() - $startedAt->getTimestamp();
@@ -349,6 +356,10 @@ class TrackingsController extends Controller
         $startedAt = Carbon::parse($request->input('started_at'), user_timezone())->utc();
         $endedAt = Carbon::parse($request->input('ended_at'), user_timezone())->utc();
 
+        if ($response = $this->overlapWarning($request, $startedAt, $endedAt, $tracking->id)) {
+            return $response;
+        }
+
         $billableHours = $request->input('billable_hours');
         $durationSeconds = $endedAt->getTimestamp() - $startedAt->getTimestamp();
         if ($durationSeconds < 60) {
@@ -365,6 +376,30 @@ class TrackingsController extends Controller
         ]);
 
         return redirect()->route('trackings.edit', $tracking->id)->with('success', __('record_saved_message'));
+    }
+
+    /**
+     * Send the user back to the form once, with the overlapping trackings listed, unless the
+     * overlap was already confirmed. Confirmed records are saved and flagged in the history.
+     */
+    private function overlapWarning(Request $request, $startedAt, $endedAt, ?int $ignoreId = null): ?RedirectResponse
+    {
+        if ($request->boolean('overlap_confirmed')) {
+            return null;
+        }
+
+        $overlapping = Tracking::overlapping((int) $request->input('user_id'), $startedAt, $endedAt, $ignoreId);
+
+        if ($overlapping->isEmpty()) {
+            return null;
+        }
+
+        return redirect()->back()->withInput()->with('overlapping_trackings', $overlapping->map(fn($tracking) => sprintf(
+            '%s: %s - %s',
+            $tracking->project->name ?? __('unknown'),
+            tz($tracking->started_at)->format('d/m/Y H:i'),
+            tz($tracking->ended_at)->format('d/m/Y H:i')
+        ))->all());
     }
 
     public function destroy(Request $request, Tracking $tracking)

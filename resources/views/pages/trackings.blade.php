@@ -153,6 +153,9 @@
                                 @foreach($trackings as $tracking)
                                     <tr data-tracking-id="{{ $tracking->id }}" @if($isAdmin) onclick="window.location='{{ route('trackings.edit', $tracking->id) }}'" style="cursor: pointer;" @endif>
                                         <td class="border-0 ps-4" onclick="event.stopPropagation();">
+                                            @if($tracking->is_overlapping)
+                                                <i class="bi bi-exclamation-triangle-fill text-warning me-1" data-bs-toggle="tooltip" data-bs-title="{{ __('overlap_detected_message') }}"></i>
+                                            @endif
                                             @if($tracking->project)
                                                 <a href="{{ route('setup.projects.edit', $tracking->project->id) }}" class="text-decoration-none">
                                                     <span class="badge" style="background-color: {{ $tracking->project->color ?? '#6c757d' }}">

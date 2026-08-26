@@ -42,7 +42,37 @@ class Tracking extends Model
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'billable_hours' => 'decimal:2',
+        'is_overlapping' => 'boolean',
     ];
+
+    /**
+     * Get the trackings of the same user whose time range overlaps the given one.
+     */
+    public static function overlapping(int $userId, $startedAt, $endedAt, ?int $ignoreId = null)
+    {
+        return static::query()
+            ->with('project')
+            ->where('user_id', $userId)
+            ->where('started_at', '<', $endedAt)
+            ->where('ended_at', '>', $startedAt)
+            ->when($ignoreId, fn($query) => $query->whereKeyNot($ignoreId))
+            ->orderBy('started_at')
+            ->get();
+    }
+
+    /**
+     * Flag every row of the result that overlaps another tracking of the same user, so that
+     * the history and the export can mark it without querying each row on its own.
+     */
+    public function scopeWithOverlapFlag($query)
+    {
+        return $query->select('trackings.*')->selectRaw(
+            'EXISTS (SELECT 1 FROM trackings AS overlapping'
+            . ' WHERE overlapping.user_id = trackings.user_id AND overlapping.id <> trackings.id'
+            . ' AND overlapping.started_at < trackings.ended_at AND overlapping.ended_at > trackings.started_at)'
+            . ' AS is_overlapping'
+        );
+    }
 
     public function getDurationAttribute()
     {

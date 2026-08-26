@@ -180,7 +180,7 @@ class DashboardController extends Controller
         }
 
         // Create tracking record
-        Tracking::create([
+        $tracking = Tracking::create([
             'project_id' => $activeTracking->project_id,
             'user_id' => $user->id,
             'started_at' => $activeTracking->started_at,
@@ -191,6 +191,13 @@ class DashboardController extends Controller
 
         // Delete active tracking
         $activeTracking->delete();
+
+        // The tracking is already saved, so the user is only informed that it is flagged as an overlap.
+        $overlapping = Tracking::overlapping($user->id, $tracking->started_at, $tracking->ended_at, $tracking->id);
+
+        if ($overlapping->isNotEmpty()) {
+            return redirect()->route('dashboard')->with('warning', __('overlap_saved_message'));
+        }
 
         return redirect()->route('dashboard')->with('success', __('Timer stopped and tracking saved.'));
     }

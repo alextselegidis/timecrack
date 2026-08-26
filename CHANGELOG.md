@@ -10,6 +10,8 @@
 - Pause and resume the running timer, so that breaks stay in the duration but count as non-billable time
 - Let every user pick a timezone in the account page, which the trackings, the filters, the CSV export and
   the manual entry forms are displayed and entered in
+- Warn about trackings that overlap another tracking of the same user, which can still be saved and are then
+  flagged in the history and in the CSV export
 
 ### Changed
 
