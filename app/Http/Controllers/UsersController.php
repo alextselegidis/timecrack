@@ -86,12 +86,14 @@ class UsersController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'timezone' => ['nullable', 'timezone'],
             'role' => ['required', 'string', Rule::in(RoleEnum::values())],
             'is_active' => ['boolean'],
         ]);
 
         $user->name = $request->input('name');
         $user->email = $request->input('email');
+        $user->timezone = $request->input('timezone') ?: null;
         $user->role = $request->input('role');
         $user->is_active = $request->boolean('is_active', true);
 

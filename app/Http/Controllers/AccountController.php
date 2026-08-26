@@ -36,10 +36,16 @@ class AccountController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'timezone' => ['nullable', 'timezone'],
         ]);
 
         $user->name = $request->input('name');
         $user->email = $request->input('email');
+
+        // The password form of the account page does not submit the timezone.
+        if ($request->has('timezone')) {
+            $user->timezone = $request->input('timezone') ?: null;
+        }
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->input('password'));

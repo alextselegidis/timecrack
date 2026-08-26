@@ -10,7 +10,7 @@
  * ---------------------------------------------------------------------------- */
 --}}
 
-<select name="{{$name}}" id="{{$id}}" class="form-select" {{$required ? 'required': ''}}" style="{{$style ?? ''}}">
+<select name="{{$name}}" id="{{$id}}" class="form-select" {{$required ? 'required': ''}} style="{{$style ?? ''}}">
     @foreach (DateTimeZone::listIdentifiers() as $tz)
         <option value="{{ $tz }}" {{ $value === $tz ? 'selected' : '' }}>
             {{ $tz }}

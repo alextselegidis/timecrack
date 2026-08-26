@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Tracking;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -44,11 +45,11 @@ class TrackingsController extends Controller
         }
 
         if ($dateFrom) {
-            $query->whereDate('started_at', '>=', $dateFrom);
+            $query->where('started_at', '>=', Carbon::parse($dateFrom, user_timezone())->startOfDay()->utc());
         }
 
         if ($dateTo) {
-            $query->whereDate('started_at', '<=', $dateTo);
+            $query->where('started_at', '<=', Carbon::parse($dateTo, user_timezone())->endOfDay()->utc());
         }
 
         // User filter (admin only)
@@ -133,11 +134,11 @@ class TrackingsController extends Controller
         }
 
         if ($dateFrom) {
-            $query->whereDate('started_at', '>=', $dateFrom);
+            $query->where('started_at', '>=', Carbon::parse($dateFrom, user_timezone())->startOfDay()->utc());
         }
 
         if ($dateTo) {
-            $query->whereDate('started_at', '<=', $dateTo);
+            $query->where('started_at', '<=', Carbon::parse($dateTo, user_timezone())->endOfDay()->utc());
         }
 
         // User filter (admin only)
@@ -188,8 +189,8 @@ class TrackingsController extends Controller
                 $totalNonBillableSeconds += $tracking->non_billable_seconds;
                 $row = [
                     $tracking->project->name ?? __('unknown'),
-                    $tracking->started_at->format('d/m/Y H:i'),
-                    $tracking->ended_at->format('d/m/Y H:i'),
+                    tz($tracking->started_at)->format('d/m/Y H:i'),
+                    tz($tracking->ended_at)->format('d/m/Y H:i'),
                     number_format($tracking->duration_seconds / 3600, 2, '.', ''),
                     number_format(($tracking->duration_seconds - $tracking->non_billable_seconds) / 3600, 2, '.', ''),
                     number_format($tracking->non_billable_hours, 2, '.', ''),
@@ -266,7 +267,8 @@ class TrackingsController extends Controller
             'ended_at' => ['required', 'date', 'after:started_at'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
                 if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = round((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600, 2);
+                    $maxHours = round(Carbon::parse($request->input('started_at'), user_timezone())
+                        ->diffInSeconds(Carbon::parse($request->input('ended_at'), user_timezone()), true) / 3600, 2);
                     if ($value > $maxHours) {
                         $fail(__('Billable hours cannot exceed the duration between start and end times.'));
                     }
@@ -275,8 +277,12 @@ class TrackingsController extends Controller
             'message' => ['nullable', 'string'],
         ]);
 
+        // The form fields carry local time, the database keeps everything in UTC.
+        $startedAt = Carbon::parse($request->input('started_at'), user_timezone())->utc();
+        $endedAt = Carbon::parse($request->input('ended_at'), user_timezone())->utc();
+
         $billableHours = $request->input('billable_hours');
-        $durationSeconds = strtotime($request->input('ended_at')) - strtotime($request->input('started_at'));
+        $durationSeconds = $endedAt->getTimestamp() - $startedAt->getTimestamp();
         if ($durationSeconds < 60) {
             $billableHours = 0;
         }
@@ -284,8 +290,8 @@ class TrackingsController extends Controller
         $tracking = Tracking::create([
             'project_id' => $request->input('project_id'),
             'user_id' => $request->input('user_id'),
-            'started_at' => $request->input('started_at'),
-            'ended_at' => $request->input('ended_at'),
+            'started_at' => $startedAt,
+            'ended_at' => $endedAt,
             'billable_hours' => $billableHours,
             'message' => $request->input('message'),
         ]);
@@ -329,7 +335,8 @@ class TrackingsController extends Controller
             'ended_at' => ['required', 'date', 'after:started_at'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
                 if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = round((strtotime($request->input('ended_at')) - strtotime($request->input('started_at'))) / 3600, 2);
+                    $maxHours = round(Carbon::parse($request->input('started_at'), user_timezone())
+                        ->diffInSeconds(Carbon::parse($request->input('ended_at'), user_timezone()), true) / 3600, 2);
                     if ($value > $maxHours) {
                         $fail(__('Billable hours cannot exceed the duration between start and end times.'));
                     }
@@ -338,8 +345,12 @@ class TrackingsController extends Controller
             'message' => ['nullable', 'string'],
         ]);
 
+        // The form fields carry local time, the database keeps everything in UTC.
+        $startedAt = Carbon::parse($request->input('started_at'), user_timezone())->utc();
+        $endedAt = Carbon::parse($request->input('ended_at'), user_timezone())->utc();
+
         $billableHours = $request->input('billable_hours');
-        $durationSeconds = strtotime($request->input('ended_at')) - strtotime($request->input('started_at'));
+        $durationSeconds = $endedAt->getTimestamp() - $startedAt->getTimestamp();
         if ($durationSeconds < 60) {
             $billableHours = 0;
         }
@@ -347,8 +358,8 @@ class TrackingsController extends Controller
         $tracking->update([
             'project_id' => $request->input('project_id'),
             'user_id' => $request->input('user_id'),
-            'started_at' => $request->input('started_at'),
-            'ended_at' => $request->input('ended_at'),
+            'started_at' => $startedAt,
+            'ended_at' => $endedAt,
             'billable_hours' => $billableHours,
             'message' => $request->input('message'),
         ]);

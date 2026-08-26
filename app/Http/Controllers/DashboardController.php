@@ -120,6 +120,31 @@ class DashboardController extends Controller
         return redirect()->route('dashboard')->with('success', __('Timer started for :project.', ['project' => $project->name]));
     }
 
+    public function togglePause(Request $request)
+    {
+        $user = $request->user();
+        $user->load('activeTracking');
+
+        if (!$user->isTracking()) {
+            return redirect()->route('dashboard')->with('error', __('No active timer.'));
+        }
+
+        $activeTracking = $user->activeTracking;
+
+        if ($activeTracking->isPaused()) {
+            $activeTracking->update([
+                'paused_duration' => $activeTracking->paused_seconds,
+                'paused_at' => null,
+            ]);
+
+            return redirect()->route('dashboard')->with('success', __('timer_resumed_message'));
+        }
+
+        $activeTracking->update(['paused_at' => now()]);
+
+        return redirect()->route('dashboard')->with('success', __('timer_paused_message'));
+    }
+
     public function stop(Request $request)
     {
         $user = $request->user();
@@ -133,14 +158,17 @@ class DashboardController extends Controller
         $endedAt = now();
 
         $durationSeconds = max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp());
-        $maxHours = round($durationSeconds / 3600, 2);
+
+        // Paused time stays part of the duration but is never billable.
+        $pausedSeconds = min($durationSeconds, $activeTracking->paused_seconds);
+        $maxHours = round(($durationSeconds - $pausedSeconds) / 3600, 2);
 
         $request->validate([
             'message' => ['nullable', 'string'],
             'billable_hours' => ['nullable', 'numeric', 'min:0', 'max:' . $maxHours],
         ]);
 
-        // Calculate billable hours: use provided value, or default to duration in hours (floored to centihours)
+        // Calculate billable hours: use provided value, or default to the unpaused duration in hours
         $billableHours = $request->input('billable_hours');
         if ($billableHours === null || $billableHours === '') {
             $billableHours = $maxHours;

@@ -107,7 +107,7 @@
                                         {{ __('started_at') }} <span class="text-danger">*</span>
                                     </label>
                                     <input type="datetime-local" id="started_at" name="started_at" class="form-control" required
-                                           value="{{ old('started_at', $tracking?->started_at?->format('Y-m-d\TH:i')) }}">
+                                           value="{{ old('started_at', tz($tracking?->started_at)?->format('Y-m-d\TH:i')) }}">
                                     @error('started_at')
                                     <span class="form-text text-danger">{{ $message }}</span>
                                     @enderror
@@ -117,7 +117,7 @@
                                         {{ __('ended_at') }} <span class="text-danger">*</span>
                                     </label>
                                     <input type="datetime-local" id="ended_at" name="ended_at" class="form-control" required
-                                           value="{{ old('ended_at', $tracking?->ended_at?->format('Y-m-d\TH:i')) }}">
+                                           value="{{ old('ended_at', tz($tracking?->ended_at)?->format('Y-m-d\TH:i')) }}">
                                     @error('ended_at')
                                     <span class="form-text text-danger">{{ $message }}</span>
                                     @enderror

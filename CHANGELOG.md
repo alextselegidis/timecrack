@@ -7,6 +7,9 @@
 - Install Timecrack as an app (PWA) with a web manifest, app icons, a service worker and an offline page
 - Show tables as one card per row on phones, with the column names as labels
 - Show the latest blog posts of timecrack.org on the about page, cached for a day
+- Pause and resume the running timer, so that breaks stay in the duration but count as non-billable time
+- Let every user pick a timezone in the account page, which the trackings, the filters, the CSV export and
+  the manual entry forms are displayed and entered in
 
 ### Changed
 

@@ -26,8 +26,16 @@
             <div class="card-header bg-primary text-white d-flex align-items-center">
                 <i class="bi bi-stopwatch me-2 fs-4"></i>
                 <span class="fs-5 fw-bold">{{ __('Active Timer') }}</span>
-                <span class="ms-auto badge bg-light text-primary fs-6" id="timer-display">
-                    00:00:00
+                <span class="ms-auto d-flex align-items-center gap-2">
+                    @if($activeTracking->isPaused())
+                        <span class="badge bg-warning text-dark fs-6">
+                            <i class="bi bi-pause-fill me-1"></i>
+                            {{ __('paused') }}
+                        </span>
+                    @endif
+                    <span class="badge bg-light text-primary fs-6" id="timer-display">
+                        00:00:00
+                    </span>
                 </span>
             </div>
             <div class="card-body">
@@ -38,8 +46,11 @@
                                 {{ $activeTracking->project->name ?? __('Unknown Project') }}
                             </span>
                         </h5>
-                        <small class="text-muted">
-                            {{ __('Started at') }}: {{ $activeTracking->started_at->format('H:i:s') }}
+                        <small class="text-muted d-block">
+                            {{ __('Started at') }}: {{ tz($activeTracking->started_at)->format('H:i:s') }}
+                        </small>
+                        <small class="text-muted d-block">
+                            {{ __('non_billable') }}: <span id="paused-display">0h 0m</span>
                         </small>
                     </div>
                     <div class="col-md-5 mb-3 mb-md-0">
@@ -51,7 +62,14 @@
                             </button>
                         </form>
                     </div>
-                    <div class="col-md-3 text-md-end">
+                    <div class="col-md-3 d-flex gap-2 justify-content-md-end">
+                        <form action="{{ route('timer.pause') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-dark" title="{{ $activeTracking->isPaused() ? __('resume') : __('pause') }}">
+                                <i class="bi bi-{{ $activeTracking->isPaused() ? 'play-fill' : 'pause-fill' }} me-1"></i>
+                                {{ $activeTracking->isPaused() ? __('resume') : __('pause') }}
+                            </button>
+                        </form>
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#stop-timer-modal" title="{{ __('Stop') }}">
                             <i class="bi bi-stop-fill me-1"></i>
                             {{ __('Stop') }}
@@ -250,8 +268,8 @@
                                             {{ $tracking->project->name ?? __('unknown') }}
                                         </span>
                                     </td>
-                                    <td class="border-0">{{ $tracking->started_at->format('d/m/Y') }} <strong>{{ $tracking->started_at->format('H:i') }}</strong></td>
-                                    <td class="border-0">{{ $tracking->ended_at->format('d/m/Y') }} <strong>{{ $tracking->ended_at->format('H:i') }}</strong></td>
+                                    <td class="border-0">{{ tz($tracking->started_at)->format('d/m/Y') }} <strong>{{ tz($tracking->started_at)->format('H:i') }}</strong></td>
+                                    <td class="border-0">{{ tz($tracking->ended_at)->format('d/m/Y') }} <strong>{{ tz($tracking->ended_at)->format('H:i') }}</strong></td>
                                     <td class="border-0" data-bs-toggle="tooltip" data-bs-title="{{ $tracking->duration_decimal }}">{{ $tracking->duration }}</td>
                                     <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ number_format($tracking->billable_hours, 2) }}h" @endif>
                                         @if($tracking->billable_hours !== null)
@@ -321,6 +339,9 @@
                                     </button>
                                 </div>
                                 <small class="form-text text-muted">{{ __('Defaults to elapsed duration if left empty') }}</small>
+                                @if($activeTracking->paused_seconds)
+                                    <small class="form-text text-muted d-block">{{ __('paused_time_non_billable_message') }}</small>
+                                @endif
                             </div>
                         </div>
                     </form>
@@ -356,7 +377,10 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const startedAt = new Date('{{ $activeTracking->started_at->toIso8601String() }}');
+                const pausedDuration = {{ (int) $activeTracking->paused_duration }};
+                const pausedAt = @json($activeTracking->paused_at?->toIso8601String());
                 const timerDisplay = document.getElementById('timer-display');
+                const pausedDisplay = document.getElementById('paused-display');
                 const billableHoursInput = document.getElementById('billable_hours');
                 const stopForm = document.getElementById('stop-timer-form');
 
@@ -370,16 +394,24 @@
                 // duration (and thus spurious non-billable seconds).
                 let manuallyEdited = false;
 
+                // Paused seconds are not billable, so they are cut out of the elapsed
+                // time. While the timer is paused, the elapsed time is measured up to
+                // the moment of the pause, which freezes the display.
+                function getPausedSeconds() {
+                    return pausedDuration + (pausedAt ? Math.max(0, Math.floor((new Date() - new Date(pausedAt)) / 1000)) : 0);
+                }
+
+                function getElapsedSeconds() {
+                    const reference = pausedAt ? new Date(pausedAt) : new Date();
+                    return Math.max(0, Math.floor((reference - startedAt) / 1000) - pausedDuration);
+                }
+
                 function getElapsedHours() {
-                    const now = new Date();
-                    let elapsedMs = Math.max(0, now - startedAt);
-                    return (Math.round(elapsedMs / 36000) / 100).toFixed(2);
+                    return (Math.round(getElapsedSeconds() / 36) / 100).toFixed(2);
                 }
 
                 function updateTimer() {
-                    const now = new Date();
-                    let elapsed = Math.floor((now - startedAt) / 1000);
-                    if (elapsed < 0) elapsed = 0;
+                    const elapsed = getElapsedSeconds();
 
                     const hours = Math.floor(elapsed / 3600);
                     const minutes = Math.floor((elapsed % 3600) / 60);
@@ -389,6 +421,11 @@
                         String(hours).padStart(2, '0') + ':' +
                         String(minutes).padStart(2, '0') + ':' +
                         String(seconds).padStart(2, '0');
+
+                    if (pausedDisplay) {
+                        const paused = getPausedSeconds();
+                        pausedDisplay.textContent = Math.floor(paused / 3600) + 'h ' + Math.floor((paused % 3600) / 60) + 'm';
+                    }
 
                     if (billableHoursInput && !manuallyEdited) {
                         billableHoursInput.value = getElapsedHours();

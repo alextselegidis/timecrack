@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     // Timer actions
     Route::post('/timer/start/{project}', [DashboardController::class, 'start'])->name('timer.start');
     Route::post('/timer/stop', [DashboardController::class, 'stop'])->name('timer.stop');
+    Route::post('/timer/pause', [DashboardController::class, 'togglePause'])->name('timer.pause');
     Route::post('/timer/discard', [DashboardController::class, 'discard'])->name('timer.discard');
     Route::post('/timer/message', [DashboardController::class, 'updateMessage'])->name('timer.message');
     Route::post('/projects/{project}/toggle-pin', [DashboardController::class, 'togglePin'])->name('projects.toggle-pin');
@@ -96,5 +97,3 @@ Route::middleware('auth')->group(function () {
         Route::put('/localization', [SettingsController::class, 'update'])->name('setup.localization.update');
     });
 });
-
-

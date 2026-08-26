@@ -70,6 +70,23 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <!-- Timezone -->
+                        <div class="mb-3">
+                            <label for="timezone" class="form-label text-dark fw-medium">
+                                {{ __('timezone') }}
+                            </label>
+                            @include('shared.timezone-dropdown', [
+                                'name' => 'timezone',
+                                'id' => 'timezone',
+                                'value' => old('timezone', auth()->user()->timezone ?: setting('default_timezone', 'UTC')),
+                                'required' => false,
+                            ])
+                            <div class="form-text">{{ __('timezone_help_message') }}</div>
+                            @error('timezone')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </form>
                 </div>
 
@@ -213,8 +230,8 @@
                                     @foreach($tokens as $token)
                                         <tr>
                                             <td>{{ $token->name }}</td>
-                                            <td>{{ $token->created_at->format('Y-m-d H:i') }}</td>
-                                            <td>{{ $token->last_used_at ? $token->last_used_at->format('Y-m-d H:i') : '-' }}</td>
+                                            <td>{{ tz($token->created_at)->format('Y-m-d H:i') }}</td>
+                                            <td>{{ tz($token->last_used_at)?->format('Y-m-d H:i') ?? '-' }}</td>
                                             <td class="text-end">
                                                 <form action="{{ route('account.tokens.revoke', $token->id) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('revoke_token_prompt') }}')">
                                                     @csrf

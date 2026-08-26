@@ -25,6 +25,8 @@ class ActiveTracking extends Model
         'user_id',
         'project_id',
         'started_at',
+        'paused_at',
+        'paused_duration',
         'message',
     ];
 
@@ -35,7 +37,27 @@ class ActiveTracking extends Model
      */
     protected $casts = [
         'started_at' => 'datetime',
+        'paused_at' => 'datetime',
     ];
+
+    /**
+     * Get the total paused seconds, including a pause that is still running.
+     */
+    public function getPausedSecondsAttribute(): int
+    {
+        $seconds = (int) $this->paused_duration;
+
+        if ($this->paused_at) {
+            $seconds += max(0, now()->getTimestamp() - $this->paused_at->getTimestamp());
+        }
+
+        return $seconds;
+    }
+
+    public function isPaused(): bool
+    {
+        return $this->paused_at !== null;
+    }
 
     public function user()
     {

@@ -11,6 +11,7 @@
  * ---------------------------------------------------------------------------- */
 
 use App\Models\Setting;
+use Carbon\Carbon;
 
 if (!function_exists('sort_link')) {
     function sort_link($column, $label): string
@@ -50,5 +51,29 @@ if (!function_exists('setting')) {
         $setting = Setting::query()->where('name', $key)->first() ?? null;
 
         return $setting->value ?? $default;
+    }
+}
+
+if (!function_exists('user_timezone')) {
+    /**
+     * Get the timezone of the currently authenticated user, falling back to the default one.
+     */
+    function user_timezone(): string
+    {
+        static $timezones = [];
+
+        $user = auth()->user();
+
+        return $timezones[$user?->id ?? 0] ??= $user?->timezone ?: setting('default_timezone', 'UTC');
+    }
+}
+
+if (!function_exists('tz')) {
+    /**
+     * Convert a stored (UTC) date time to the timezone of the current user, for display purposes.
+     */
+    function tz(mixed $value = null): ?Carbon
+    {
+        return $value ? Carbon::parse($value)->setTimezone(user_timezone()) : null;
     }
 }

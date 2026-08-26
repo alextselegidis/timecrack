@@ -75,6 +75,20 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
+                                    <label for="timezone" class="form-label text-dark small fw-medium">
+                                        {{ __('timezone') }}
+                                    </label>
+                                    @include('shared.timezone-dropdown', [
+                                        'name' => 'timezone',
+                                        'id' => 'timezone',
+                                        'value' => old('timezone', $user?->timezone ?: setting('default_timezone', 'UTC')),
+                                        'required' => false,
+                                    ])
+                                    @error('timezone')
+                                    <span class="form-text text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
                                     <label for="role" class="form-label text-dark small fw-medium">
                                         {{ __('role') }} <span class="text-danger">*</span>
                                     </label>
