@@ -43,7 +43,9 @@ the migrations is `admin@example.org` with the password `12345678`.
 - `app/Http/Controllers` – one controller per page, plus `Api/V1` controllers for the REST API.
 - `app/Auth/AppSessionGuard.php` – session guard that suffixes the "remember me" cookie with a hash of
   `APP_KEY`, so two installations on the same domain cannot log each other out. `config/session.php` does the
-  same for the session cookie. Keep both in sync.
+  same for the session cookie and `app/Http/Middleware/AppValidateCsrfToken.php` for the `XSRF-TOKEN` cookie,
+  registered for the web group in `bootstrap/app.php` and for stateful Sanctum requests in
+  `config/sanctum.php`. Keep all of them in sync.
 - `app/Http/Middleware/ExtendRememberSession.php` – extends the session lifetime for remembered users. The
   lifetime lives in `config/auth.php` under `guards.web.remember` and must stay within the 400 days that
   browsers accept for a persistent cookie.

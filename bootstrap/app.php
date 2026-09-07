@@ -10,11 +10,13 @@
  * @link        https://github.com/alextselegidis/timecrack
  * ---------------------------------------------------------------------------- */
 
+use App\Http\Middleware\AppValidateCsrfToken;
 use App\Http\Middleware\ExtendRememberSession;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\SetLocale;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->replaceInGroup('web', ValidateCsrfToken::class, AppValidateCsrfToken::class);
         $middleware->web(append: [
             SetLocale::class,
         ]);
