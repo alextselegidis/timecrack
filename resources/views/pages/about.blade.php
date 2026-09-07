@@ -32,12 +32,16 @@
                 different projects. Start, pause, and stop timers with a clean and intuitive interface, keeping
                 your time records organized and easily retrievable.
             </div>
-            <div class="d-flex gap-2 justify-content-center">
-                <a href="https://github.com/alextselegidis/timecrack" class="btn btn-outline-primary btn-equal-width" target="_blank" style="min-width: 180px;">
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                <a href="https://github.com/alextselegidis/timecrack" class="btn btn-outline-primary btn-equal-width" target="_blank" rel="noopener" style="min-width: 180px;">
                     <i class="bi bi-github me-2"></i>
                     GitHub
                 </a>
-                <a href="https://alextselegidis.com" class="btn btn-outline-secondary btn-equal-width" target="_blank" style="min-width: 180px;">
+                <a href="https://x.com/timecrack_org" class="btn btn-outline-secondary btn-equal-width" target="_blank" rel="noopener" style="min-width: 180px;">
+                    <i class="bi bi-twitter-x me-2"></i>
+                    @timecrack_org
+                </a>
+                <a href="https://alextselegidis.com" class="btn btn-outline-secondary btn-equal-width" target="_blank" rel="noopener" style="min-width: 180px;">
                     <img src="images/alextselegidis-logo-16x16.png" alt="logo" class="me-2"/>
                     alextselegidis.com
                 </a>

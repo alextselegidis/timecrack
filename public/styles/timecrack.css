@@ -35,7 +35,9 @@
     --tc-dark-active: #141310;
     --tc-dark-border: rgba(38, 36, 31, 0.55);
 
-    /* Shape and depth */
+    /* Shape and depth. Three steps only: controls, surfaces, and the largest overlays.
+       Every component maps onto one of them through the Bootstrap variables below, so a
+       small button and a full width card never round differently. */
     --tc-radius-sm: 0.5rem;
     --tc-radius: 0.75rem;
     --tc-radius-lg: 1rem;
@@ -55,10 +57,15 @@
     --bs-body-color: var(--tc-body);
     --bs-secondary-color: var(--tc-muted);
     --bs-border-color: var(--tc-border);
+    --bs-border-radius-sm: var(--tc-radius-sm);
     --bs-border-radius: var(--tc-radius-sm);
     --bs-border-radius-lg: var(--tc-radius);
+    --bs-border-radius-xl: var(--tc-radius-lg);
+    --bs-border-radius-xxl: var(--tc-radius-lg);
     --bs-body-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --bs-box-shadow-sm: var(--tc-shadow-sm);
+    --bs-box-shadow: var(--tc-shadow);
+    --bs-box-shadow-lg: var(--tc-shadow);
     --bs-focus-ring-color: var(--tc-brand-subtle);
 }
 
@@ -159,8 +166,9 @@ a:hover {
 }
 
 .card {
+    --bs-card-border-radius: var(--tc-radius);
+    --bs-card-inner-border-radius: calc(var(--tc-radius) - var(--bs-border-width));
     border-color: var(--tc-border);
-    border-radius: var(--tc-radius);
 }
 
 .card.shadow-sm {
@@ -201,8 +209,9 @@ a:hover {
 }
 
 .modal-content {
+    --bs-modal-border-radius: var(--tc-radius-lg);
+    --bs-modal-inner-border-radius: var(--tc-radius-lg);
     border: 0;
-    border-radius: var(--tc-radius-lg);
     box-shadow: var(--tc-shadow);
 }
 
@@ -214,7 +223,6 @@ a:hover {
     font-weight: 500;
     padding-right: 1.25rem;
     padding-left: 1.25rem;
-    border-radius: var(--tc-radius-sm);
 }
 
 .btn-primary {
@@ -287,7 +295,6 @@ a:hover {
 
 .form-control,
 .form-select {
-    border-radius: var(--tc-radius-sm);
     background-color: var(--tc-surface);
     border-color: var(--tc-border-strong);
     color: var(--tc-ink);
@@ -423,6 +430,28 @@ a:hover {
     opacity: 0.6;
 }
 
+/* A table that fills a card body paints its own corners over the rounded corners of the card,
+   which is most visible on the dark head and the totals row. The table cannot simply be clipped,
+   because the row action menus have to escape the scroll container, so the corner cells follow
+   the card instead. Below 768px the rows become cards of their own and carry their own radius. */
+@media (min-width: 768px) {
+    .card-body.p-0 > .table-responsive > .table > thead > tr:first-child > *:first-child {
+        border-start-start-radius: var(--bs-card-inner-border-radius);
+    }
+
+    .card-body.p-0 > .table-responsive > .table > thead > tr:first-child > *:last-child {
+        border-start-end-radius: var(--bs-card-inner-border-radius);
+    }
+
+    .card-body.p-0 > .table-responsive > .table > :last-child > tr:last-child > *:first-child {
+        border-end-start-radius: var(--bs-card-inner-border-radius);
+    }
+
+    .card-body.p-0 > .table-responsive > .table > :last-child > tr:last-child > *:last-child {
+        border-end-end-radius: var(--bs-card-inner-border-radius);
+    }
+}
+
 /* Bootstrap 5.3 paints striped rows with an inset box-shadow, so a plain background
    color is invisible on them. Setting the "state" variable overrides both the striping
    and the hover color. */
@@ -472,7 +501,6 @@ a:hover {
     height: 2.25rem;
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
-    border-radius: var(--tc-radius-sm);
     color: var(--tc-ink);
     background-color: var(--tc-surface);
     border-color: var(--tc-border-strong);
@@ -514,7 +542,7 @@ a:hover {
     }
 
     .rounded-lg-3 {
-        border-radius: var(--bs-border-radius-lg) !important;
+        border-radius: var(--tc-radius) !important;
     }
 
     .shadow-lg-sm {
