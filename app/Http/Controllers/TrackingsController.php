@@ -175,7 +175,7 @@ class TrackingsController extends Controller
             foreach ($trackings as $tracking) {
                 $hours = [
                     'duration' => duration_hours($tracking->duration_minutes, ''),
-                    'billable' => duration_hours($tracking->billable_minutes, ''),
+                    'billable' => duration_hours((int) $tracking->billable_minutes, ''),
                     'non_billable' => duration_hours($tracking->non_billable_minutes, ''),
                 ];
 
@@ -236,7 +236,7 @@ class TrackingsController extends Controller
         $tracking = new Tracking();
         $tracking->started_at = now()->subMinutes(60);
         $tracking->ended_at = now();
-        $tracking->billable_hours = 1;
+        $tracking->billable_minutes = 60;
 
         return view('pages.trackings-edit', [
             'tracking' => $tracking,
@@ -272,18 +272,17 @@ class TrackingsController extends Controller
             return $response;
         }
 
-        $billableHours = $request->input('billable_hours');
+        // The form asks for decimal hours, the database keeps whole minutes.
+        // Sub minute trackings are treated as accidental and not billed.
         $durationSeconds = $endedAt->getTimestamp() - $startedAt->getTimestamp();
-        if ($durationSeconds < 60) {
-            $billableHours = 0;
-        }
+        $billableMinutes = $durationSeconds < 60 ? 0 : billable_minutes($request->input('billable_hours'));
 
         $tracking = Tracking::create([
             'project_id' => $request->input('project_id'),
             'user_id' => $request->input('user_id'),
             'started_at' => $startedAt,
             'ended_at' => $endedAt,
-            'billable_hours' => $billableHours,
+            'billable_minutes' => $billableMinutes,
             'message' => $request->input('message'),
         ]);
 
@@ -336,18 +335,17 @@ class TrackingsController extends Controller
             return $response;
         }
 
-        $billableHours = $request->input('billable_hours');
+        // The form asks for decimal hours, the database keeps whole minutes.
+        // Sub minute trackings are treated as accidental and not billed.
         $durationSeconds = $endedAt->getTimestamp() - $startedAt->getTimestamp();
-        if ($durationSeconds < 60) {
-            $billableHours = 0;
-        }
+        $billableMinutes = $durationSeconds < 60 ? 0 : billable_minutes($request->input('billable_hours'));
 
         $tracking->update([
             'project_id' => $request->input('project_id'),
             'user_id' => $request->input('user_id'),
             'started_at' => $startedAt,
             'ended_at' => $endedAt,
-            'billable_hours' => $billableHours,
+            'billable_minutes' => $billableMinutes,
             'message' => $request->input('message'),
         ]);
 

@@ -29,7 +29,7 @@ class Tracking extends Model
         'user_id',
         'started_at',
         'ended_at',
-        'billable_hours',
+        'billable_minutes',
         'message',
     ];
 
@@ -41,7 +41,6 @@ class Tracking extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
-        'billable_hours' => 'decimal:2',
         'is_overlapping' => 'boolean',
     ];
 
@@ -89,12 +88,14 @@ class Tracking extends Model
     }
 
     /**
-     * Billable minutes come from the stored `billable_hours`, capped at the duration so that a
-     * value entered before an edit shortened the tracking can never exceed it.
+     * The stored billable minutes, capped at the duration, so that a value entered before an edit
+     * shortened the tracking can never exceed it. Null means the tracking has no billable value.
      */
-    public function getBillableMinutesAttribute(): int
+    public function getBillableMinutesAttribute(): ?int
     {
-        return min($this->duration_minutes, max(0, (int) round((float) ($this->billable_hours ?? 0) * 60)));
+        $minutes = $this->attributes['billable_minutes'] ?? null;
+
+        return $minutes === null ? null : min($this->duration_minutes, max(0, (int) $minutes));
     }
 
     /**
@@ -102,7 +103,7 @@ class Tracking extends Model
      */
     public function getNonBillableMinutesAttribute(): int
     {
-        return $this->duration_minutes - $this->billable_minutes;
+        return $this->duration_minutes - (int) $this->billable_minutes;
     }
 
     public function getDurationSecondsAttribute(): int
@@ -131,7 +132,7 @@ class Tracking extends Model
     public function scopeSelectTotals($query): array
     {
         $duration = 'GREATEST(0, ROUND(TIMESTAMPDIFF(SECOND, trackings.started_at, trackings.ended_at) / 60))';
-        $billable = 'LEAST(' . $duration . ', GREATEST(0, ROUND(COALESCE(trackings.billable_hours, 0) * 60)))';
+        $billable = 'LEAST(' . $duration . ', COALESCE(trackings.billable_minutes, 0))';
 
         $totals = $query->reorder()
             ->select(\DB::raw(

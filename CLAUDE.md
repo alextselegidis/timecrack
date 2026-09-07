@@ -72,8 +72,10 @@ the migrations is `admin@example.org` with the password `12345678`.
   introducing new grays.
 - Bump `config('app.version')` for a release. It busts the query strings of the stylesheet and script and
   invalidates the service worker cache.
-- Durations are rounded to whole minutes exactly once, by the accessors on `App\Models\Tracking`
-  (`duration_minutes`, `billable_minutes`, `non_billable_minutes`), and are formatted only through
+- Whole minutes are the unit of every duration. `trackings.billable_minutes` stores them as an integer,
+  and `App\Models\Tracking` rounds the rest to minutes exactly once (`duration_minutes`,
+  `billable_minutes`, `non_billable_minutes`). The forms still ask for decimal hours, which
+  `billable_minutes()` converts at the controller boundary. Durations are formatted only through
   `duration_label()` and `duration_hours()` in `helpers.php`. Every total is a sum of those already rounded
   per row values, never a second rounding of the raw seconds, so the rows of the history, the dashboard and
   the CSV export always add up to the total below them. `Tracking::scopeSelectTotals()` mirrors the same

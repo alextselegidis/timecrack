@@ -65,7 +65,7 @@ class TimerPauseTest extends TestCase
         $tracking = Tracking::query()->firstOrFail();
 
         $this->assertSame(3600, $tracking->duration_seconds);
-        $this->assertSame('0.75', $tracking->billable_hours);
+        $this->assertSame(45, $tracking->billable_minutes);
         $this->assertSame(15, $tracking->non_billable_minutes);
     }
 

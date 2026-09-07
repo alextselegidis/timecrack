@@ -97,3 +97,13 @@ if (!function_exists('duration_hours')) {
         return number_format($minutes / 60, 2, '.', $thousands);
     }
 }
+
+if (!function_exists('billable_minutes')) {
+    /**
+     * Convert the decimal hours a form submits into the whole minutes the database stores.
+     */
+    function billable_minutes(mixed $hours): ?int
+    {
+        return $hours === null || $hours === '' ? null : max(0, (int) round((float) $hours * 60));
+    }
+}

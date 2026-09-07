@@ -33,7 +33,7 @@ class TrackingOverlapTest extends TestCase
             'user_id' => ($user ?? $this->admin)->id,
             'started_at' => $startedAt,
             'ended_at' => $endedAt,
-            'billable_hours' => 1,
+            'billable_minutes' => 60,
         ]);
     }
 
@@ -44,7 +44,7 @@ class TrackingOverlapTest extends TestCase
             'user_id' => $this->admin->id,
             'started_at' => '2026-08-26T10:30',
             'ended_at' => '2026-08-26T11:30',
-            'billable_hours' => 1,
+            'billable_minutes' => 60,
         ], $overrides);
     }
 

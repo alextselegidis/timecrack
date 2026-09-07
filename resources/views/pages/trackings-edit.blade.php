@@ -144,7 +144,7 @@
                                     <div class="input-group">
                                         <input type="number" id="billable_hours" name="billable_hours" class="form-control"
                                                step="0.01" min="0"
-                                               value="{{ old('billable_hours', $tracking?->billable_hours) }}"
+                                               value="{{ old('billable_hours', $tracking?->billable_minutes === null ? null : duration_hours($tracking->billable_minutes, '')) }}"
                                                placeholder="0.00">
                                         <button type="button" class="btn btn-outline-secondary" id="reset-billable-hours" title="{{ __('Reset to elapsed duration') }}">
                                             <i class="bi bi-arrow-counterclockwise"></i>
@@ -187,7 +187,8 @@
                 const end = new Date(endedAt.value);
                 const diffMs = end - start;
                 if (diffMs > 0) {
-                    billableHours.value = (Math.round(diffMs / 36000) / 100).toFixed(2);
+                    // Round to whole minutes first, the way the server stores the duration.
+                    billableHours.value = (Math.round(diffMs / 60000) / 60).toFixed(2);
                 }
             }
 

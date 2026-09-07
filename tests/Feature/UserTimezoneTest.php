@@ -21,7 +21,7 @@ class UserTimezoneTest extends TestCase
             'user_id' => $user->id,
             'started_at' => '2026-08-26 22:30:00',
             'ended_at' => '2026-08-26 23:30:00',
-            'billable_hours' => 1,
+            'billable_minutes' => 60,
         ]);
 
         $tokyo = User::factory()->create(['timezone' => 'Asia/Tokyo']);

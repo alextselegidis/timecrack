@@ -30,20 +30,20 @@ class TrackingTotalsTest extends TestCase
     private function seedTrackings(): void
     {
         $rows = [
-            ['10:00:00', '10:29:31', 0.49],  // 30 min, billable rounds to 29
-            ['11:00:00', '11:59:29', 1.00],  // 59 min, billable capped at the duration
-            ['13:00:00', '14:00:31', null],  // 61 min, no billable hours at all
+            ['10:00:00', '10:29:31', 29],    // 30 min duration, 1 min non billable
+            ['11:00:00', '11:59:29', 60],    // 59 min duration, billable capped at it
+            ['13:00:00', '14:00:31', null],  // 61 min duration, no billable value at all
             ['15:00:00', '15:00:29', 0],     // 0 min, a sub minute tracking
-            ['16:00:00', '17:30:44', 1.25],  // 91 min, 75 billable
+            ['16:00:00', '17:30:44', 75],    // 91 min duration, 16 min non billable
         ];
 
-        foreach ($rows as [$startedAt, $endedAt, $billableHours]) {
+        foreach ($rows as [$startedAt, $endedAt, $billableMinutes]) {
             Tracking::create([
                 'project_id' => $this->project->id,
                 'user_id' => $this->admin->id,
                 'started_at' => '2026-09-01 ' . $startedAt,
                 'ended_at' => '2026-09-01 ' . $endedAt,
-                'billable_hours' => $billableHours,
+                'billable_minutes' => $billableMinutes,
             ]);
         }
     }
@@ -55,7 +55,7 @@ class TrackingTotalsTest extends TestCase
         foreach (Tracking::all() as $tracking) {
             $this->assertSame(
                 $tracking->duration_minutes,
-                $tracking->billable_minutes + $tracking->non_billable_minutes,
+                (int) $tracking->billable_minutes + $tracking->non_billable_minutes,
                 'Row ' . $tracking->id . ' does not add up.'
             );
             $this->assertGreaterThanOrEqual(0, $tracking->non_billable_minutes);

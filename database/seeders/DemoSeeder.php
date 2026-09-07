@@ -269,7 +269,7 @@ class DemoSeeder extends Seeder
      *  - Developers fill ~6-8h per day across 1-3 projects.
      *  - The manager logs lighter, meeting-oriented trackings.
      *  - Work blocks never overlap for the same user on the same day.
-     *  - billable_hours is set to the full block duration most of the time
+     *  - billable_minutes is set to the full block duration most of the time
      *    and slightly reduced for the rest (simulating breaks / non-billable
      *    work).
      */
@@ -385,7 +385,7 @@ class DemoSeeder extends Seeder
                 'user_id'        => $manager->id,
                 'started_at'     => $cursor,
                 'ended_at'       => $endsAt,
-                'billable_hours' => round(($endsAt->getTimestamp() - $cursor->getTimestamp()) / 3600, 2),
+                'billable_minutes' => (int) round(($endsAt->getTimestamp() - $cursor->getTimestamp()) / 60),
                 'message'        => $managerMessages[array_rand($managerMessages)],
             ]);
 
@@ -413,20 +413,20 @@ class DemoSeeder extends Seeder
         ];
         $message = $baseMessage . $suffixes[array_rand($suffixes)];
 
-        $durationHours = ($endedAt->getTimestamp() - $startedAt->getTimestamp()) / 3600;
+        $durationMinutes = (int) round(($endedAt->getTimestamp() - $startedAt->getTimestamp()) / 60);
 
         // 80% of trackings are fully billable; the rest are slightly reduced
         // to simulate non-billable activities mixed into the block.
-        $billableHours = random_int(1, 100) <= 80
-            ? round($durationHours, 2)
-            : round(max(0.25, $durationHours - 0.25 * random_int(1, 2)), 2);
+        $billableMinutes = random_int(1, 100) <= 80
+            ? $durationMinutes
+            : max(15, $durationMinutes - 15 * random_int(1, 2));
 
         Tracking::create([
             'project_id'     => $project->id,
             'user_id'        => $user->id,
             'started_at'     => $startedAt,
             'ended_at'       => $endedAt,
-            'billable_hours' => $billableHours,
+            'billable_minutes' => $billableMinutes,
             'message'        => $message,
         ]);
     }

@@ -171,15 +171,15 @@ class DashboardController extends Controller
             'billable_hours' => ['nullable', 'numeric', 'min:0', 'max:' . $maxHours],
         ]);
 
-        // Calculate billable hours: use provided value, or default to the unpaused duration in hours
+        // The form asks for decimal hours, the database keeps whole minutes. An empty field bills
+        // the unpaused duration, and a sub minute tracking is treated as accidental and not billed.
         $billableHours = $request->input('billable_hours');
-        if ($billableHours === null || $billableHours === '') {
-            $billableHours = $maxHours;
-        }
+        $billableMinutes = $billableHours === null || $billableHours === ''
+            ? $billableMinutes
+            : billable_minutes($billableHours);
 
-        // Sub-minute trackings are treated as accidental and not billed.
         if ($durationSeconds < 60) {
-            $billableHours = 0;
+            $billableMinutes = 0;
         }
 
         // Create tracking record
@@ -188,7 +188,7 @@ class DashboardController extends Controller
             'user_id' => $user->id,
             'started_at' => $activeTracking->started_at,
             'ended_at' => $endedAt,
-            'billable_hours' => $billableHours,
+            'billable_minutes' => $billableMinutes,
             'message' => $request->input('message') ?: $activeTracking->message,
         ]);
 

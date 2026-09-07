@@ -180,8 +180,8 @@
                                         <td class="border-0">{{ tz($tracking->started_at)->format('d/m/Y') }} <strong>{{ tz($tracking->started_at)->format('H:i') }}</strong></td>
                                         <td class="border-0">{{ tz($tracking->ended_at)->format('d/m/Y') }} <strong>{{ tz($tracking->ended_at)->format('H:i') }}</strong></td>
                                         <td class="border-0" data-bs-toggle="tooltip" data-bs-title="{{ $tracking->duration_decimal }}">{{ $tracking->duration }}</td>
-                                        <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($tracking->billable_minutes) }}h" @endif>
-                                            {{ $tracking->billable_hours !== null ? duration_label($tracking->billable_minutes) : '-' }}
+                                        <td class="border-0" @if($tracking->billable_minutes !== null) data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($tracking->billable_minutes) }}h" @endif>
+                                            {{ $tracking->billable_minutes !== null ? duration_label($tracking->billable_minutes) : '-' }}
                                         </td>
                                         <td class="border-0" @if($tracking->non_billable_minutes > 0) data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($tracking->non_billable_minutes) }}h" @endif>
                                             {{ duration_label($tracking->non_billable_minutes) }}
