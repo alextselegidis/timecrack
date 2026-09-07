@@ -8,12 +8,13 @@ REST API lives under `/api/v1` (Sanctum plus `tailflow/laravel-orion`).
 
 ## Working agreements
 
-- **Never create a git branch** unless explicitly asked to. Commit to the branch that is already checked out.
+- **Never create or switch a git branch** unless explicitly asked to. Commit to the branch that is already
+  checked out.
 - **Never add Claude attribution to commits.** No `Co-Authored-By: Claude ...` trailer, no
   "Generated with Claude Code" line, no mention of AI assistance in commit messages or pull request bodies.
 - Only commit or push when asked.
-- Keep every line of a `CHANGELOG.md` entry at 120 characters or shorter, wrapping longer entries onto
-  indented continuation lines.
+- Keep every line at 120 characters or shorter, in code, Markdown and commit messages alike. Wrap longer
+  `CHANGELOG.md` entries onto indented continuation lines.
 
 ## Environment
 

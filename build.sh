@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# Run From The Host
+
+CONTAINER=timecrack-php-fpm-1
+
+if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" != "true" ]; then
+    echo "The $CONTAINER container is not running, start it with: docker compose up -d"
+    exit 1
+fi
+
+php() {
+    docker exec "$CONTAINER" sh -c "cd /var/www/html && php $*"
+}
+
+composer() {
+    docker exec "$CONTAINER" sh -c "cd /var/www/html && composer $*"
+}
+
 # Dependencies
 
 composer install
@@ -19,9 +36,9 @@ php artisan clear-compiled
 
 # Remove Various
 
-rm timecrack-0.0.0.zip
+rm -f timecrack-0.0.0.zip
 
-rm public/hot
+rm -f public/hot
 
 find . -name ".DS_Store" -delete
 
