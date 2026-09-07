@@ -14,12 +14,29 @@ use App\Models\Setting;
 use Carbon\Carbon;
 
 if (!function_exists('sort_link')) {
-    function sort_link($column, $label): string
+    /**
+     * Render the header of a sortable table column. Every sortable table goes through this, so the
+     * icon, the toggling and the preserved filters are the same on all of them.
+     *
+     * Pass $default as the direction a page sorts this column by when the request carries no sort
+     * parameter, so the header of an unsorted page still shows the order the rows are actually in.
+     */
+    function sort_link(string $column, string $label, ?string $default = null): string
     {
-        $direction = request('sort') === $column && request('direction') === 'asc' ? 'desc' : 'asc';
-        $url = request()->fullUrlWithQuery(['sort' => $column, 'direction' => $direction]);
-        $icon = '<i class="bi ' . ($direction === 'asc' ? 'bi-caret-up' : 'bi-caret-down') . ' ms-2"></i>';
-        return '<a href="' . $url . '">' . $label . $icon . '</a>';
+        $active = request('sort') === $column || (!request('sort') && $default !== null);
+        $ascending = $active && request('direction', $default ?? 'asc') === 'asc';
+
+        $query = array_merge(request()->query(), [
+            'sort' => $column,
+            'direction' => $ascending ? 'desc' : 'asc',
+        ]);
+        unset($query['page']);
+
+        $icon = $active ? ($ascending ? 'bi-chevron-up' : 'bi-chevron-down') : 'bi-chevron-expand';
+
+        return '<a href="' . e(request()->url() . '?' . http_build_query($query)) . '"'
+            . ' class="table-sort' . ($active ? ' table-sort-active' : '') . '">'
+            . e($label) . '<i class="bi ' . $icon . '"></i></a>';
     }
 }
 

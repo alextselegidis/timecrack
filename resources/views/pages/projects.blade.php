@@ -41,29 +41,22 @@
             <!-- Search -->
             <form action="{{ route('setup.projects') }}" method="GET" class="mb-4">
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0">
+                    <span class="input-group-text border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
-                    <input type="text" id="q" name="q" class="form-control bg-light border-start-0"
+                    <input type="text" id="q" name="q" class="form-control border-start-0"
                            value="{{ $q }}"
                            placeholder="{{ __('search') }}..." style="max-width: 300px;">
                 </div>
             </form>
-            <div class="card border-0 shadow-sm rounded-3">
+            <div class="card shadow-sm rounded-3">
                 <div class="card-body p-0">
                     <!-- Table -->
                     <div class="table-responsive">
                         <table class="table table-sm table-striped table-hover align-middle mb-0">
-                            <thead class="table-dark">
+                            <thead class="table-head">
                                 <tr>
-                                    <th class="border-0 ps-4">
-                                        <a href="{{ route('setup.projects', ['sort' => 'name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-white">
-                                            {{ __('name') }}
-                                            @if(request('sort') === 'name')
-                                                <i class="bi bi-chevron-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
+                                    <th class="border-0 ps-4">{!! sort_link('name', __('name'), 'asc') !!}</th>
                                     <th class="border-0">{{ __('description') }}</th>
                                     <th class="border-0">{{ __('users') }}</th>
                                     <th class="border-0 pe-4 text-end" style="width: 100px;"></th>
@@ -80,7 +73,7 @@
                                             {{ Str::limit($project->description, 50) ?: '-' }}
                                         </td>
                                         <td class="border-0">
-                                            <span class="badge bg-light text-dark">{{ $project->users->count() }}</span>
+                                            <span class="badge bg-body-secondary text-dark">{{ $project->users->count() }}</span>
                                         </td>
                                         <td class="border-0 pe-4 text-end">
                                             <div class="dropdown" onclick="event.stopPropagation();">

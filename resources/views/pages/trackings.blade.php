@@ -40,22 +40,22 @@
                 <div class="row g-2 align-items-end">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0">
+                            <span class="input-group-text border-end-0">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
-                            <input type="text" id="q" name="q" class="form-control bg-light border-start-0"
+                            <input type="text" id="q" name="q" class="form-control border-start-0"
                                    value="{{ $q }}"
                                    placeholder="{{ __('search') }}..." style="width: 200px;">
                         </div>
                     </div>
                     <div class="col-auto">
                         <label for="date_from" class="form-label small text-muted mb-1">{{ __('from') }}</label>
-                        <input type="date" id="date_from" name="date_from" class="form-control bg-light"
+                        <input type="date" id="date_from" name="date_from" class="form-control"
                                value="{{ $dateFrom }}">
                     </div>
                     <div class="col-auto">
                         <label for="date_to" class="form-label small text-muted mb-1">{{ __('to') }}</label>
-                        <input type="date" id="date_to" name="date_to" class="form-control bg-light"
+                        <input type="date" id="date_to" name="date_to" class="form-control"
                                value="{{ $dateTo }}">
                     </div>
                     <div class="col-auto">
@@ -94,52 +94,19 @@
                     </div>
                 </div>
             </form>
-            <div class="card border-0 shadow-sm rounded-3">
+            <div class="card shadow-sm rounded-3">
                 <div class="card-body p-0">
                     <!-- Table -->
                     <div class="table-responsive">
                         <table class="table table-sm table-striped table-hover align-middle mb-0">
-                            <thead class="table-dark">
+                            <thead class="table-head">
                                 <tr>
-                                    @php
-                                        $currentSort = request('sort', 'started_at');
-                                        $currentDirection = request('direction', 'desc');
-                                        $queryParams = request()->except(['sort', 'direction']);
-                                    @endphp
-                                    <th class="border-0 ps-4">
-                                        <a href="{{ route('trackings', array_merge($queryParams, ['sort' => 'project', 'direction' => $currentSort === 'project' && $currentDirection === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-white">
-                                            {{ __('project') }}
-                                            @if($currentSort === 'project')
-                                                <i class="bi bi-chevron-{{ $currentDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
+                                    <th class="border-0 ps-4">{!! sort_link('project', __('project')) !!}</th>
                                     @if($isAdmin)
-                                        <th class="border-0">
-                                            <a href="{{ route('trackings', array_merge($queryParams, ['sort' => 'user', 'direction' => $currentSort === 'user' && $currentDirection === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-white">
-                                                {{ __('user') }}
-                                                @if($currentSort === 'user')
-                                                    <i class="bi bi-chevron-{{ $currentDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                                @endif
-                                            </a>
-                                        </th>
+                                        <th class="border-0">{!! sort_link('user', __('user')) !!}</th>
                                     @endif
-                                    <th class="border-0">
-                                        <a href="{{ route('trackings', array_merge($queryParams, ['sort' => 'started_at', 'direction' => $currentSort === 'started_at' && $currentDirection === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-white">
-                                            {{ __('started') }}
-                                            @if($currentSort === 'started_at')
-                                                <i class="bi bi-chevron-{{ $currentDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="border-0">
-                                        <a href="{{ route('trackings', array_merge($queryParams, ['sort' => 'ended_at', 'direction' => $currentSort === 'ended_at' && $currentDirection === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-white">
-                                            {{ __('ended') }}
-                                            @if($currentSort === 'ended_at')
-                                                <i class="bi bi-chevron-{{ $currentDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
+                                    <th class="border-0">{!! sort_link('started_at', __('started'), 'desc') !!}</th>
+                                    <th class="border-0">{!! sort_link('ended_at', __('ended')) !!}</th>
                                     <th class="border-0">{{ __('duration') }}</th>
                                     <th class="border-0">{{ __('billable') }}</th>
                                     <th class="border-0">{{ __('non_billable') }}</th>

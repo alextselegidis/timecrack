@@ -47,7 +47,7 @@
         </div>
         <!-- Main Content -->
         <div class="flex-grow-1">
-            <div class="card border-0 shadow-sm rounded-3">
+            <div class="card shadow-sm rounded-3">
                 <div class="card-body p-4">
                     <form action="{{ route('setup.users.update', ['user' => $user->id]) }}" method="POST" id="edit-form">
                         @csrf

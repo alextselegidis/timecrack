@@ -51,7 +51,7 @@
 </div>
 <!-- Desktop Sidebar -->
 <div class="d-none d-lg-block">
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card shadow-sm rounded-3">
         <div class="card-body p-3">
             <ul class="nav flex-column">
                 @foreach($items as $item)

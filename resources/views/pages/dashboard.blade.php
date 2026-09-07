@@ -245,11 +245,11 @@
             {{ __('Recent Trackings') }}
         </h5>
 
-        <div class="card border-0 shadow-sm rounded-3">
+        <div class="card shadow-sm rounded-3">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-sm table-striped table-hover align-middle mb-0">
-                        <thead class="table-dark">
+                        <thead class="table-head">
                             <tr>
                                 <th class="border-0 ps-4">{{ __('project') }}</th>
                                 <th class="border-0">{{ __('started') }}</th>

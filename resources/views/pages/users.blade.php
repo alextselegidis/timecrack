@@ -41,53 +41,25 @@
             <!-- Search -->
             <form action="{{ route('setup.users') }}" method="GET" class="mb-4">
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0">
+                    <span class="input-group-text border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
-                    <input type="text" id="q" name="q" class="form-control bg-light border-start-0"
+                    <input type="text" id="q" name="q" class="form-control border-start-0"
                            value="{{ $q }}"
                            placeholder="{{ __('search') }}..." style="max-width: 300px;">
                 </div>
             </form>
-            <div class="card border-0 shadow-sm rounded-3">
+            <div class="card shadow-sm rounded-3">
                 <div class="card-body p-0">
                     <!-- Table -->
                     <div class="table-responsive">
                         <table class="table table-sm table-striped table-hover align-middle mb-0">
-                            <thead class="table-dark">
+                            <thead class="table-head">
                                 <tr>
-                                    <th class="border-0 ps-4">
-                                        <a href="{{ route('setup.users', ['sort' => 'name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-white">
-                                            {{ __('name') }}
-                                            @if(request('sort') === 'name')
-                                                <i class="bi bi-chevron-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="border-0">
-                                        <a href="{{ route('setup.users', ['sort' => 'email', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-white">
-                                            {{ __('email') }}
-                                            @if(request('sort') === 'email')
-                                                <i class="bi bi-chevron-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="border-0">
-                                        <a href="{{ route('setup.users', ['sort' => 'role', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-white">
-                                            {{ __('role') }}
-                                            @if(request('sort') === 'role')
-                                                <i class="bi bi-chevron-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="border-0">
-                                        <a href="{{ route('setup.users', ['sort' => 'is_active', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-white">
-                                            {{ __('active') }}
-                                            @if(request('sort') === 'is_active')
-                                                <i class="bi bi-chevron-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
+                                    <th class="border-0 ps-4">{!! sort_link('name', __('name'), 'asc') !!}</th>
+                                    <th class="border-0">{!! sort_link('email', __('email')) !!}</th>
+                                    <th class="border-0">{!! sort_link('role', __('role')) !!}</th>
+                                    <th class="border-0">{!! sort_link('is_active', __('active')) !!}</th>
                                     <th class="border-0 pe-4 text-end" style="width: 100px;"></th>
                                 </tr>
                             </thead>

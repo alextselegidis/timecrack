@@ -29,7 +29,7 @@
             <!-- Account Details Card -->
             <h5 class="text-dark fw-bold mb-3">{{ __('profile') }}</h5>
 
-            <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card shadow-sm rounded-3 mb-4">
                 <div class="card-body p-4">
                     <form action="{{ route('account.update') }}" method="POST" id="account-form">
                         @csrf
@@ -99,7 +99,7 @@
             </div>
             <!-- Change Password Section -->
             <h5 class="text-dark fw-bold mb-3">{{ __('password') }}</h5>
-            <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card shadow-sm rounded-3 mb-4">
                 <div class="card-body p-4">
                     <form action="{{ route('account.update') }}" method="POST" id="password-form">
                         @csrf
@@ -183,7 +183,7 @@
                 </div>
             @endif
 
-            <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card shadow-sm rounded-3 mb-4">
                 <div class="card-body p-4">
                     <form action="{{ route('account.tokens.create') }}" method="POST" id="token-form" class="mb-4">
                         @csrf
@@ -217,8 +217,8 @@
                         <p class="text-muted mb-0">{{ __('no_tokens_message') }}</p>
                     @else
                         <div class="table-responsive">
-                            <table class="table table-sm table-hover mb-0">
-                                <thead class="table-light">
+                            <table class="table table-sm table-striped table-hover align-middle mb-0">
+                                <thead class="table-head">
                                     <tr>
                                         <th>{{ __('name') }}</th>
                                         <th>{{ __('created') }}</th>

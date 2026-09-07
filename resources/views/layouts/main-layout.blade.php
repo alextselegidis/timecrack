@@ -23,7 +23,7 @@
     <!-- Page Heading -->
 
     @hasSection('pageTitle')
-        <header class="bg-body-secondary mb-3">
+        <header class="page-heading mb-3">
             <div class="container">
                 <div class="row">
 

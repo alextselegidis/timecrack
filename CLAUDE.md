@@ -49,7 +49,8 @@ the migrations is `admin@example.org` with the password `12345678`.
 - `app/Http/Middleware/ExtendRememberSession.php` – extends the session lifetime for remembered users. The
   lifetime lives in `config/auth.php` under `guards.web.remember` and must stay within the 400 days that
   browsers accept for a persistent cookie.
-- `helpers.php` – globally autoloaded helpers, currently `sort_link()` and `setting()`.
+- `helpers.php` – globally autoloaded helpers: `sort_link()`, `setting()`, `user_timezone()`, `tz()`,
+  `duration_label()`, `duration_hours()` and `billable_minutes()`.
 - `resources/views/layouts` – `main-layout`, `auth-layout` and `message-layout`, all including
   `resources/views/shared/head.blade.php`. Add anything that belongs in `<head>` there once, not per layout.
 - `resources/views/shared` – reusable partials (navigation, sidebars, value formatters).
@@ -80,5 +81,11 @@ the migrations is `admin@example.org` with the password `12345678`.
   per row values, never a second rounding of the raw seconds, so the rows of the history, the dashboard and
   the CSV export always add up to the total below them. `Tracking::scopeSelectTotals()` mirrors the same
   arithmetic in SQL for totals that span more than the current page; keep the two in sync.
+- Every table uses the same markup: `table table-sm table-striped table-hover align-middle mb-0` with a
+  `<thead class="table-head">`, which carries the cinnamon of the main header. Sortable columns go
+  through `sort_link()`, the single place that renders the icon, toggles the direction and keeps the
+  current filters. `--tc-row-height` keeps every row the same height whatever a cell holds.
+- The palette is white surfaces on a white canvas, so borders carry the separation: every card and
+  every table draws a `--tc-border` outline rather than relying on a grey background behind it.
 - The tables of the application render as one card per row on phones. The cell labels come from the table head
   and are attached by `public/scripts/timecrack.js`, so a new table needs a `<thead>` but no extra markup.
