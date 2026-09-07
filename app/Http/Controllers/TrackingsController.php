@@ -76,20 +76,9 @@ class TrackingsController extends Controller
             $query->orderBy('started_at', $direction);
         }
 
-        // Calculate total duration in seconds for all filtered results (not just current page)
-        $totalDurationSeconds = (clone $query)->sum(\DB::raw('TIMESTAMPDIFF(SECOND, started_at, ended_at)'));
-
-        // Sum per-row non-billable: compare billable_hours with the rounded duration
-        // so that rows where billable matches duration contribute 0 (not rounding artifacts)
-        $totalNonBillableSeconds = (int) (clone $query)->sum(\DB::raw(
-            'CASE WHEN ROUND(COALESCE(billable_hours, 0), 2) >= ROUND(TIMESTAMPDIFF(SECOND, started_at, ended_at) / 3600, 2)'
-            . ' THEN 0'
-            . ' ELSE GREATEST(0, TIMESTAMPDIFF(SECOND, started_at, ended_at) - ROUND(COALESCE(billable_hours, 0) * 3600))'
-            . ' END'
-        ));
-
-        // Derive billable as the complement so that billable + non-billable = duration
-        $totalBillableSeconds = $totalDurationSeconds - $totalNonBillableSeconds;
+        // Totals cover every filtered row, not just the current page, and use the same per row
+        // rounding as the accessors, so the visible rows always add up to them.
+        $totals = (clone $query)->selectTotals();
 
         $trackings = $query->withOverlapFlag()->paginate(25);
 
@@ -104,9 +93,7 @@ class TrackingsController extends Controller
             'userIds' => $userIds,
             'users' => $users,
             'isAdmin' => $isAdmin,
-            'totalDurationSeconds' => $totalDurationSeconds,
-            'totalBillableSeconds' => $totalBillableSeconds,
-            'totalNonBillableSeconds' => $totalNonBillableSeconds,
+            'totals' => $totals,
         ]);
     }
 
@@ -182,19 +169,27 @@ class TrackingsController extends Controller
             }
             fputcsv($handle, $headers);
 
-            // Data rows
-            $totalDurationSeconds = 0;
-            $totalNonBillableSeconds = 0;
+            // Data rows. The totals sum the very values the rows print, so every hours column of
+            // the export adds up to its total exactly.
+            $totals = ['duration' => 0.0, 'billable' => 0.0, 'non_billable' => 0.0];
             foreach ($trackings as $tracking) {
-                $totalDurationSeconds += $tracking->duration_seconds;
-                $totalNonBillableSeconds += $tracking->non_billable_seconds;
+                $hours = [
+                    'duration' => duration_hours($tracking->duration_minutes, ''),
+                    'billable' => duration_hours($tracking->billable_minutes, ''),
+                    'non_billable' => duration_hours($tracking->non_billable_minutes, ''),
+                ];
+
+                foreach ($hours as $column => $value) {
+                    $totals[$column] += (float) $value;
+                }
+
                 $row = [
                     $tracking->project->name ?? __('unknown'),
                     tz($tracking->started_at)->format('d/m/Y H:i'),
                     tz($tracking->ended_at)->format('d/m/Y H:i'),
-                    number_format($tracking->duration_seconds / 3600, 2, '.', ''),
-                    number_format(($tracking->duration_seconds - $tracking->non_billable_seconds) / 3600, 2, '.', ''),
-                    number_format($tracking->non_billable_hours, 2, '.', ''),
+                    $hours['duration'],
+                    $hours['billable'],
+                    $hours['non_billable'],
                     $tracking->message ?? '',
                     $tracking->is_overlapping ? __('yes') : __('no'),
                 ];
@@ -204,17 +199,14 @@ class TrackingsController extends Controller
                 fputcsv($handle, $row);
             }
 
-            // Derive billable as complement so that billable + non-billable = duration
-            $totalBillableSeconds = $totalDurationSeconds - $totalNonBillableSeconds;
-
             // Total row
             $totalRow = [
                 __('total'),
                 '',
                 '',
-                number_format($totalDurationSeconds / 3600, 2, '.', ''),
-                number_format($totalBillableSeconds / 3600, 2, '.', ''),
-                number_format($totalNonBillableSeconds / 3600, 2, '.', ''),
+                number_format($totals['duration'], 2, '.', ''),
+                number_format($totals['billable'], 2, '.', ''),
+                number_format($totals['non_billable'], 2, '.', ''),
                 '',
                 '',
             ];
@@ -268,15 +260,7 @@ class TrackingsController extends Controller
             'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
-            'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
-                if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = round(Carbon::parse($request->input('started_at'), user_timezone())
-                        ->diffInSeconds(Carbon::parse($request->input('ended_at'), user_timezone()), true) / 3600, 2);
-                    if ($value > $maxHours) {
-                        $fail(__('Billable hours cannot exceed the duration between start and end times.'));
-                    }
-                }
-            }],
+            'billable_hours' => ['nullable', 'numeric', 'min:0', $this->billableHoursCap($request)],
             'message' => ['nullable', 'string'],
         ]);
 
@@ -340,15 +324,7 @@ class TrackingsController extends Controller
             'user_id' => ['required', 'exists:users,id'],
             'started_at' => ['required', 'date'],
             'ended_at' => ['required', 'date', 'after:started_at'],
-            'billable_hours' => ['nullable', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
-                if ($value !== null && $request->input('started_at') && $request->input('ended_at')) {
-                    $maxHours = round(Carbon::parse($request->input('started_at'), user_timezone())
-                        ->diffInSeconds(Carbon::parse($request->input('ended_at'), user_timezone()), true) / 3600, 2);
-                    if ($value > $maxHours) {
-                        $fail(__('Billable hours cannot exceed the duration between start and end times.'));
-                    }
-                }
-            }],
+            'billable_hours' => ['nullable', 'numeric', 'min:0', $this->billableHoursCap($request)],
             'message' => ['nullable', 'string'],
         ]);
 
@@ -376,6 +352,26 @@ class TrackingsController extends Controller
         ]);
 
         return redirect()->route('trackings.edit', $tracking->id)->with('success', __('record_saved_message'));
+    }
+
+    /**
+     * Reject a billable value above the duration of the tracking, measured in the whole minutes
+     * the application displays, so that billing the full duration is always accepted.
+     */
+    private function billableHoursCap(Request $request): callable
+    {
+        return function ($attribute, $value, $fail) use ($request) {
+            if ($value === null || !$request->input('started_at') || !$request->input('ended_at')) {
+                return;
+            }
+
+            $seconds = Carbon::parse($request->input('started_at'), user_timezone())
+                ->diffInSeconds(Carbon::parse($request->input('ended_at'), user_timezone()), true);
+
+            if ($value > (float) duration_hours((int) round($seconds / 60), '')) {
+                $fail(__('Billable hours cannot exceed the duration between start and end times.'));
+            }
+        };
     }
 
     /**

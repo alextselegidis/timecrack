@@ -74,26 +74,35 @@ class Tracking extends Model
         );
     }
 
-    public function getDurationAttribute()
+    /**
+     * Every duration in the application is rounded to whole minutes exactly once, here.
+     *
+     * The times are stored to the second but shown to the minute, so a value that is rounded
+     * again at each display site drifts: a page could floor 25 rows of stray seconds away and
+     * still print a total that was summed from the raw seconds. Rounding once, per row, and
+     * summing only rounded values keeps the history, the dashboard, the export and the totals
+     * on the same numbers. `scopeSelectTotals()` mirrors this arithmetic in SQL.
+     */
+    public function getDurationMinutesAttribute(): int
     {
-        if (!$this->started_at || !$this->ended_at) {
-            return '';
-        }
-
-        $totalMinutes = (int) floor($this->duration_seconds / 60);
-        $hours = (int) floor($totalMinutes / 60);
-        $minutes = $totalMinutes % 60;
-
-        return "{$hours}h {$minutes}m";
+        return max(0, (int) round($this->duration_seconds / 60));
     }
 
-    public function getDurationDecimalAttribute()
+    /**
+     * Billable minutes come from the stored `billable_hours`, capped at the duration so that a
+     * value entered before an edit shortened the tracking can never exceed it.
+     */
+    public function getBillableMinutesAttribute(): int
     {
-        if (!$this->started_at || !$this->ended_at) {
-            return '';
-        }
+        return min($this->duration_minutes, max(0, (int) round((float) ($this->billable_hours ?? 0) * 60)));
+    }
 
-        return number_format(round($this->duration_seconds / 3600, 2), 2) . 'h';
+    /**
+     * Non billable minutes are the remainder, so billable + non billable is always the duration.
+     */
+    public function getNonBillableMinutesAttribute(): int
+    {
+        return $this->duration_minutes - $this->billable_minutes;
     }
 
     public function getDurationSecondsAttribute(): int
@@ -105,32 +114,41 @@ class Tracking extends Model
         return max(0, $this->ended_at->getTimestamp() - $this->started_at->getTimestamp());
     }
 
-    /**
-     * Get non-billable seconds, comparing billable and duration at the same
-     * 0.01 h precision so that rounding artifacts are eliminated.
-     */
-    public function getNonBillableSecondsAttribute(): int
+    public function getDurationAttribute(): string
     {
-        if (!$this->started_at || !$this->ended_at) {
-            return 0;
-        }
-
-        // Compare both values rounded to 2 decimal places using the same PHP
-        // arithmetic, so that a billable_hours stored via either PHP round() or
-        // MySQL ROUND() is treated as equal to the duration when it matches.
-        $billableHours = round($this->billable_hours ?? 0, 2);
-        $durationHours = round($this->duration_seconds / 3600, 2);
-
-        if ($billableHours >= $durationHours) {
-            return 0;
-        }
-
-        return max(0, $this->duration_seconds - (int) round(($this->billable_hours ?? 0) * 3600));
+        return !$this->started_at || !$this->ended_at ? '' : duration_label($this->duration_minutes);
     }
 
-    public function getNonBillableHoursAttribute(): float
+    public function getDurationDecimalAttribute(): string
     {
-        return round($this->non_billable_seconds / 3600, 2);
+        return !$this->started_at || !$this->ended_at ? '' : duration_hours($this->duration_minutes) . 'h';
+    }
+
+    /**
+     * Sum the duration and the billable minutes of a whole query, using the same rounding as the
+     * accessors above, so that a total always equals the sum of the rows it covers.
+     */
+    public function scopeSelectTotals($query): array
+    {
+        $duration = 'GREATEST(0, ROUND(TIMESTAMPDIFF(SECOND, trackings.started_at, trackings.ended_at) / 60))';
+        $billable = 'LEAST(' . $duration . ', GREATEST(0, ROUND(COALESCE(trackings.billable_hours, 0) * 60)))';
+
+        $totals = $query->reorder()
+            ->select(\DB::raw(
+                'COALESCE(SUM(' . $duration . '), 0) AS duration_minutes,'
+                . ' COALESCE(SUM(' . $billable . '), 0) AS billable_minutes'
+            ))
+            ->toBase()
+            ->first();
+
+        $durationMinutes = (int) ($totals->duration_minutes ?? 0);
+        $billableMinutes = (int) ($totals->billable_minutes ?? 0);
+
+        return [
+            'duration' => $durationMinutes,
+            'billable' => $billableMinutes,
+            'non_billable' => $durationMinutes - $billableMinutes,
+        ];
     }
 
     public function project()

@@ -72,5 +72,11 @@ the migrations is `admin@example.org` with the password `12345678`.
   introducing new grays.
 - Bump `config('app.version')` for a release. It busts the query strings of the stylesheet and script and
   invalidates the service worker cache.
+- Durations are rounded to whole minutes exactly once, by the accessors on `App\Models\Tracking`
+  (`duration_minutes`, `billable_minutes`, `non_billable_minutes`), and are formatted only through
+  `duration_label()` and `duration_hours()` in `helpers.php`. Every total is a sum of those already rounded
+  per row values, never a second rounding of the raw seconds, so the rows of the history, the dashboard and
+  the CSV export always add up to the total below them. `Tracking::scopeSelectTotals()` mirrors the same
+  arithmetic in SQL for totals that span more than the current page; keep the two in sync.
 - The tables of the application render as one card per row on phones. The cell labels come from the table head
   and are attached by `public/scripts/timecrack.js`, so a new table needs a `<thead>` but no extra markup.

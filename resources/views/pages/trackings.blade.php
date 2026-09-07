@@ -180,28 +180,11 @@
                                         <td class="border-0">{{ tz($tracking->started_at)->format('d/m/Y') }} <strong>{{ tz($tracking->started_at)->format('H:i') }}</strong></td>
                                         <td class="border-0">{{ tz($tracking->ended_at)->format('d/m/Y') }} <strong>{{ tz($tracking->ended_at)->format('H:i') }}</strong></td>
                                         <td class="border-0" data-bs-toggle="tooltip" data-bs-title="{{ $tracking->duration_decimal }}">{{ $tracking->duration }}</td>
-                                        @php $bhSeconds = $tracking->duration_seconds - $tracking->non_billable_seconds; @endphp
-                                        <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ number_format($bhSeconds / 3600, 2) }}h" @endif>
-                                            @if($tracking->billable_hours !== null)
-                                                @php
-                                                    $bhHours = intdiv($bhSeconds, 3600);
-                                                    $bhMinutes = intdiv($bhSeconds % 3600, 60);
-                                                @endphp
-                                                {{ $bhHours }}h {{ $bhMinutes }}m
-                                            @else
-                                                -
-                                            @endif
+                                        <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($tracking->billable_minutes) }}h" @endif>
+                                            {{ $tracking->billable_hours !== null ? duration_label($tracking->billable_minutes) : '-' }}
                                         </td>
-                                        <td class="border-0" @php $nbhSeconds = $tracking->non_billable_seconds; @endphp @if($nbhSeconds > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbhSeconds / 3600, 2) }}h" @endif>
-                                            @if($nbhSeconds > 0)
-                                                @php
-                                                    $nbhHours = intdiv($nbhSeconds, 3600);
-                                                    $nbhMinutes = intdiv($nbhSeconds % 3600, 60);
-                                                @endphp
-                                                {{ $nbhHours }}h {{ $nbhMinutes }}m
-                                            @else
-                                                0h 0m
-                                            @endif
+                                        <td class="border-0" @if($tracking->non_billable_minutes > 0) data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($tracking->non_billable_minutes) }}h" @endif>
+                                            {{ duration_label($tracking->non_billable_minutes) }}
                                         </td>
                                         <td class="border-0" @if($tracking->message && strlen($tracking->message) > 30) data-bs-toggle="tooltip" data-bs-title="{{ e($tracking->message) }}" @endif>
                                             @if($tracking->message)
@@ -259,27 +242,11 @@
                                 <tfoot class="table-light">
                                     <tr>
                                         <td class="border-0 ps-4 fw-bold" colspan="{{ $isAdmin ? 4 : 3 }}">{{ __('total') }} ({{ $trackings->total() }} {{ __('records') }})</td>
-                                        <td class="border-0 fw-bold" data-bs-toggle="tooltip" data-bs-title="{{ number_format($totalDurationSeconds / 3600, 2) }}h">
-                                            @php
-                                                $totalDurH = intdiv($totalDurationSeconds, 3600);
-                                                $totalDurM = intdiv($totalDurationSeconds % 3600, 60);
-                                            @endphp
-                                            {{ $totalDurH }}h {{ $totalDurM }}m
-                                        </td>
-                                        <td class="border-0 fw-bold" data-bs-toggle="tooltip" data-bs-title="{{ number_format($totalBillableSeconds / 3600, 2) }}h">
-                                            @php
-                                                $totalBillH = intdiv($totalBillableSeconds, 3600);
-                                                $totalBillM = intdiv($totalBillableSeconds % 3600, 60);
-                                            @endphp
-                                            {{ $totalBillH }}h {{ $totalBillM }}m
-                                        </td>
-                                        <td class="border-0 fw-bold" data-bs-toggle="tooltip" data-bs-title="{{ number_format($totalNonBillableSeconds / 3600, 2) }}h">
-                                            @php
-                                                $totalNonBillH = intdiv($totalNonBillableSeconds, 3600);
-                                                $totalNonBillM = intdiv($totalNonBillableSeconds % 3600, 60);
-                                            @endphp
-                                            {{ $totalNonBillH }}h {{ $totalNonBillM }}m
-                                        </td>
+                                        @foreach(['duration', 'billable', 'non_billable'] as $column)
+                                            <td class="border-0 fw-bold" data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($totals[$column]) }}h">
+                                                {{ duration_label($totals[$column]) }}
+                                            </td>
+                                        @endforeach
                                         <td class="border-0" colspan="{{ $isAdmin ? 2 : 1 }}"></td>
                                     </tr>
                                 </tfoot>

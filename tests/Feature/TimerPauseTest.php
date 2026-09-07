@@ -66,7 +66,7 @@ class TimerPauseTest extends TestCase
 
         $this->assertSame(3600, $tracking->duration_seconds);
         $this->assertSame('0.75', $tracking->billable_hours);
-        $this->assertSame(900, $tracking->non_billable_seconds);
+        $this->assertSame(15, $tracking->non_billable_minutes);
     }
 
     public function test_a_running_pause_is_counted_when_the_timer_stops(): void
@@ -84,7 +84,7 @@ class TimerPauseTest extends TestCase
 
         $tracking = Tracking::query()->firstOrFail();
 
-        $this->assertSame(1800, $tracking->non_billable_seconds);
+        $this->assertSame(30, $tracking->non_billable_minutes);
     }
 
     public function test_billable_hours_cannot_exceed_the_unpaused_duration(): void

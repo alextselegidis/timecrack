@@ -271,28 +271,11 @@
                                     <td class="border-0">{{ tz($tracking->started_at)->format('d/m/Y') }} <strong>{{ tz($tracking->started_at)->format('H:i') }}</strong></td>
                                     <td class="border-0">{{ tz($tracking->ended_at)->format('d/m/Y') }} <strong>{{ tz($tracking->ended_at)->format('H:i') }}</strong></td>
                                     <td class="border-0" data-bs-toggle="tooltip" data-bs-title="{{ $tracking->duration_decimal }}">{{ $tracking->duration }}</td>
-                                    <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ number_format($tracking->billable_hours, 2) }}h" @endif>
-                                        @if($tracking->billable_hours !== null)
-                                            @php
-                                                $bhSeconds = (int) round($tracking->billable_hours * 3600);
-                                                $bhHours = intdiv($bhSeconds, 3600);
-                                                $bhMinutes = intdiv($bhSeconds % 3600, 60);
-                                            @endphp
-                                            {{ $bhHours }}h {{ $bhMinutes }}m
-                                        @else
-                                            -
-                                        @endif
+                                    <td class="border-0" @if($tracking->billable_hours !== null) data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($tracking->billable_minutes) }}h" @endif>
+                                        {{ $tracking->billable_hours !== null ? duration_label($tracking->billable_minutes) : '-' }}
                                     </td>
-                                    <td class="border-0" @php $nbhSeconds = $tracking->non_billable_seconds; @endphp @if($nbhSeconds > 0) data-bs-toggle="tooltip" data-bs-title="{{ number_format($nbhSeconds / 3600, 2) }}h" @endif>
-                                        @if($nbhSeconds > 0)
-                                            @php
-                                                $nbhHours = intdiv($nbhSeconds, 3600);
-                                                $nbhMinutes = intdiv($nbhSeconds % 3600, 60);
-                                            @endphp
-                                            {{ $nbhHours }}h {{ $nbhMinutes }}m
-                                        @else
-                                            -
-                                        @endif
+                                    <td class="border-0" @if($tracking->non_billable_minutes > 0) data-bs-toggle="tooltip" data-bs-title="{{ duration_hours($tracking->non_billable_minutes) }}h" @endif>
+                                        {{ $tracking->non_billable_minutes > 0 ? duration_label($tracking->non_billable_minutes) : '-' }}
                                     </td>
                                     <td class="border-0 pe-4" @if($tracking->message && strlen($tracking->message) > 30) data-bs-toggle="tooltip" data-bs-title="{{ e($tracking->message) }}" @endif>
                                         <span class="d-inline-block text-truncate align-middle message-value">{{ Str::limit($tracking->message, 30) ?: '-' }}</span>
@@ -406,8 +389,10 @@
                     return Math.max(0, Math.floor((reference - startedAt) / 1000) - pausedDuration);
                 }
 
+                // Round to whole minutes first, then to hours, so the suggested value matches the
+                // duration the server stores and the history shows.
                 function getElapsedHours() {
-                    return (Math.round(getElapsedSeconds() / 36) / 100).toFixed(2);
+                    return (Math.round(getElapsedSeconds() / 60) / 60).toFixed(2);
                 }
 
                 function updateTimer() {
@@ -423,8 +408,8 @@
                         String(seconds).padStart(2, '0');
 
                     if (pausedDisplay) {
-                        const paused = getPausedSeconds();
-                        pausedDisplay.textContent = Math.floor(paused / 3600) + 'h ' + Math.floor((paused % 3600) / 60) + 'm';
+                        const pausedMinutes = Math.round(getPausedSeconds() / 60);
+                        pausedDisplay.textContent = Math.floor(pausedMinutes / 60) + 'h ' + (pausedMinutes % 60) + 'm';
                     }
 
                     if (billableHoursInput && !manuallyEdited) {

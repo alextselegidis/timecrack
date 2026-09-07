@@ -159,9 +159,12 @@ class DashboardController extends Controller
 
         $durationSeconds = max(0, $endedAt->getTimestamp() - $activeTracking->started_at->getTimestamp());
 
-        // Paused time stays part of the duration but is never billable.
-        $pausedSeconds = min($durationSeconds, $activeTracking->paused_seconds);
-        $maxHours = round(($durationSeconds - $pausedSeconds) / 3600, 2);
+        // Paused time stays part of the duration but is never billable. Both are rounded to whole
+        // minutes first, the way the rest of the application does, so that accepting the default
+        // bills the duration the history will show, without a stray minute left over.
+        $durationMinutes = (int) round($durationSeconds / 60);
+        $billableMinutes = max(0, $durationMinutes - (int) round($activeTracking->paused_seconds / 60));
+        $maxHours = (float) duration_hours($billableMinutes, '');
 
         $request->validate([
             'message' => ['nullable', 'string'],

@@ -77,3 +77,23 @@ if (!function_exists('tz')) {
         return $value ? Carbon::parse($value)->setTimezone(user_timezone()) : null;
     }
 }
+
+if (!function_exists('duration_label')) {
+    /**
+     * Format a number of minutes as "1h 30m", the only duration format the application shows.
+     */
+    function duration_label(int $minutes): string
+    {
+        return intdiv($minutes, 60) . 'h ' . $minutes % 60 . 'm';
+    }
+}
+
+if (!function_exists('duration_hours')) {
+    /**
+     * Format a number of minutes as decimal hours, the format the CSV export and the tooltips use.
+     */
+    function duration_hours(int $minutes, string $thousands = ','): string
+    {
+        return number_format($minutes / 60, 2, '.', $thousands);
+    }
+}
